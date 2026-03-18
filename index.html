@@ -324,6 +324,35 @@ async function loadAll(){
   }
 }
 
+function kritikBilgi(p){
+    var m=mevcut(p.kod);
+    var talep=p.yillik_talep||1;
+    var teslimat=p.teslimat||0;
+    var ss=Math.max(1,Math.round(1.65*0.05*Math.sqrt(teslimat||14)));
+    var rop=Math.max(1,Math.round((talep/365)*teslimat+ss));
+    var abcSinif=abc(p.birim_fiyat,p.kod);
+
+    // KRİTİK PARÇA KRİTERLERİ:
+    // Parça kritik yedek parça sekmesinde görünmek için
+    // şu kriterlerden en az birini sağlamalı:
+    // 1. Elle "Kritik Parça" olarak işaretlenmiş
+    // 2. ABC sınıfı A (yüksek değerli)
+    // 3. Temin süresi ≥ 30 gün (uzun bekleme)
+
+    var kritikParça = p.kritik || abcSinif==='A' || teslimat>=30;
+
+    // Kritik parça değilse listeye girme
+    if(!kritikParça) return {m:m, ss:ss, rop:rop, nedenler:[], abcSinif:abcSinif};
+
+    // Kritik parça ise stok durumuna göre neden belirt
+    var nedenler=[];
+    if(p.kritik) nedenler.push('Elle İşaretlendi');
+    if(abcSinif==='A') nedenler.push('Sınıf A');
+    if(teslimat>=30) nedenler.push('Uzun Temin ('+teslimat+' gün)');
+
+    return {m:m, ss:ss, rop:rop, nedenler:nedenler, abcSinif:abcSinif};
+  }
+
 function updateBadge(){
   const n=parcalar.filter(p=>{
     return kritikBilgi(p).nedenler.length>0;
@@ -536,36 +565,7 @@ async function parcaSil(id,kod){
 function renderKritik(){
   document.getElementById('topbar-actions').innerHTML='<button class="btn" onclick="refreshAll(\'kritik\')">↻ Yenile</button>';
 
-  function kritikBilgi(p){
-    var m=mevcut(p.kod);
-    var talep=p.yillik_talep||1;
-    var teslimat=p.teslimat||0;
-    var ss=Math.max(1,Math.round(1.65*0.05*Math.sqrt(teslimat||14)));
-    var rop=Math.max(1,Math.round((talep/365)*teslimat+ss));
-    var abcSinif=abc(p.birim_fiyat,p.kod);
-
-    // KRİTİK PARÇA KRİTERLERİ:
-    // Parça kritik yedek parça sekmesinde görünmek için
-    // şu kriterlerden en az birini sağlamalı:
-    // 1. Elle "Kritik Parça" olarak işaretlenmiş
-    // 2. ABC sınıfı A (yüksek değerli)
-    // 3. Temin süresi ≥ 30 gün (uzun bekleme)
-
-    var kritikParça = p.kritik || abcSinif==='A' || teslimat>=30;
-
-    // Kritik parça değilse listeye girme
-    if(!kritikParça) return {m:m, ss:ss, rop:rop, nedenler:[], abcSinif:abcSinif};
-
-    // Kritik parça ise stok durumuna göre neden belirt
-    var nedenler=[];
-    if(p.kritik) nedenler.push('Elle İşaretlendi');
-    if(abcSinif==='A') nedenler.push('Sınıf A');
-    if(teslimat>=30) nedenler.push('Uzun Temin ('+teslimat+' gün)');
-
-    return {m:m, ss:ss, rop:rop, nedenler:nedenler, abcSinif:abcSinif};
-  }
-
-  var kl=parcalar.filter(function(p){
+    var kl=parcalar.filter(function(p){
     var b=kritikBilgi(p);
     return b.nedenler.length>0;
   }).sort(function(a,b){return mevcut(a.kod)-mevcut(b.kod);});
