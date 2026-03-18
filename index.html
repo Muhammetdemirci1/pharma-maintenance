@@ -92,6 +92,35 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 ::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:#475569}
 
+
+@media (max-width: 768px) {
+  .app{flex-direction:column;height:auto;min-height:100vh}
+  .sidebar{width:100%;flex-direction:row;height:auto;border-right:none;border-bottom:1px solid var(--border);overflow-x:auto}
+  .logo{display:none}
+  .nav{display:flex;flex-direction:row;padding:8px;gap:4px;overflow-x:auto;white-space:nowrap;flex:1}
+  .nav-item{flex-direction:column;padding:6px 10px;font-size:10px;gap:2px;border-left:none!important;min-width:60px;justify-content:center}
+  .nav-item.active{border-bottom:2px solid var(--accent);border-left:none}
+  .nav-icon{font-size:18px}
+  .conn-status{display:none}
+  .main{flex:1}
+  .topbar{padding:10px 14px;flex-wrap:wrap;gap:8px}
+  .topbar-actions{flex-wrap:wrap;gap:6px}
+  .content{padding:12px}
+  .grid-4{grid-template-columns:1fr 1fr;gap:8px}
+  .grid-2{grid-template-columns:1fr;gap:12px}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px}
+  .modal{width:95vw;padding:16px;max-height:95vh}
+  .form-grid{grid-template-columns:1fr}
+  .search-bar{width:140px}
+  .btn-sm{padding:3px 8px;font-size:10px}
+  #LO .modal-box{width:90vw;padding:24px}
+}
+@media (max-width: 480px) {
+  .grid-4{grid-template-columns:1fr}
+  .kpi-value{font-size:18px}
+}
+
 </style>
 </head>
 <body>
@@ -109,8 +138,24 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 <button onclick="LF()" style="width:100%;padding:11px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Giriş Yap</button>
 </div></div>
 <script>
-function LF(){if(document.getElementById('LU').value==='Teknik'&&document.getElementById('LP').value==='Biofarma'){document.getElementById('LO').style.display='none';}else{document.getElementById('LE').style.display='block';document.getElementById('LP').value='';}}
-document.addEventListener('keydown',function(e){if(e.key==='Enter')LF();});
+async function LF(){
+  var u=document.getElementById('LU').value;
+  var p=document.getElementById('LP').value;
+  async function sha256(s){var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+  var uh=await sha256(u), ph=await sha256(p);
+  if(uh==='5dedffe32144e8b2968f1c69a0b8f909e463a089a8cfac3ce72123120c56cb79'&&ph==='79282175708d38707c95940fc655a437a78d2def8fa9a4b397a9937706414779'){
+    document.getElementById('LO').style.display='none';
+    sessionStorage.setItem('auth','1');
+  }else{
+    document.getElementById('LE').style.display='block';
+    document.getElementById('LP').value='';
+  }
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter') LF();
+  if(e.key==='Escape') closeModal();
+});
+if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLoaded',function(){var lo=document.getElementById('LO');if(lo)lo.style.display='none';});}
 </script>
 <div class="app">
   <div class="sidebar">
@@ -357,6 +402,13 @@ function renderDash(){
   const tp=parcalar.length,krit=parcalar.filter(p=>mevcut(p.kod)<=(p.min_stok||1)).length,tuk=parcalar.filter(p=>mevcut(p.kod)<=0).length;
   const topD=parcalar.reduce((s,p)=>s+mevcut(p.kod)*p.birim_fiyat,0);
   const bek=siparisler.filter(s=>s.durum==='Beklemede'||s.durum==='Kargoda').length;
+  var buAyStr=new Date().toISOString().slice(0,7);
+  var gecenAy=new Date();gecenAy.setMonth(gecenAy.getMonth()-1);var gecenAyStr=gecenAy.toISOString().slice(0,7);
+  var buAyCikis=hareketler.filter(h=>h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(buAyStr)).reduce((s,h)=>s+(Number(h.miktar)||0),0);
+  var gecenAyCikis=hareketler.filter(h=>h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(gecenAyStr)).reduce((s,h)=>s+(Number(h.miktar)||0),0);
+  var buAySip=siparisler.filter(s=>(s.sip_tarih||'').startsWith(buAyStr)).reduce((s,x)=>s+(x.tutar||0),0);
+  var gecenAySip=siparisler.filter(s=>(s.sip_tarih||'').startsWith(gecenAyStr)).reduce((s,x)=>s+(x.tutar||0),0);
+  function trendBadge(b,g){if(!g)return '';var p=Math.round((b-g)/g*100);return(p>=0?'<span style="color:var(--green);font-size:10px">↑ %'+Math.abs(p)+'</span>':'<span style="color:var(--red);font-size:10px">↓ %'+Math.abs(p)+'</span>');}
   const abcD={A:{s:0,d:0},B:{s:0,d:0},C:{s:0,d:0}};
   parcalar.forEach(p=>{const k=abc(p.birim_fiyat, p.kod);abcD[k].s++;abcD[k].d+=mevcut(p.kod)*p.birim_fiyat;});
   const katD={};parcalar.forEach(p=>{katD[p.kategori||'Diğer']=(katD[p.kategori||'Diğer']||0)+mevcut(p.kod)*p.birim_fiyat;});
@@ -367,8 +419,8 @@ function renderDash(){
 <div class="grid-4">
   <div class="kpi"><div class="kpi-label">Toplam Parça</div><div class="kpi-value" style="color:var(--accent)">${tp}</div><div class="kpi-sub">kayıtlı yedek parça</div></div>
   <div class="kpi"><div class="kpi-label">Stok Değeri</div><div class="kpi-value" style="color:var(--gold)">${eur(topD)}</div><div class="kpi-sub">toplam envanter</div></div>
-  <div class="kpi"><div class="kpi-label">Kritik / Tükenen</div><div class="kpi-value" style="color:var(--red)">${krit} / ${tuk}</div><div class="kpi-sub">acil müdahale</div></div>
-  <div class="kpi"><div class="kpi-label">Bekleyen Sipariş</div><div class="kpi-value" style="color:var(--purple)">${bek}</div><div class="kpi-sub">aktif sipariş</div></div>
+  <div class="kpi"><div class="kpi-label">Bu Ay Kullanım</div><div class="kpi-value" style="color:var(--accent)">${buAyCikis} adet</div><div class="kpi-sub">${trendBadge(buAyCikis,gecenAyCikis)} geçen aya göre</div></div>
+  <div class="kpi"><div class="kpi-label">Bu Ay Sipariş</div><div class="kpi-value" style="color:var(--purple)">${eur(buAySip)}</div><div class="kpi-sub">${trendBadge(buAySip,gecenAySip)} geçen aya göre</div></div>
 </div>
 <div class="grid-2">
   <div class="card"><div class="section-title">ABC Analizi</div>
@@ -615,8 +667,13 @@ async function saveParca(id){
 }
 
 async function parcaSil(id,kod){
-  if(!confirm(`"${kod}" silinsin mi?`))return;
-  await sbDelete('parcalar',id);await refreshAll('stok');
+  var harSay=hareketler.filter(h=>h.par_kod===kod).length;
+  var sipSay=siparisler.filter(s=>s.par_kod===kod).length;
+  var uyari='"'+kod+'" kodlu parçayı silmek istediğinize emin misiniz?';
+  if(harSay>0||sipSay>0) uyari+='\n\n⚠ Bu parçaya ait '+harSay+' hareket ve '+sipSay+' sipariş kaydı da silinecek!';
+  if(!confirm(uyari))return;
+  await sbDelete('parcalar',id);
+  await refreshAll('stok');
 }
 
 function renderKritik(){
@@ -705,7 +762,31 @@ async function saveSip(){
   try{await sbInsert('siparisler',{sip_no:document.getElementById('s-no').value,par_kod:pk,par_ad:p?.ad||'',miktar:mik,tutar:mik*fiy,sip_tarih:document.getElementById('s-sip').value||null,tes_tarih:document.getElementById('s-tes').value||null,durum:'Beklemede',notlar:document.getElementById('s-not').value});closeModal();await refreshAll('siparis');}catch(e){alert('Hata: '+e.message);}
 }
 
-async function updSipDurum(id,d){await sbUpdate('siparisler',id,{durum:d});const s=siparisler.find(x=>x.id===id);if(s)s.durum=d;}
+async function updSipDurum(id,d){
+  var s=siparisler.find(x=>x.id===id);
+  var eskiDurum=s?s.durum:'';
+  await sbUpdate('siparisler',id,{durum:d});
+  if(s) s.durum=d;
+  // Tamamlandı yapılınca otomatik GİRİŞ hareketi oluştur
+  if(d==='Tamamlandı' && eskiDurum!=='Tamamlandı' && s){
+    var onay=confirm(s.par_kod+' — '+s.miktar+' adet stoka girişi yapılsın mı?');
+    if(onay){
+      try{
+        await sbInsert('hareketler',{
+          par_kod:s.par_kod,
+          tip:'GİRİŞ',
+          miktar:s.miktar,
+          tarih:new Date().toISOString().slice(0,10),
+          kullanan:'Sipariş #'+s.sip_no,
+          i_emri:s.sip_no,
+          aciklama:'Sipariş tamamlandı — otomatik giriş'
+        });
+        await refreshAll('siparis');
+        alert('✅ '+s.par_kod+' için '+s.miktar+' adet stoka eklendi.');
+      }catch(e){alert('Stok girişi yapılamadı: '+e.message);}
+    }
+  }
+}
 async function sipSil(id){if(!confirm('Siparişi silmek istediğinize emin misiniz?'))return;await sbDelete('siparisler',id);await refreshAll('siparis');}
 
 function renderHareket(){
