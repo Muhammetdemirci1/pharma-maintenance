@@ -283,29 +283,15 @@ function mevcut(kod){
   });
   return Math.max(0,s);
 }
-function abcHesapla(){
-  // Pareto bazlı ABC — toplam değerin %70/20/10
-  const degerler = parcalar.map(p=>({kod:p.kod, deger:mevcut(p.kod)*p.birim_fiyat}));
-  const toplamDeger = degerler.reduce((s,x)=>s+x.deger, 0);
-  if(toplamDeger===0) return {};
-  // Değere göre büyükten küçüğe sırala
-  degerler.sort((a,b)=>b.deger-a.deger);
-  const sonuc = {};
-  let birikimli = 0;
-  degerler.forEach(p=>{
-    birikimli += p.deger;
-    const pct = birikimli / toplamDeger;
-    if(pct <= 0.70) sonuc[p.kod] = 'A';
-    else if(pct <= 0.90) sonuc[p.kod] = 'B';
-    else sonuc[p.kod] = 'C';
-  });
-  return sonuc;
-}
 function abc(f,kod){
-  // Pareto hesabı — kod varsa oradan, yoksa fiyata göre fallback
-  const tablo = abcHesapla();
-  if(kod && tablo[kod]) return tablo[kod];
-  return f>=500?'A':f>=50?'B':'C';
+  // Birim fiyata göre sabit eşik:
+  // A: ≥500€ — pahalı, kritik parçalar
+  // B: 50-500€ — orta değerli
+  // C: <50€ — ucuz, sarf malzeme
+  var fiyat = f || 0;
+  if(fiyat >= 500) return 'A';
+  if(fiyat >= 50)  return 'B';
+  return 'C';
 }
 function durum(p){const m=mevcut(p.kod);if(m<=0)return{l:'TÜKENDİ',c:'badge-red'};if(m<=(p.min_stok||1))return{l:'KRİTİK',c:'badge-red'};if(m<=(p.min_stok||1)*1.5)return{l:'DÜŞÜK',c:'badge-gold'};return{l:'YETERLİ',c:'badge-green'};}
 function fmt(n,d=0){return Number(n||0).toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d});}
@@ -333,20 +319,9 @@ function kritikBilgi(p){
     var abcSinif=abc(p.birim_fiyat,p.kod);
 
     // KRİTİK PARÇA KRİTERLERİ:
-    // Parça kritik yedek parça sekmesinde görünmek için
-    // şu kriterlerden en az birini sağlamalı:
-    // 1. Elle "Kritik Parça" olarak işaretlenmiş
-    // 2. ABC sınıfı A (yüksek değerli)
-    // 3. Temin süresi ≥ 30 gün (uzun bekleme)
-
-    var kritikParça = p.kritik || abcSinif==='A' || teslimat>=30;
-
-    // Kritik parça değilse listeye girme
-    if(!kritikParça) return {m:m, ss:ss, rop:rop, nedenler:[], abcSinif:abcSinif};
-
-    // Kritik parça ise stok durumuna göre neden belirt
+    // 1. ABC sınıfı A (yüksek değerli, pahalı)
+    // 2. Temin süresi ≥ 30 gün (uzun bekleme süresi)
     var nedenler=[];
-    if(p.kritik) nedenler.push('Elle İşaretlendi');
     if(abcSinif==='A') nedenler.push('Sınıf A');
     if(teslimat>=30) nedenler.push('Uzun Temin ('+teslimat+' gün)');
 
@@ -402,8 +377,85 @@ function renderDash(){
   <div style="padding:14px 16px;border-bottom:1px solid var(--border)"><div class="section-title" style="margin:0">Son Hareketler</div></div>
   ${sonH.length?`<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Tip</th><th>Miktar</th><th>Açıklama</th></tr></thead><tbody>${sonH.map(h=>{const p=parcalar.find(x=>x.kod===h.par_kod)||{};const cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return`<tr><td style="color:var(--text3)">${h.tarih||''}</td><td style="color:var(--accent);font-weight:600">${h.par_kod}</td><td>${p.ad||'-'}</td><td><span class="badge ${cl}">${h.tip}</span></td><td><b>${h.miktar}</b></td><td style="color:var(--text3)">${h.aciklama||'-'}</td></tr>`;}).join('')}</tbody></table></div>`:'<div class="empty">Henüz hareket kaydı yok</div>'}
 </div>`;
-}
 
+  // ── ACİL SİPARİŞ GEREKTİRENLER (COMPACT) ──────────────────
+  var acil=parcalar.filter(function(p){return mevcut(p.kod)<=0;});
+  var kritikDusuk=parcalar.filter(function(p){var m=mevcut(p.kod);return m>0&&m<=(p.min_stok||1);});
+  var acilHtml='';
+  if(acil.length||kritikDusuk.length){
+    var toplamUyari=acil.length+kritikDusuk.length;
+    // Compact uyarı bandı — tıklayınca toggle
+    acilHtml+='<div style="margin-bottom:16px">';
+    acilHtml+='<div onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" '
+      +'style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:10px;cursor:pointer;user-select:none">'
+      +'<div style="display:flex;align-items:center;gap:12px">'
+      +(acil.length?'<span style="background:var(--red);color:#fff;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:600">'+acil.length+' STOK YOK</span>':'')
+      +(kritikDusuk.length?'<span style="background:var(--gold);color:#000;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:600">'+kritikDusuk.length+' KRİTİK</span>':'')
+      +'<span style="color:var(--text2);font-size:12px">Acil sipariş gerektiren '+toplamUyari+' parça</span>'
+      +'</div>'
+      +'<span style="color:var(--text3);font-size:11px">▼ detay</span>'
+      +'</div>';
+    // Detay — başta gizli
+    acilHtml+='<div style="display:none;margin-top:6px;border:1px solid var(--border);border-radius:10px;overflow:hidden">';
+    acil.forEach(function(p){
+      acilHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border)">'
+        +'<div><span style="color:var(--accent);font-weight:600;font-size:12px">'+p.kod+'</span>'
+        +' <span style="color:var(--text2);font-size:12px">'+p.ad+'</span>'
+        +' <span style="color:var(--text3);font-size:11px;margin-left:6px">'+(p.ekipman||'')+'</span></div>'
+        +'<span style="background:var(--red);color:#fff;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600">STOK YOK</span>'
+        +'</div>';
+    });
+    kritikDusuk.forEach(function(p){
+      var m=mevcut(p.kod);
+      acilHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border)">'
+        +'<div><span style="color:var(--accent);font-weight:600;font-size:12px">'+p.kod+'</span>'
+        +' <span style="color:var(--text2);font-size:12px">'+p.ad+'</span>'
+        +' <span style="color:var(--text3);font-size:11px;margin-left:6px">'+(p.ekipman||'')+'</span></div>'
+        +'<span style="color:var(--gold);font-size:11px">'+m+' / '+( p.min_stok||1)+'</span>'
+        +'</div>';
+    });
+    acilHtml+='</div></div>';
+  }
+
+  // ── EN ÇOK KULLANILAN 5 PARÇA ────────────────────────────────
+  var kullanimMap={};
+  hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){
+    kullanimMap[h.par_kod]=(kullanimMap[h.par_kod]||0)+(Number(h.miktar)||0);
+  });
+  var topKullanim=Object.entries(kullanimMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+  var maxKullanim=topKullanim[0]?topKullanim[0][1]:1;
+
+  // ── AYLIK ÇIKIŞ TRENDİ ───────────────────────────────────────
+  var aylar=[];
+  for(var ii=5;ii>=0;ii--){var d=new Date();d.setMonth(d.getMonth()-ii);aylar.push({yil:d.getFullYear(),ay:d.getMonth()+1,label:d.toLocaleString('tr-TR',{month:'short',year:'2-digit'})});}
+  var aylikData=aylar.map(function(a){
+    var toplam=hareketler.filter(function(h){if(h.tip!=='ÇIKIŞ'||!h.tarih)return false;var hd=new Date(h.tarih);return hd.getFullYear()===a.yil&&hd.getMonth()+1===a.ay;}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+    return {label:a.label,toplam:toplam};
+  });
+  var maxAylik=Math.max.apply(null,aylikData.map(function(x){return x.toplam;}))||1;
+
+  var extraHtml='<div class="grid-2" style="margin-bottom:16px">';
+  extraHtml+='<div class="card"><div class="section-title">En Çok Kullanılan 5 Parça</div>';
+  if(topKullanim.length){
+    topKullanim.forEach(function(x){
+      var p=parcalar.find(function(pp){return pp.kod===x[0];})||{};
+      var pct=Math.round(x[1]/maxKullanim*100);
+      extraHtml+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--text2)"><b style="color:var(--accent)">'+x[0]+'</b> '+(p.ad||'').slice(0,22)+'</span><span style="font-size:11px;color:var(--text3)">'+x[1]+' adet</span></div><div style="height:6px;background:var(--bg3);border-radius:3px"><div style="height:6px;width:'+pct+'%;background:var(--accent);border-radius:3px"></div></div></div>';
+    });
+  }else{extraHtml+='<div class="empty">Henüz çıkış yok</div>';}
+  extraHtml+='</div>';
+
+  extraHtml+='<div class="card"><div class="section-title">Aylık Stok Kullanımı (Son 6 Ay)</div>';
+  aylikData.forEach(function(a){
+    var pct=Math.round(a.toplam/maxAylik*100);
+    extraHtml+='<div class="chart-bar-row"><div class="chart-bar-label">'+a.label+'</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--green)"></div></div><div class="chart-bar-val">'+a.toplam+' adet</div></div>';
+  });
+  extraHtml+='</div></div>';
+
+  var mevcutIcerik = document.getElementById('content').innerHTML;
+  document.getElementById('content').innerHTML = acilHtml + mevcutIcerik + extraHtml;
+
+}
 function renderStok(){
   document.getElementById('topbar-actions').innerHTML=`<input class="search-bar" placeholder="🔍 Parça ara..." value="${stokSearch}" oninput="stokSearch=this.value;renderStok()"><button class="btn" onclick="refreshAll('stok')">↻ Yenile</button><button class="btn btn-primary" onclick="showParcaModal()">+ Yeni Parça</button>`;
   const f=parcalar.filter(p=>!stokSearch||[p.kod,p.ad,p.tedarikci||'',p.ekipman||''].some(v=>v.toLowerCase().includes(stokSearch.toLowerCase())));
@@ -429,7 +481,7 @@ function renderStok(){
       </td>
     </tr>`;
   }).join('');
-  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Resim</th><th>Kod</th><th>Parça Adı</th><th>Kategori</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>Fiyat</th><th>ABC</th><th>Durum</th><th>Tedarikçi</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
+  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Resim</th><th>Kod</th><th>Parça Adı</th><th>Kategori</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>Fiyat</th><th>ABC</th><th>Tedarikçi</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
 }
 
 function showParcaModal(id){
@@ -490,7 +542,7 @@ function showParcaModal(id){
     <div class="form-group"><label>Tedarikçi</label><input id="f-ted" value="${p.tedarikci||''}"></div>
     <div class="form-group"><label>Teslimat Süresi (gün)</label><input id="f-tes" type="number" value="${p.teslimat||''}"></div>
     <div class="form-group"><label>Birim</label><input id="f-birim" value="${p.birim||'Adet'}"></div>
-    <div class="form-group"><label>Kritik Parça mı?</label><select id="f-kritik"><option value="0" ${!p.kritik?'selected':''}>Hayır</option><option value="1" ${p.kritik?'selected':''}>Evet</option></select></div>
+    
   </div>
   <div class="form-group" style="margin-top:12px"><label>Notlar</label><textarea id="f-not" rows="2" style="resize:none">${p.notlar||''}</textarea></div>
     <div class="form-group" style="margin-top:12px">
@@ -543,7 +595,7 @@ async function saveParca(id){
   const k=g('f-kod').value.trim().toUpperCase(),ad=g('f-ad').value.trim();
   if(!k||!ad){alert('Parça kodu ve adı zorunludur!');return;}
   const fg=parseFloat(g('f-fiyat').value)||0,pb=g('f-pb').value;
-  const obj={kod:k,ad,kategori:g('f-kat').value,ekipman:g('f-ekp').value,birim_fiyat:fg*(DKUR[pb]||1),birim_fiyat_giris:fg,pb,birim:g('f-birim').value||'Adet',min_stok:parseInt(g('f-min').value)||0,baslangic:parseInt(g('f-bas').value)||0,tedarikci:g('f-ted').value,teslimat:parseInt(g('f-tes').value)||0,kritik:g('f-kritik').value==='1',notlar:g('f-not').value};
+  const obj={kod:k,ad,kategori:g('f-kat').value,ekipman:g('f-ekp').value,birim_fiyat:fg*(DKUR[pb]||1),birim_fiyat_giris:fg,pb,birim:g('f-birim').value||'Adet',min_stok:parseInt(g('f-min').value)||0,baslangic:parseInt(g('f-bas').value)||0,tedarikci:g('f-ted').value,teslimat:parseInt(g('f-tes').value)||0,notlar:g('f-not').value};
   try{
     if(id) await sbUpdate('parcalar',id,obj);
     else await sbInsert('parcalar',obj);
@@ -576,9 +628,7 @@ function renderKritik(){
     var a=b.abcSinif;
     var ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';
     var stokRenk=m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)';
-    var durumCls=m<=0?'badge-red':m<=(p.min_stok||1)?'badge-red':'badge-gold';
-    var durumLbl=m<=0?'ACİL SİPARİŞ':m<=(p.min_stok||1)?'KRİTİK':'UYARI';
-    return '<tr>'
+            return '<tr>'
       +'<td style="color:var(--accent);font-weight:600">'+p.kod+'</td>'
       +'<td>'+p.ad+'</td>'
       +'<td style="color:var(--text3)">'+(p.ekipman||'-')+'</td>'
@@ -589,8 +639,8 @@ function renderKritik(){
       +'<td><span class="badge '+ac+'">'+a+'</span></td>'
       +'<td style="color:var(--text3)">'+(p.tedarikci||'-')+'</td>'
       +'<td style="color:var(--text3)">'+(p.teslimat||'-')+' gün</td>'
-      +'<td><span class="badge badge-gold" style="font-size:9px">'+nedenStr+'</span></td>'
-      +'<td><span class="badge '+durumCls+'">'+durumLbl+'</span></td>'
+      
+      
       +'<td><button class="btn btn-sm btn-primary" onclick="showSiparisModal(\''+p.kod+'\')">Sipariş Ver</button></td>'
       +'</tr>';
   }).join('');
@@ -602,7 +652,7 @@ function renderKritik(){
     +'<thead><tr>'
     +'<th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>ROP</th>'
     +'<th>Fiyat</th><th>ABC</th><th>Tedarikçi</th><th>Teslimat</th>'
-    +'<th>Neden Kritik</th><th>Durum</th><th>İşlem</th>'
+    +'<th>İşlem</th>'
     +'</tr></thead>'
     +'<tbody>'+(rows||'<tr><td colspan="13"><div class="empty">✅ Kritik parça yok!</div></td></tr>')+'</tbody>'
     +'</table></div></div>';
@@ -631,7 +681,7 @@ function renderSiparis(){
   const bek=siparisler.filter(s=>s.durum==='Beklemede').length,kar=siparisler.filter(s=>s.durum==='Kargoda').length,tam=siparisler.filter(s=>s.durum==='Tamamlandı').length;
   const topT=siparisler.reduce((s,x)=>s+(x.tutar||0),0);
   const rows=siparisler.map(s=>{const p=parcalar.find(x=>x.kod===s.par_kod)||{};const dc=s.durum==='Tamamlandı'?'badge-green':s.durum==='Kargoda'?'badge-blue':s.durum==='İptal'?'badge-gray':'badge-gold';return`<tr><td style="color:var(--accent);font-weight:600">${s.sip_no}</td><td style="color:var(--accent)">${s.par_kod}</td><td>${p.ad||s.par_ad||'-'}</td><td style="color:var(--text3)">${p.tedarikci||'-'}</td><td><b>${s.miktar}</b></td><td style="color:var(--gold)">${eur(s.tutar)}</td><td style="color:var(--text3)">${s.sip_tarih||'-'}</td><td style="color:var(--text3)">${s.tes_tarih||'-'}</td><td><span class="badge ${dc}">${s.durum}</span></td><td style="white-space:nowrap"><select style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer" onchange="updSipDurum('${s.id}',this.value)"><option ${s.durum==='Beklemede'?'selected':''}>Beklemede</option><option ${s.durum==='Kargoda'?'selected':''}>Kargoda</option><option ${s.durum==='Tamamlandı'?'selected':''}>Tamamlandı</option><option ${s.durum==='İptal'?'selected':''}>İptal</option></select> <button class="btn btn-sm btn-danger" onclick="sipSil('${s.id}')">Sil</button></td></tr>`;}).join('');
-  document.getElementById('content').innerHTML=`<div class="grid-4"><div class="kpi"><div class="kpi-label">Beklemede</div><div class="kpi-value" style="color:var(--gold)">${bek}</div></div><div class="kpi"><div class="kpi-label">Kargoda</div><div class="kpi-value" style="color:var(--accent)">${kar}</div></div><div class="kpi"><div class="kpi-label">Tamamlanan</div><div class="kpi-value" style="color:var(--green)">${tam}</div></div><div class="kpi"><div class="kpi-label">Toplam Tutar</div><div class="kpi-value" style="color:var(--gold)">${eur(topT)}</div></div></div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Parça Kodu</th><th>Parça Adı</th><th>Tedarikçi</th><th>Miktar</th><th>Tutar</th><th>Sipariş Tarihi</th><th>Tahmini Teslimat</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="10"><div class="empty">Henüz sipariş yok</div></td></tr>'}</tbody></table></div></div>`;
+  document.getElementById('content').innerHTML=`<div class="grid-4"><div class="kpi"><div class="kpi-label">Beklemede</div><div class="kpi-value" style="color:var(--gold)">${bek}</div></div><div class="kpi"><div class="kpi-label">Kargoda</div><div class="kpi-value" style="color:var(--accent)">${kar}</div></div><div class="kpi"><div class="kpi-label">Tamamlanan</div><div class="kpi-value" style="color:var(--green)">${tam}</div></div><div class="kpi"><div class="kpi-label">Toplam Tutar</div><div class="kpi-value" style="color:var(--gold)">${eur(topT)}</div></div></div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Parça Kodu</th><th>Parça Adı</th><th>Tedarikçi</th><th>Miktar</th><th>Tutar</th><th>Sipariş Tarihi</th><th>Tahmini Teslimat</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="10"><div class="empty">Henüz sipariş yok</div></td></tr>'}</tbody></table></div></div>`;
 }
 
 function showSiparisModal(ok){
@@ -658,7 +708,6 @@ function renderHareket(){
   const rows=hareketler.slice().reverse().map(h=>{const p=parcalar.find(x=>x.kod===h.par_kod)||{};const cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return`<tr><td style="color:var(--text3)">${h.tarih||''}</td><td style="color:var(--accent);font-weight:600">${h.par_kod}</td><td>${p.ad||'-'}</td><td style="color:var(--text3)">${h.kullanan||'-'}</td><td><span class="badge ${cl}">${h.tip}</span></td><td><b>${h.miktar}</b></td><td style="color:var(--text3)">${h.i_emri||'-'}</td><td style="color:var(--text3)">${h.aciklama||'-'}</td><td><button class="btn btn-sm btn-danger" onclick="harSil('${h.id}')">Sil</button></td></tr>`;}).join('');
   document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Kullanan</th><th>Tip</th><th>Miktar</th><th>İş Emri</th><th>Açıklama</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="9"><div class="empty">Henüz hareket kaydı yok</div></td></tr>'}</tbody></table></div></div>`;
 }
-
 function showHareketModal(ok){
   const sec=parcalar.map(p=>`<option value="${p.kod}" ${p.kod===ok?'selected':''}>${p.kod} — ${p.ad} (Stok: ${mevcut(p.kod)})</option>`).join('');
   document.getElementById('modal-container').innerHTML=`<div class="modal-overlay" ><div class="modal"><div class="modal-title">Stok Hareketi Ekle</div><div class="form-grid"><div class="form-group"><label>Parça *</label><select id="h-par">${sec||'<option>Önce parça ekleyin</option>'}</select></div><div class="form-group"><label>Hareket Tipi *</label><select id="h-tip"><option>GİRİŞ</option><option>ÇIKIŞ</option><option>DÜZELTME</option></select></div><div class="form-group"><label>Miktar *</label><input id="h-mik" type="number" min="1" value="1"></div><div class="form-group"><label>Tarih</label><input id="h-tar" type="date" value="${today()}"></div><div class="form-group"><label>Kullanan / Tedarikçi</label><input id="h-kul" placeholder="Ad Soyad"></div><div class="form-group"><label>İş Emri No</label><input id="h-ie" placeholder="IE-2026-001"></div></div><div class="form-group" style="margin-top:12px"><label>Açıklama</label><textarea id="h-ac" rows="2" style="resize:none"></textarea></div><div class="modal-footer"><button class="btn" onclick="closeModal()">İptal</button><button class="btn btn-primary" onclick="saveHar()">Kaydet</button></div></div></div>`;
