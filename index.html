@@ -125,6 +125,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter')LF();});
       <button class="nav-item" onclick="navigate('eoq')"><span class="nav-icon">📐</span>EOQ Hesaplama</button>
       <button class="nav-item" onclick="navigate('siparis')"><span class="nav-icon">🛒</span>Sipariş Takip</button>
       <button class="nav-item" onclick="navigate('hareket')"><span class="nav-icon">📋</span>Hareket Log</button>
+      <button class="nav-item" onclick="navigate('raporlar')"><span class="nav-icon">📈</span>Raporlar</button>
     </nav>
     <div class="conn-status">
       <div class="conn-dot" id="conn-dot"></div>
@@ -144,7 +145,39 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter')LF();});
 <script>
 const SB_URL='https://pknjdbbzkbxilyjxgxpd.supabase.co';
 const SB_KEY='sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b';
-const DKUR={EUR:1,USD:0.861,TRY:0.0195,CHF:1.107};
+// Döviz kurları — başlangıçta sabit, API'den güncellenince dinamik
+let DKUR={EUR:1,USD:0.861,TRY:0.0195,CHF:1.107};
+let kurTarihi='';
+
+async function kurGuncelle(){
+  try{
+    // EUR bazlı kurları çek (EUR=1 olarak)
+    const r=await fetch('https://api.exchangerate-api.com/v4/latest/EUR');
+    const d=await r.json();
+    if(d && d.rates){
+      DKUR={
+        EUR:1,
+        USD: 1/d.rates.USD,   // 1 USD = ? EUR
+        TRY: 1/d.rates.TRY,   // 1 TRY = ? EUR
+        CHF: 1/d.rates.CHF    // 1 CHF = ? EUR
+      };
+      kurTarihi=d.date||'';
+      // Kur göstergesini güncelle
+      var el=document.getElementById('kur-bilgi');
+      if(el){
+        el.innerHTML='<span style="color:var(--green)">● Kurlar güncellendi: '+kurTarihi+'</span>'
+          +' &nbsp;|&nbsp; $1=€'+DKUR.USD.toFixed(4)
+          +' &nbsp;|&nbsp; ₺1=€'+DKUR.TRY.toFixed(6)
+          +' &nbsp;|&nbsp; Fr1=€'+DKUR.CHF.toFixed(4);
+      }
+      console.log('Kurlar güncellendi:', DKUR);
+    }
+  }catch(e){
+    console.log('Kur güncellenemedi, sabit kurlar kullanılıyor:', e);
+    var el=document.getElementById('kur-bilgi');
+    if(el) el.innerHTML='<span style="color:var(--gold)">● Sabit kurlar kullanılıyor</span>';
+  }
+}
 const HDR={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
 
 async function sbGet(t,q=''){const r=await fetch(`${SB_URL}/rest/v1/${t}?${q}`,{headers:HDR});if(!r.ok)throw new Error(await r.text());return r.json();}
@@ -153,6 +186,95 @@ async function sbUpdate(t,id,d){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=e
 async function sbDelete(t,id){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:HDR});if(!r.ok)throw new Error(await r.text());}
 
 let parcalar=[],siparisler=[],hareketler=[],stokSearch='';
+
+
+function pbSembol(pb){ return {EUR:'€',USD:'$',TRY:'₺',CHF:'Fr'}[pb]||pb; }
+function fiyatGoster(p){
+  var pb=p.pb||'EUR';
+  var giris=p.birim_fiyat_giris||p.birim_fiyat||0;
+  var sembol=pbSembol(pb);
+  var orijinal=sembol+Number(giris).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(pb==='EUR') return orijinal;
+  var eurStr='<span style="font-size:10px;color:var(--text3);display:block">≈'+eur(p.birim_fiyat)+'</span>';
+  return orijinal+eurStr;
+}
+
+
+async function fotografYukle(dosya, parKod){
+  // Her zaman jpg olarak kaydet — url tutarlı olsun
+  var path = parKod + '.jpg';
+  var r = await fetch('https://pknjdbbzkbxilyjxgxpd.supabase.co/storage/v1/object/parca-fotograflar/' + path, {
+    method: 'POST',
+    headers: {
+      'apikey': 'sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b',
+      'Authorization': 'Bearer sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b',
+      'Content-Type': 'image/jpeg',
+      'x-upsert': 'true'
+    },
+    body: dosya
+  });
+  if(!r.ok){
+    var err = await r.text();
+    throw new Error('Fotoğraf yüklenemedi: ' + err);
+  }
+  return 'https://pknjdbbzkbxilyjxgxpd.supabase.co/storage/v1/object/public/parca-fotograflar/' + path;
+}
+
+async function fotografSil(parKod){
+  var uzantilar = ['jpg','jpeg','png','webp','gif'];
+  for(var i=0;i<uzantilar.length;i++){
+    await fetch('https://pknjdbbzkbxilyjxgxpd.supabase.co/storage/v1/object/parca-fotograflar/'+parKod+'.'+uzantilar[i], {
+      method: 'DELETE',
+      headers: {'apikey':'sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b','Authorization':'Bearer sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b'}
+    });
+  }
+}
+
+function fotografUrl(parKod){
+  var uzantilar = ['jpg','jpeg','png','webp'];
+  // URL'yi döndür — resim varsa gösterir, yoksa boş
+  return 'https://pknjdbbzkbxilyjxgxpd.supabase.co/storage/v1/object/public/parca-fotograflar/' + parKod + '.jpg';
+}
+
+async function bildirimIzniAl(){
+  if(!('Notification' in window)) return false;
+  if(Notification.permission === 'granted') return true;
+  var izin = await Notification.requestPermission();
+  return izin === 'granted';
+}
+
+function bildirimGonder(baslik, mesaj, kritiklik){
+  if(Notification.permission !== 'granted') return;
+  var icon = kritiklik === 'acil' ? '🔴' : '⚠️';
+  new Notification(icon + ' StokTakip — ' + baslik, {
+    body: mesaj,
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%230f172a"/><text x="16" y="23" text-anchor="middle" font-size="20" fill="%2310b981">⚙</text></svg>'
+  });
+}
+
+async function kritikStokKontrol(){
+  var izin = await bildirimIzniAl();
+  if(!izin) return;
+  
+  parcalar.forEach(function(p){
+    var m = mevcut(p.kod);
+    var min = p.min_stok || 1;
+    
+    if(m <= 0){
+      bildirimGonder(
+        p.kod + ' — ' + p.ad,
+        'Stok tamamen tükendi! Acil sipariş gerekiyor.',
+        'acil'
+      );
+    } else if(m <= min){
+      bildirimGonder(
+        p.kod + ' — ' + p.ad,
+        'Stok kritik seviyede! Mevcut: ' + m + ' / Min: ' + min,
+        'uyari'
+      );
+    }
+  });
+}
 
 function mevcut(kod){
   const p=parcalar.find(x=>x.kod===kod);if(!p)return 0;
@@ -225,12 +347,13 @@ let curPage='dashboard';
 function navigate(page){
   curPage=page;
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.getAttribute('onclick').includes("'"+page+"'")));
-  document.getElementById('page-title').textContent={dashboard:'Dashboard',stok:'Stok Yönetimi',kritik:'Kritik Yedek Parçalar',eoq:'EOQ Hesaplama',siparis:'Sipariş Takip',hareket:'Hareket Log'}[page]||page;
-  ({dashboard:renderDash,stok:renderStok,kritik:renderKritik,eoq:renderEOQ,siparis:renderSiparis,hareket:renderHareket})[page]?.();
+  document.getElementById('page-title').textContent={dashboard:'Dashboard',stok:'Stok Yönetimi',kritik:'Kritik Yedek Parçalar',eoq:'EOQ Hesaplama',siparis:'Sipariş Takip',hareket:'Hareket Log',raporlar:'Raporlar'}[page]||page;
+  ({dashboard:renderDash,stok:renderStok,kritik:renderKritik,eoq:renderEOQ,siparis:renderSiparis,hareket:renderHareket,raporlar:renderRaporlar})[page]?.();
 }
 
 function renderDash(){
-  document.getElementById('topbar-actions').innerHTML=`<button class="btn" onclick="refreshAll('dashboard')">↻ Yenile</button>`;
+  document.getElementById('topbar-actions').innerHTML='<span id="kur-bilgi" style="font-size:10px;color:var(--text3)">Kurlar yükleniyor...</span>&nbsp;<button class="btn" onclick="refreshAll(\'dashboard\')">↻ Yenile</button>';
+  kurGuncelle();
   const tp=parcalar.length,krit=parcalar.filter(p=>mevcut(p.kod)<=(p.min_stok||1)).length,tuk=parcalar.filter(p=>mevcut(p.kod)<=0).length;
   const topD=parcalar.reduce((s,p)=>s+mevcut(p.kod)*p.birim_fiyat,0);
   const bek=siparisler.filter(s=>s.durum==='Beklemede'||s.durum==='Kargoda').length;
@@ -265,18 +388,60 @@ function renderStok(){
   document.getElementById('topbar-actions').innerHTML=`<input class="search-bar" placeholder="🔍 Parça ara..." value="${stokSearch}" oninput="stokSearch=this.value;renderStok()"><button class="btn" onclick="refreshAll('stok')">↻ Yenile</button><button class="btn btn-primary" onclick="showParcaModal()">+ Yeni Parça</button>`;
   const f=parcalar.filter(p=>!stokSearch||[p.kod,p.ad,p.tedarikci||'',p.ekipman||''].some(v=>v.toLowerCase().includes(stokSearch.toLowerCase())));
   const rows=f.map(p=>{const m=mevcut(p.kod),d=durum(p),a=abc(p.birim_fiyat, p.kod),ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';return`<tr><td style="color:var(--accent);font-weight:600">${p.kod}</td><td>${p.ad}</td><td style="color:var(--text3)">${p.kategori||'-'}</td><td style="color:var(--text3)">${p.ekipman||'-'}</td><td><b style="color:${m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)'}">${m}</b></td><td style="color:var(--text3)">${p.min_stok||0}</td><td style="color:var(--gold)">${eur(p.birim_fiyat)}</td><td><span class="badge ${ac}">${a}</span></td><td><span class="badge ${d.c}">${d.l}</span></td><td style="color:var(--text3)">${p.tedarikci||'-'}</td><td style="white-space:nowrap"><button class="btn btn-sm" onclick="showParcaModal('${p.id}')">Düzenle</button> <button class="btn btn-sm" onclick="showHareketModal('${p.kod}')">Hareket</button> <button class="btn btn-sm btn-danger" onclick="parcaSil('${p.id}','${p.kod}')">Sil</button></td></tr>`;}).join('');
-  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>Kategori</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>Fiyat</th><th>ABC</th><th>Durum</th><th>Tedarikçi</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
+  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th></th><th>Kod</th><th>Parça Adı</th><th>Kategori</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>Fiyat</th><th>ABC</th><th>Durum</th><th>Tedarikçi</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
 }
 
 function showParcaModal(id){
   const p=id?parcalar.find(x=>x.id===id)||{}:{};
-  document.getElementById('modal-container').innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
+  document.getElementById('modal-container').innerHTML=`<div class="modal-overlay" ><div class="modal">
   <div class="modal-title">${id?'Parça Düzenle':'Yeni Parça Ekle'}</div>
   <div class="form-grid">
     <div class="form-group"><label>Parça Kodu *</label><input id="f-kod" value="${p.kod||''}" placeholder="YP-001" ${id?'readonly':''}></div>
     <div class="form-group"><label>Parça Adı *</label><input id="f-ad" value="${p.ad||''}" placeholder="Rulman SKF 6004"></div>
     <div class="form-group"><label>Kategori</label><select id="f-kat">${['Mekanik','Elektrik','Pnömatik','Hidrolik','Elektronik','Sarf Malzeme','Diğer'].map(k=>`<option ${(p.kategori||'')==k?'selected':''}>${k}</option>`).join('')}</select></div>
-    <div class="form-group"><label>Ekipman / Makine</label><input id="f-ekp" value="${p.ekipman||''}" placeholder="Tablet Pres"></div>
+    <div class="form-group"><label>Ekipman / Makine</label><select id="f-ekp" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-size:12px;outline:none;font-family:inherit;width:100%">
+<option value="">-- Seçiniz --</option>
+<option value="Korsch PH 300" ${(p.ekipman||'')=='Korsch PH 300'?'selected':''}>Korsch PH 300</option>
+<option value="Korsch XL 400" ${(p.ekipman||'')=='Korsch XL 400'?'selected':''}>Korsch XL 400</option>
+<option value="Korsch XL 100" ${(p.ekipman||'')=='Korsch XL 100'?'selected':''}>Korsch XL 100</option>
+<option value="Zanasi 40 E" ${(p.ekipman||'')=='Zanasi 40 E'?'selected':''}>Zanasi 40 E</option>
+<option value="Kilian" ${(p.ekipman||'')=='Kilian'?'selected':''}>Kilian</option>
+<option value="Fette D" ${(p.ekipman||'')=='Fette D'?'selected':''}>Fette D</option>
+<option value="Fette B" ${(p.ekipman||'')=='Fette B'?'selected':''}>Fette B</option>
+<option value="Bosch GKF 2500" ${(p.ekipman||'')=='Bosch GKF 2500'?'selected':''}>Bosch GKF 2500</option>
+<option value="Manesty BB4" ${(p.ekipman||'')=='Manesty BB4'?'selected':''}>Manesty BB4</option>
+<option value="Manesty XL Cota" ${(p.ekipman||'')=='Manesty XL Cota'?'selected':''}>Manesty XL Cota</option>
+<option value="Hormon BB3" ${(p.ekipman||'')=='Hormon BB3'?'selected':''}>Hormon BB3</option>
+<option value="Konteyner Yıkama" ${(p.ekipman||'')=='Konteyner Yıkama'?'selected':''}>Konteyner Yıkama</option>
+<option value="IBC BLENDER" ${(p.ekipman||'')=='IBC BLENDER'?'selected':''}>IBC BLENDER</option>
+<option value="Collette 600" ${(p.ekipman||'')=='Collette 600'?'selected':''}>Collette 600</option>
+<option value="Collette 400" ${(p.ekipman||'')=='Collette 400'?'selected':''}>Collette 400</option>
+<option value="Vector FBD" ${(p.ekipman||'')=='Vector FBD'?'selected':''}>Vector FBD</option>
+<option value="Etüv 1" ${(p.ekipman||'')=='Etüv 1'?'selected':''}>Etüv 1</option>
+<option value="Etüv 2" ${(p.ekipman||'')=='Etüv 2'?'selected':''}>Etüv 2</option>
+<option value="Hüttlin HDGC 100" ${(p.ekipman||'')=='Hüttlin HDGC 100'?'selected':''}>Hüttlin HDGC 100</option>
+<option value="Hüttlin HDGC 200" ${(p.ekipman||'')=='Hüttlin HDGC 200'?'selected':''}>Hüttlin HDGC 200</option>
+<option value="Pilotmix 100" ${(p.ekipman||'')=='Pilotmix 100'?'selected':''}>Pilotmix 100</option>
+<option value="Glatt 120 FBD" ${(p.ekipman||'')=='Glatt 120 FBD'?'selected':''}>Glatt 120 FBD</option>
+<option value="Hormon Melanjör" ${(p.ekipman||'')=='Hormon Melanjör'?'selected':''}>Hormon Melanjör</option>
+<option value="Hormon Kont. Karıştırıcı" ${(p.ekipman||'')=='Hormon Kont. Karıştırıcı'?'selected':''}>Hormon Kont. Karıştırıcı</option>
+<option value="Frewitt ( Büyük )" ${(p.ekipman||'')=='Frewitt ( Büyük )'?'selected':''}>Frewitt ( Büyük )</option>
+<option value="Frewitt ( Küçük )" ${(p.ekipman||'')=='Frewitt ( Küçük )'?'selected':''}>Frewitt ( Küçük )</option>
+<option value="Manesty XL Cota" ${(p.ekipman||'')=='Manesty XL Cota'?'selected':''}>Manesty XL Cota</option>
+<option value="Glatt Kaplama GS 300" ${(p.ekipman||'')=='Glatt Kaplama GS 300'?'selected':''}>Glatt Kaplama GS 300</option>
+<option value="Hormon Kaplama" ${(p.ekipman||'')=='Hormon Kaplama'?'selected':''}>Hormon Kaplama</option>
+<option value="3000 L İmalat Kazanı" ${(p.ekipman||'')=='3000 L İmalat Kazanı'?'selected':''}>3000 L İmalat Kazanı</option>
+<option value="2000 L İmalat Kazanı" ${(p.ekipman||'')=='2000 L İmalat Kazanı'?'selected':''}>2000 L İmalat Kazanı</option>
+<option value="1500 L İmalat Kazanı" ${(p.ekipman||'')=='1500 L İmalat Kazanı'?'selected':''}>1500 L İmalat Kazanı</option>
+<option value="3000 L Stok Kazanı - 1" ${(p.ekipman||'')=='3000 L Stok Kazanı - 1'?'selected':''}>3000 L Stok Kazanı - 1</option>
+<option value="3000 L Stok Kazanı - 2" ${(p.ekipman||'')=='3000 L Stok Kazanı - 2'?'selected':''}>3000 L Stok Kazanı - 2</option>
+<option value="HPM 500 İmalat Kazanı" ${(p.ekipman||'')=='HPM 500 İmalat Kazanı'?'selected':''}>HPM 500 İmalat Kazanı</option>
+<option value="YJK İmalat Kazanı" ${(p.ekipman||'')=='YJK İmalat Kazanı'?'selected':''}>YJK İmalat Kazanı</option>
+<option value="IRE YJK Dolum" ${(p.ekipman||'')=='IRE YJK Dolum'?'selected':''}>IRE YJK Dolum</option>
+<option value="Fryma Pomad" ${(p.ekipman||'')=='Fryma Pomad'?'selected':''}>Fryma Pomad</option>
+<option value="Unipac" ${(p.ekipman||'')=='Unipac'?'selected':''}>Unipac</option>
+<option value="YJK Çözelti Reaktörü" ${(p.ekipman||'')=='YJK Çözelti Reaktörü'?'selected':''}>YJK Çözelti Reaktörü</option>
+</select></div>
     <div class="form-group"><label>Birim Fiyat</label><input id="f-fiyat" type="number" step="0.01" value="${p.birim_fiyat_giris||p.birim_fiyat||''}"></div>
     <div class="form-group"><label>Para Birimi</label><select id="f-pb"><option ${(p.pb||'EUR')==='EUR'?'selected':''}>EUR</option><option ${p.pb==='USD'?'selected':''}>USD</option><option ${p.pb==='TRY'?'selected':''}>TRY</option><option ${p.pb==='CHF'?'selected':''}>CHF</option></select></div>
     <div class="form-group"><label>Min. Stok</label><input id="f-min" type="number" value="${p.min_stok||''}"></div>
@@ -287,6 +452,16 @@ function showParcaModal(id){
     <div class="form-group"><label>Kritik Parça mı?</label><select id="f-kritik"><option value="0" ${!p.kritik?'selected':''}>Hayır</option><option value="1" ${p.kritik?'selected':''}>Evet</option></select></div>
   </div>
   <div class="form-group" style="margin-top:12px"><label>Notlar</label><textarea id="f-not" rows="2" style="resize:none">${p.notlar||''}</textarea></div>
+    <div class="form-group" style="margin-top:12px">
+      <label>Parça Fotoğrafı</label>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px">
+        <img id="f-foto-onizleme" src="" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border);display:none">
+        <div>
+          <input type="file" id="f-foto" accept="image/*" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:11px;width:100%">
+          <div style="font-size:10px;color:var(--text3);margin-top:4px">JPG, PNG, WEBP — max 5MB</div>
+        </div>
+      </div>
+    </div>
   <div class="modal-footer"><button class="btn" onclick="closeModal()">İptal</button><button class="btn btn-primary" onclick="saveParca('${id||''}')">Kaydet</button></div>
   </div></div>`;
 }
@@ -297,7 +472,17 @@ async function saveParca(id){
   if(!k||!ad){alert('Parça kodu ve adı zorunludur!');return;}
   const fg=parseFloat(g('f-fiyat').value)||0,pb=g('f-pb').value;
   const obj={kod:k,ad,kategori:g('f-kat').value,ekipman:g('f-ekp').value,birim_fiyat:fg*(DKUR[pb]||1),birim_fiyat_giris:fg,pb,birim:g('f-birim').value||'Adet',min_stok:parseInt(g('f-min').value)||0,baslangic:parseInt(g('f-bas').value)||0,tedarikci:g('f-ted').value,teslimat:parseInt(g('f-tes').value)||0,kritik:g('f-kritik').value==='1',notlar:g('f-not').value};
-  try{if(id)await sbUpdate('parcalar',id,obj);else await sbInsert('parcalar',obj);closeModal();await refreshAll('stok');}catch(e){alert('Hata: '+e.message);}
+  try{
+    if(id) await sbUpdate('parcalar',id,obj);
+    else await sbInsert('parcalar',obj);
+    // Fotoğraf varsa yükle
+    var fotoInput = document.getElementById('f-foto');
+    if(fotoInput && fotoInput.files && fotoInput.files[0]){
+      await fotografYukle(fotoInput.files[0], obj.kod);
+    }
+    closeModal();
+    await refreshAll('stok');
+  }catch(e){alert('Hata: '+e.message);}
 }
 
 async function parcaSil(id,kod){
@@ -397,7 +582,7 @@ function renderSiparis(){
 function showSiparisModal(ok){
   const sn='SIP-'+String(siparisler.length+1).padStart(4,'0');
   const sec=parcalar.map(p=>`<option value="${p.kod}" ${p.kod===ok?'selected':''}>${p.kod} — ${p.ad}</option>`).join('');
-  document.getElementById('modal-container').innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-title">Yeni Sipariş</div><div class="form-grid"><div class="form-group"><label>Sipariş No</label><input id="s-no" value="${sn}" readonly></div><div class="form-group"><label>Parça *</label><select id="s-par" onchange="sipParDeg()">${sec||'<option>Önce parça ekleyin</option>'}</select></div><div class="form-group"><label>Miktar *</label><input id="s-mik" type="number" min="1" value="1"></div><div class="form-group"><label>Birim Fiyat (€)</label><input id="s-fiy" type="number" step="0.01"></div><div class="form-group"><label>Sipariş Tarihi</label><input id="s-sip" type="date" value="${today()}"></div><div class="form-group"><label>Tahmini Teslimat</label><input id="s-tes" type="date"></div></div><div class="form-group" style="margin-top:12px"><label>Notlar</label><textarea id="s-not" rows="2" style="resize:none"></textarea></div><div class="modal-footer"><button class="btn" onclick="closeModal()">İptal</button><button class="btn btn-primary" onclick="saveSip()">Kaydet</button></div></div></div>`;
+  document.getElementById('modal-container').innerHTML=`<div class="modal-overlay" ><div class="modal"><div class="modal-title">Yeni Sipariş</div><div class="form-grid"><div class="form-group"><label>Sipariş No</label><input id="s-no" value="${sn}" readonly></div><div class="form-group"><label>Parça *</label><select id="s-par" onchange="sipParDeg()">${sec||'<option>Önce parça ekleyin</option>'}</select></div><div class="form-group"><label>Miktar *</label><input id="s-mik" type="number" min="1" value="1"></div><div class="form-group"><label>Birim Fiyat (€)</label><input id="s-fiy" type="number" step="0.01"></div><div class="form-group"><label>Sipariş Tarihi</label><input id="s-sip" type="date" value="${today()}"></div><div class="form-group"><label>Tahmini Teslimat</label><input id="s-tes" type="date"></div></div><div class="form-group" style="margin-top:12px"><label>Notlar</label><textarea id="s-not" rows="2" style="resize:none"></textarea></div><div class="modal-footer"><button class="btn" onclick="closeModal()">İptal</button><button class="btn btn-primary" onclick="saveSip()">Kaydet</button></div></div></div>`;
   sipParDeg();
 }
 
@@ -421,7 +606,7 @@ function renderHareket(){
 
 function showHareketModal(ok){
   const sec=parcalar.map(p=>`<option value="${p.kod}" ${p.kod===ok?'selected':''}>${p.kod} — ${p.ad} (Stok: ${mevcut(p.kod)})</option>`).join('');
-  document.getElementById('modal-container').innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-title">Stok Hareketi Ekle</div><div class="form-grid"><div class="form-group"><label>Parça *</label><select id="h-par">${sec||'<option>Önce parça ekleyin</option>'}</select></div><div class="form-group"><label>Hareket Tipi *</label><select id="h-tip"><option>GİRİŞ</option><option>ÇIKIŞ</option><option>DÜZELTME</option></select></div><div class="form-group"><label>Miktar *</label><input id="h-mik" type="number" min="1" value="1"></div><div class="form-group"><label>Tarih</label><input id="h-tar" type="date" value="${today()}"></div><div class="form-group"><label>Kullanan / Tedarikçi</label><input id="h-kul" placeholder="Ad Soyad"></div><div class="form-group"><label>İş Emri No</label><input id="h-ie" placeholder="IE-2026-001"></div></div><div class="form-group" style="margin-top:12px"><label>Açıklama</label><textarea id="h-ac" rows="2" style="resize:none"></textarea></div><div class="modal-footer"><button class="btn" onclick="closeModal()">İptal</button><button class="btn btn-primary" onclick="saveHar()">Kaydet</button></div></div></div>`;
+  document.getElementById('modal-container').innerHTML=`<div class="modal-overlay" ><div class="modal"><div class="modal-title">Stok Hareketi Ekle</div><div class="form-grid"><div class="form-group"><label>Parça *</label><select id="h-par">${sec||'<option>Önce parça ekleyin</option>'}</select></div><div class="form-group"><label>Hareket Tipi *</label><select id="h-tip"><option>GİRİŞ</option><option>ÇIKIŞ</option><option>DÜZELTME</option></select></div><div class="form-group"><label>Miktar *</label><input id="h-mik" type="number" min="1" value="1"></div><div class="form-group"><label>Tarih</label><input id="h-tar" type="date" value="${today()}"></div><div class="form-group"><label>Kullanan / Tedarikçi</label><input id="h-kul" placeholder="Ad Soyad"></div><div class="form-group"><label>İş Emri No</label><input id="h-ie" placeholder="IE-2026-001"></div></div><div class="form-group" style="margin-top:12px"><label>Açıklama</label><textarea id="h-ac" rows="2" style="resize:none"></textarea></div><div class="modal-footer"><button class="btn" onclick="closeModal()">İptal</button><button class="btn btn-primary" onclick="saveHar()">Kaydet</button></div></div></div>`;
 }
 
 async function saveHar(){
@@ -431,10 +616,213 @@ async function saveHar(){
 }
 
 async function harSil(id){if(!confirm('Hareketi silmek istediğinize emin misiniz?'))return;await sbDelete('hareketler',id);await refreshAll('hareket');}
+
+function renderRaporlar(){
+  document.getElementById('topbar-actions').innerHTML=
+    '<button class="btn" onclick="refreshAll(\'raporlar\')">↻ Yenile</button>'
+    +'<button class="btn btn-primary" onclick="excelIndir()">⬇ Excel İndir</button>';
+
+  // ── Aylık kullanım (ÇIKIŞ hareketleri) ──────────────────────
+  var aylikKullanim={};
+  hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){
+    var ay=h.tarih?h.tarih.slice(0,7):'Bilinmiyor';
+    var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
+    var deger=(Number(h.miktar)||0)*(p.birim_fiyat||0);
+    if(!aylikKullanim[ay]) aylikKullanim[ay]={adet:0,deger:0};
+    aylikKullanim[ay].adet+=Number(h.miktar)||0;
+    aylikKullanim[ay].deger+=deger;
+  });
+  var aylar=Object.keys(aylikKullanim).sort();
+  var maxAyDeger=Math.max.apply(null,aylar.map(function(a){return aylikKullanim[a].deger;})||[1]);
+
+  // ── Tedarikçi bazlı harcama ──────────────────────────────────
+  var tedHarcama={};
+  parcalar.forEach(function(p){
+    var ted=p.tedarikci||'Bilinmiyor';
+    var deger=mevcut(p.kod)*p.birim_fiyat;
+    tedHarcama[ted]=(tedHarcama[ted]||0)+deger;
+  });
+  var tedList=Object.entries(tedHarcama).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+  var maxTed=tedList[0]?tedList[0][1]:1;
+
+  // ── Ekipman bazlı tüketim ────────────────────────────────────
+  var ekpTuketim={};
+  hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){
+    var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
+    var ekp=p.ekipman||'Bilinmiyor';
+    var deger=(Number(h.miktar)||0)*(p.birim_fiyat||0);
+    if(!ekpTuketim[ekp]) ekpTuketim[ekp]={adet:0,deger:0};
+    ekpTuketim[ekp].adet+=Number(h.miktar)||0;
+    ekpTuketim[ekp].deger+=deger;
+  });
+  var ekpList=Object.entries(ekpTuketim).sort(function(a,b){return b[1].deger-a[1].deger;}).slice(0,8);
+  var maxEkp=ekpList[0]?ekpList[0][1].deger:1;
+
+  // ── ABC harcama ───────────────────────────────────────────────
+  var abcHarc={A:{deger:0,say:0},B:{deger:0,say:0},C:{deger:0,say:0}};
+  parcalar.forEach(function(p){
+    var a=abc(p.birim_fiyat,p.kod);
+    abcHarc[a].deger+=mevcut(p.kod)*p.birim_fiyat;
+    abcHarc[a].say++;
+  });
+  var topAbcDeger=abcHarc.A.deger+abcHarc.B.deger+abcHarc.C.deger||1;
+
+  // ── Toplam KPI ───────────────────────────────────────────────
+  var toplamCikis=hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).reduce(function(s,h){
+    var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
+    return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);
+  },0);
+  var toplamGiris=hareketler.filter(function(h){return h.tip==='GİRİŞ';}).reduce(function(s,h){
+    var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
+    return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);
+  },0);
+  var toplamSiparis=siparisler.filter(function(s){return s.durum==='Tamamlandı';}).reduce(function(s,x){return s+(x.tutar||0);},0);
+
+  document.getElementById('content').innerHTML=
+    // KPI
+    '<div class="grid-4" style="margin-bottom:16px">'
+    +'<div class="kpi"><div class="kpi-label">Toplam Kullanım (€)</div><div class="kpi-value" style="color:var(--red)">'+eur(toplamCikis)+'</div><div class="kpi-sub">tüm zamanlar ÇIKIŞ</div></div>'
+    +'<div class="kpi"><div class="kpi-label">Toplam Giriş (€)</div><div class="kpi-value" style="color:var(--green)">'+eur(toplamGiris)+'</div><div class="kpi-sub">tüm zamanlar GİRİŞ</div></div>'
+    +'<div class="kpi"><div class="kpi-label">Tamamlanan Sipariş</div><div class="kpi-value" style="color:var(--gold)">'+eur(toplamSiparis)+'</div><div class="kpi-sub">tamamlanan siparişler</div></div>'
+    +'<div class="kpi"><div class="kpi-label">Hareket Sayısı</div><div class="kpi-value" style="color:var(--accent)">'+hareketler.length+'</div><div class="kpi-sub">toplam kayıt</div></div>'
+    +'</div>'
+
+    // Aylık kullanım + Tedarikçi
+    +'<div class="grid-2">'
+
+    +'<div class="card"><div class="section-title">Aylık Stok Kullanımı (€)</div>'
+    +(aylar.length?aylar.map(function(ay){
+      var pct=maxAyDeger?Math.round(aylikKullanim[ay].deger/maxAyDeger*100):0;
+      return '<div class="chart-bar-row">'
+        +'<div class="chart-bar-label">'+ay+'</div>'
+        +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--red)"></div></div>'
+        +'<div class="chart-bar-val">'+eur(aylikKullanim[ay].deger)+'</div>'
+        +'</div>';
+    }).join(''):'<div class="empty">Henüz ÇIKIŞ hareketi yok</div>')
+    +'</div>'
+
+    +'<div class="card"><div class="section-title">Tedarikçi Bazlı Stok Değeri (€)</div>'
+    +(tedList.length?tedList.map(function(e){
+      var pct=maxTed?Math.round(e[1]/maxTed*100):0;
+      return '<div class="chart-bar-row">'
+        +'<div class="chart-bar-label">'+e[0]+'</div>'
+        +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--accent)"></div></div>'
+        +'<div class="chart-bar-val">'+eur(e[1])+'</div>'
+        +'</div>';
+    }).join(''):'<div class="empty">Henüz veri yok</div>')
+    +'</div>'
+    +'</div>'
+
+    // Ekipman + ABC
+    +'<div class="grid-2">'
+
+    +'<div class="card"><div class="section-title">Ekipman Bazlı Parça Tüketimi (€)</div>'
+    +(ekpList.length?ekpList.map(function(e){
+      var pct=maxEkp?Math.round(e[1].deger/maxEkp*100):0;
+      return '<div class="chart-bar-row">'
+        +'<div class="chart-bar-label">'+e[0]+'</div>'
+        +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--gold)"></div></div>'
+        +'<div class="chart-bar-val">'+eur(e[1].deger)+' ('+e[1].adet+' adet)</div>'
+        +'</div>';
+    }).join(''):'<div class="empty">Henüz ÇIKIŞ hareketi yok</div>')
+    +'</div>'
+
+    +'<div class="card"><div class="section-title">ABC Sınıfına Göre Stok Değeri</div>'
+    +['A','B','C'].map(function(k){
+      var pct=Math.round(abcHarc[k].deger/topAbcDeger*100);
+      var cl=k==='A'?'var(--red)':k==='B'?'var(--gold)':'var(--text3)';
+      return '<div style="margin-bottom:14px">'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:5px">'
+        +'<span style="font-size:12px;color:var(--text2)">Sınıf <b style="color:'+cl+'">'+k+'</b> — '+abcHarc[k].say+' parça</span>'
+        +'<span style="font-size:11px;color:var(--text3)">'+eur(abcHarc[k].deger)+' ('+pct+'%)</span>'
+        +'</div>'
+        +'<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+cl+'"></div></div>'
+        +'</div>';
+    }).join('')
+    +'</div>'
+    +'</div>'
+
+    // Aylık detay tablo
+    +(aylar.length?
+      '<div class="card" style="padding:0;overflow:hidden">'
+      +'<div style="padding:14px 16px;border-bottom:1px solid var(--border)"><div class="section-title" style="margin:0">Aylık Detay</div></div>'
+      +'<div class="table-wrap"><table>'
+      +'<thead><tr><th>Ay</th><th>Kullanılan Adet</th><th>Kullanım Değeri (€)</th></tr></thead>'
+      +'<tbody>'+aylar.map(function(ay){
+        return '<tr>'
+          +'<td style="color:var(--accent)">'+ay+'</td>'
+          +'<td>'+aylikKullanim[ay].adet+' adet</td>'
+          +'<td style="color:var(--red)">'+eur(aylikKullanim[ay].deger)+'</td>'
+          +'</tr>';
+      }).join('')+'</tbody>'
+      +'</table></div></div>'
+    :'');
+}
+
 function closeModal(){document.getElementById('modal-container').innerHTML='';}
 
 (async()=>{await loadAll();updateBadge();navigate('dashboard');})();
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+function excelIndir(){
+  // SheetJS ile Excel oluştur
+  if(typeof XLSX === 'undefined'){
+    alert('Excel kütüphanesi yükleniyor, lütfen bekleyin...');
+    return;
+  }
+  var wb = XLSX.utils.book_new();
+
+  // 1. Stok Verileri sayfası
+  var stokData = [['Parça Kodu','Parça Adı','Kategori','Ekipman','Mevcut Stok','Min Stok','Birim Fiyat (€)','Toplam Değer (€)','ABC','Tedarikçi','Teslimat (gün)','Kritik']];
+  parcalar.forEach(function(p){
+    var m=mevcut(p.kod);
+    stokData.push([p.kod,p.ad,p.kategori||'',p.ekipman||'',m,p.min_stok||0,Number(p.birim_fiyat||0).toFixed(2),Number(m*p.birim_fiyat).toFixed(2),abc(p.birim_fiyat,p.kod),p.tedarikci||'',p.teslimat||0,p.kritik?'Evet':'Hayır']);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(stokData), 'Stok Verileri');
+
+  // 2. Kritik Parçalar sayfası
+  var kritikData = [['Parça Kodu','Parça Adı','Ekipman','Stok','Min Stok','ROP','Birim Fiyat (€)','ABC','Tedarikçi','Teslimat (gün)','Neden Kritik','Durum']];
+  parcalar.forEach(function(p){
+    var m=mevcut(p.kod);
+    var talep=p.yillik_talep||1, teslimat=p.teslimat||0;
+    var ss=Math.max(1,Math.round(1.65*0.05*Math.sqrt(teslimat||14)));
+    var rop=Math.max(1,Math.round((talep/365)*teslimat+ss));
+    var abcS=abc(p.birim_fiyat,p.kod);
+    var nedenler=[];
+    if(p.kritik) nedenler.push('Manuel');
+    if(m<=0) nedenler.push('Tükendi');
+    else if(m<=(p.min_stok||1)) nedenler.push('Min Stok Altı');
+    if(teslimat>0&&m<=rop&&m>(p.min_stok||1)) nedenler.push('ROP Altı');
+    if(teslimat>=30&&m<=ss&&m>(p.min_stok||1)) nedenler.push('Uzun Temin');
+    if(abcS==='A'&&m<=(p.min_stok||1)*2&&m>(p.min_stok||1)) nedenler.push('A Sınıfı Düşük');
+    if(nedenler.length===0) return;
+    var durum=m<=0?'ACİL SİPARİŞ':m<=(p.min_stok||1)?'KRİTİK':'UYARI';
+    kritikData.push([p.kod,p.ad,p.ekipman||'',m,p.min_stok||0,rop,Number(p.birim_fiyat||0).toFixed(2),abcS,p.tedarikci||'',teslimat,nedenler.join(', '),durum]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kritikData), 'Kritik Parçalar');
+
+  // 3. Sipariş Takip sayfası
+  var sipData = [['Sipariş No','Parça Kodu','Parça Adı','Tedarikçi','Miktar','Tutar (€)','Sipariş Tarihi','Tahmini Teslimat','Durum']];
+  siparisler.forEach(function(s){
+    var p=parcalar.find(function(x){return x.kod===s.par_kod;})||{};
+    sipData.push([s.sip_no,s.par_kod,p.ad||s.par_ad||'',p.tedarikci||'',s.miktar,Number(s.tutar||0).toFixed(2),s.sip_tarih||'',s.tes_tarih||'',s.durum]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sipData), 'Sipariş Takip');
+
+  // 4. Hareket Log sayfası
+  var harData = [['Tarih','Parça Kodu','Parça Adı','Kullanan','Hareket Tipi','Miktar','İş Emri','Açıklama']];
+  hareketler.forEach(function(h){
+    var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
+    harData.push([h.tarih||'',h.par_kod,p.ad||'',h.kullanan||'',h.tip,h.miktar,h.i_emri||'',h.aciklama||'']);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(harData), 'Hareket Log');
+
+  // Dosyayı indir
+  var tarih = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, 'StokTakip_Rapor_'+tarih+'.xlsx');
+}
+</script>
 </body>
 </html>
