@@ -5,7 +5,7 @@
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzBmMTcyYSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzEwYjk4MSI+4pqZPC90ZXh0Pgo8L3N2Zz4=">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PharmaMAINT — Yedek Parça Yönetim Sistemi</title>
+<title>StokTakip — Yedek Parça Yönetim Sistemi</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--accent:#38bdf8;--gold:#f59e0b;--green:#10b981;--red:#ef4444;--purple:#a78bfa;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--border:#334155;--card:#1e293b;--card2:#162032;}
@@ -83,13 +83,39 @@ tr:hover td{background:rgba(255,255,255,0.02)}
 .spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
 .table-wrap{overflow-x:auto}
+
+
+
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#0f172a}
+::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#475569}
+
 </style>
 </head>
 <body>
+<div id="LO" style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0f172a;z-index:99999;display:flex;align-items:center;justify-content:center">
+<div style="background:#1e293b;border:1px solid #334155;border-radius:16px;padding:40px;width:360px">
+<div style="text-align:center;margin-bottom:28px"><div style="font-size:22px;font-weight:700;color:#38bdf8">⚙ StokTakip</div><div style="font-size:11px;color:#64748b;margin-top:4px">Yedek Parça Yönetim Sistemi</div></div>
+<div id="LE" style="display:none;background:rgba(239,68,68,0.15);border:1px solid #ef4444;color:#ef4444;padding:8px;border-radius:8px;font-size:12px;text-align:center;margin-bottom:12px">Hatalı kullanıcı adı veya şifre!</div>
+<div style="font-size:10px;color:#64748b;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Kullanıcı Adı</div>
+<input id="LU" type="text" name="username" autocomplete="username" list="user-list" style="width:100%;padding:10px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:8px;font-size:13px;margin-bottom:14px;outline:none"><datalist id="user-list"><option value="Teknik"></datalist>
+<div style="font-size:10px;color:#64748b;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Şifre</div>
+<div style="position:relative;margin-bottom:20px">
+<input id="LP" type="password" style="width:100%;padding:10px;padding-right:40px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:8px;font-size:13px;outline:none">
+<button type="button" onclick="var x=document.getElementById('LP');x.type=x.type==='password'?'text':'password';this.textContent=x.type==='password'?'👁':'🙈'" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:0;color:#64748b">👁</button>
+</div>
+<button onclick="LF()" style="width:100%;padding:11px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Giriş Yap</button>
+</div></div>
+<script>
+function LF(){if(document.getElementById('LU').value==='Teknik'&&document.getElementById('LP').value==='Biofarma'){document.getElementById('LO').style.display='none';}else{document.getElementById('LE').style.display='block';document.getElementById('LP').value='';}}
+document.addEventListener('keydown',function(e){if(e.key==='Enter')LF();});
+</script>
 <div class="app">
   <div class="sidebar">
     <div class="logo">
-      <div class="logo-title">⚙ PharmaMAINT</div>
+      <div class="logo-title">⚙ StokTakip</div>
       <div class="logo-sub">Yedek Parça Yönetim Sistemi</div>
     </div>
     <nav class="nav">
@@ -114,6 +140,7 @@ tr:hover td{background:rgba(255,255,255,0.02)}
   </div>
 </div>
 <div id="modal-container"></div>
+
 <script>
 const SB_URL='https://pknjdbbzkbxilyjxgxpd.supabase.co';
 const SB_KEY='sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b';
@@ -137,7 +164,30 @@ function mevcut(kod){
   });
   return Math.max(0,s);
 }
-function abc(f){return f>=500?'A':f>=50?'B':'C';}
+function abcHesapla(){
+  // Pareto bazlı ABC — toplam değerin %70/20/10
+  const degerler = parcalar.map(p=>({kod:p.kod, deger:mevcut(p.kod)*p.birim_fiyat}));
+  const toplamDeger = degerler.reduce((s,x)=>s+x.deger, 0);
+  if(toplamDeger===0) return {};
+  // Değere göre büyükten küçüğe sırala
+  degerler.sort((a,b)=>b.deger-a.deger);
+  const sonuc = {};
+  let birikimli = 0;
+  degerler.forEach(p=>{
+    birikimli += p.deger;
+    const pct = birikimli / toplamDeger;
+    if(pct <= 0.70) sonuc[p.kod] = 'A';
+    else if(pct <= 0.90) sonuc[p.kod] = 'B';
+    else sonuc[p.kod] = 'C';
+  });
+  return sonuc;
+}
+function abc(f,kod){
+  // Pareto hesabı — kod varsa oradan, yoksa fiyata göre fallback
+  const tablo = abcHesapla();
+  if(kod && tablo[kod]) return tablo[kod];
+  return f>=500?'A':f>=50?'B':'C';
+}
 function durum(p){const m=mevcut(p.kod);if(m<=0)return{l:'TÜKENDİ',c:'badge-red'};if(m<=(p.min_stok||1))return{l:'KRİTİK',c:'badge-red'};if(m<=(p.min_stok||1)*1.5)return{l:'DÜŞÜK',c:'badge-gold'};return{l:'YETERLİ',c:'badge-green'};}
 function fmt(n,d=0){return Number(n||0).toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d});}
 function eur(n){return '€'+fmt(n,2);}
@@ -156,7 +206,15 @@ async function loadAll(){
 }
 
 function updateBadge(){
-  const n=parcalar.filter(p=>mevcut(p.kod)<=(p.min_stok||1)||p.kritik).length;
+  const n=parcalar.filter(p=>{
+    const m=mevcut(p.kod);
+    const talep=p.yillik_talep||1;
+    const teslimat=p.teslimat||0;
+    const ss=Math.max(1,Math.round(1.65*0.05*Math.sqrt(teslimat||14)));
+    const rop=Math.max(1,Math.round((talep/365)*teslimat+ss));
+    const abcSinif=abc(p.birim_fiyat,p.kod);
+    return p.kritik||m<=(p.min_stok||1)||(m<=rop&&teslimat>0)||(teslimat>=30&&m<=ss)||(abcSinif==='A'&&m<=(p.min_stok||1)*2);
+  }).length;
   const el=document.getElementById('kritik-badge');
   if(el){el.textContent=n;el.style.display=n?'':'none';}
 }
@@ -177,7 +235,7 @@ function renderDash(){
   const topD=parcalar.reduce((s,p)=>s+mevcut(p.kod)*p.birim_fiyat,0);
   const bek=siparisler.filter(s=>s.durum==='Beklemede'||s.durum==='Kargoda').length;
   const abcD={A:{s:0,d:0},B:{s:0,d:0},C:{s:0,d:0}};
-  parcalar.forEach(p=>{const k=abc(p.birim_fiyat);abcD[k].s++;abcD[k].d+=mevcut(p.kod)*p.birim_fiyat;});
+  parcalar.forEach(p=>{const k=abc(p.birim_fiyat, p.kod);abcD[k].s++;abcD[k].d+=mevcut(p.kod)*p.birim_fiyat;});
   const katD={};parcalar.forEach(p=>{katD[p.kategori||'Diğer']=(katD[p.kategori||'Diğer']||0)+mevcut(p.kod)*p.birim_fiyat;});
   const katL=Object.entries(katD).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const maxK=katL[0]?katL[0][1]:1;
@@ -206,7 +264,7 @@ function renderDash(){
 function renderStok(){
   document.getElementById('topbar-actions').innerHTML=`<input class="search-bar" placeholder="🔍 Parça ara..." value="${stokSearch}" oninput="stokSearch=this.value;renderStok()"><button class="btn" onclick="refreshAll('stok')">↻ Yenile</button><button class="btn btn-primary" onclick="showParcaModal()">+ Yeni Parça</button>`;
   const f=parcalar.filter(p=>!stokSearch||[p.kod,p.ad,p.tedarikci||'',p.ekipman||''].some(v=>v.toLowerCase().includes(stokSearch.toLowerCase())));
-  const rows=f.map(p=>{const m=mevcut(p.kod),d=durum(p),a=abc(p.birim_fiyat),ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';return`<tr><td style="color:var(--accent);font-weight:600">${p.kod}</td><td>${p.ad}</td><td style="color:var(--text3)">${p.kategori||'-'}</td><td style="color:var(--text3)">${p.ekipman||'-'}</td><td><b style="color:${m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)'}">${m}</b></td><td style="color:var(--text3)">${p.min_stok||0}</td><td style="color:var(--gold)">${eur(p.birim_fiyat)}</td><td><span class="badge ${ac}">${a}</span></td><td><span class="badge ${d.c}">${d.l}</span></td><td style="color:var(--text3)">${p.tedarikci||'-'}</td><td style="white-space:nowrap"><button class="btn btn-sm" onclick="showParcaModal('${p.id}')">Düzenle</button> <button class="btn btn-sm" onclick="showHareketModal('${p.kod}')">Hareket</button> <button class="btn btn-sm btn-danger" onclick="parcaSil('${p.id}','${p.kod}')">Sil</button></td></tr>`;}).join('');
+  const rows=f.map(p=>{const m=mevcut(p.kod),d=durum(p),a=abc(p.birim_fiyat, p.kod),ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';return`<tr><td style="color:var(--accent);font-weight:600">${p.kod}</td><td>${p.ad}</td><td style="color:var(--text3)">${p.kategori||'-'}</td><td style="color:var(--text3)">${p.ekipman||'-'}</td><td><b style="color:${m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)'}">${m}</b></td><td style="color:var(--text3)">${p.min_stok||0}</td><td style="color:var(--gold)">${eur(p.birim_fiyat)}</td><td><span class="badge ${ac}">${a}</span></td><td><span class="badge ${d.c}">${d.l}</span></td><td style="color:var(--text3)">${p.tedarikci||'-'}</td><td style="white-space:nowrap"><button class="btn btn-sm" onclick="showParcaModal('${p.id}')">Düzenle</button> <button class="btn btn-sm" onclick="showHareketModal('${p.kod}')">Hareket</button> <button class="btn btn-sm btn-danger" onclick="parcaSil('${p.id}','${p.kod}')">Sil</button></td></tr>`;}).join('');
   document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>Kategori</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>Fiyat</th><th>ABC</th><th>Durum</th><th>Tedarikçi</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
 }
 
@@ -248,10 +306,66 @@ async function parcaSil(id,kod){
 }
 
 function renderKritik(){
-  document.getElementById('topbar-actions').innerHTML=`<button class="btn" onclick="refreshAll('kritik')">↻ Yenile</button>`;
-  const kl=parcalar.filter(p=>mevcut(p.kod)<=(p.min_stok||1)||p.kritik).sort((a,b)=>mevcut(a.kod)-mevcut(b.kod));
-  const rows=kl.map(p=>{const m=mevcut(p.kod),a=abc(p.birim_fiyat),ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';return`<tr><td style="color:var(--accent);font-weight:600">${p.kod}</td><td>${p.ad}</td><td style="color:var(--text3)">${p.ekipman||'-'}</td><td><b style="color:${m<=0?'var(--red)':'var(--gold)'}">${m}</b></td><td style="color:var(--text3)">${p.min_stok||0}</td><td style="color:var(--gold)">${eur(p.birim_fiyat)}</td><td><span class="badge ${ac}">${a}</span></td><td style="color:var(--text3)">${p.tedarikci||'-'}</td><td style="color:var(--text3)">${p.teslimat||'-'} gün</td><td><span class="badge ${m<=0?'badge-red':'badge-gold'}">${m<=0?'ACİL SİPARİŞ':'Sipariş Aç'}</span></td><td><button class="btn btn-sm btn-primary" onclick="showSiparisModal('${p.kod}')">Sipariş Ver</button></td></tr>`;}).join('');
-  document.getElementById('content').innerHTML=`${kl.length?`<div class="alert alert-danger">⚠ ${kl.length} parça kritik seviyede.</div>`:''}<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>Fiyat</th><th>ABC</th><th>Tedarikçi</th><th>Teslimat</th><th>Durum</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">✅ Kritik parça yok!</div></td></tr>'}</tbody></table></div></div>`;
+  document.getElementById('topbar-actions').innerHTML='<button class="btn" onclick="refreshAll(\'kritik\')">↻ Yenile</button>';
+
+  function kritikBilgi(p){
+    var m=mevcut(p.kod);
+    var talep=p.yillik_talep||1;
+    var teslimat=p.teslimat||0;
+    var ss=Math.max(1,Math.round(1.65*0.05*Math.sqrt(teslimat||14)));
+    var rop=Math.max(1,Math.round((talep/365)*teslimat+ss));
+    var abcSinif=abc(p.birim_fiyat,p.kod);
+    var nedenler=[];
+    if(p.kritik) nedenler.push('Manuel');
+    if(m<=0) nedenler.push('Tükendi');
+    else if(m<=(p.min_stok||1)) nedenler.push('Min Stok Altı');
+    if(teslimat>0 && m<=rop && m>(p.min_stok||1)) nedenler.push('ROP Altı');
+    if(teslimat>=30 && m<=ss && m>(p.min_stok||1)) nedenler.push('Uzun Temin');
+    if(abcSinif==='A' && m<=(p.min_stok||1)*2 && m>(p.min_stok||1)) nedenler.push('A Sınıfı Düşük');
+    return {m:m, ss:ss, rop:rop, nedenler:nedenler, abcSinif:abcSinif};
+  }
+
+  var kl=parcalar.filter(function(p){
+    var b=kritikBilgi(p);
+    return b.nedenler.length>0;
+  }).sort(function(a,b){return mevcut(a.kod)-mevcut(b.kod);});
+
+  var rows=kl.map(function(p){
+    var b=kritikBilgi(p);
+    var m=b.m, rop=b.rop, nedenStr=b.nedenler.join(', ');
+    var a=b.abcSinif;
+    var ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';
+    var stokRenk=m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)';
+    var durumCls=m<=0?'badge-red':m<=(p.min_stok||1)?'badge-red':'badge-gold';
+    var durumLbl=m<=0?'ACİL SİPARİŞ':m<=(p.min_stok||1)?'KRİTİK':'UYARI';
+    return '<tr>'
+      +'<td style="color:var(--accent);font-weight:600">'+p.kod+'</td>'
+      +'<td>'+p.ad+'</td>'
+      +'<td style="color:var(--text3)">'+(p.ekipman||'-')+'</td>'
+      +'<td><b style="color:'+stokRenk+'">'+m+'</b></td>'
+      +'<td style="color:var(--text3)">'+(p.min_stok||0)+'</td>'
+      +'<td style="color:var(--gold)">'+rop+'</td>'
+      +'<td style="color:var(--gold)">'+eur(p.birim_fiyat)+'</td>'
+      +'<td><span class="badge '+ac+'">'+a+'</span></td>'
+      +'<td style="color:var(--text3)">'+(p.tedarikci||'-')+'</td>'
+      +'<td style="color:var(--text3)">'+(p.teslimat||'-')+' gün</td>'
+      +'<td><span class="badge badge-gold" style="font-size:9px">'+nedenStr+'</span></td>'
+      +'<td><span class="badge '+durumCls+'">'+durumLbl+'</span></td>'
+      +'<td><button class="btn btn-sm btn-primary" onclick="showSiparisModal(\''+p.kod+'\')">Sipariş Ver</button></td>'
+      +'</tr>';
+  }).join('');
+
+  var alert_html=kl.length?'<div class="alert alert-danger">⚠ '+kl.length+' parça kritik seviyede.</div>':'';
+  document.getElementById('content').innerHTML=alert_html
+    +'<div class="card" style="padding:0;overflow:hidden">'
+    +'<div class="table-wrap"><table>'
+    +'<thead><tr>'
+    +'<th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>ROP</th>'
+    +'<th>Fiyat</th><th>ABC</th><th>Tedarikçi</th><th>Teslimat</th>'
+    +'<th>Neden Kritik</th><th>Durum</th><th>İşlem</th>'
+    +'</tr></thead>'
+    +'<tbody>'+(rows||'<tr><td colspan="13"><div class="empty">✅ Kritik parça yok!</div></td></tr>')+'</tbody>'
+    +'</table></div></div>';
 }
 
 function renderEOQ(){
@@ -321,5 +435,6 @@ function closeModal(){document.getElementById('modal-container').innerHTML='';}
 
 (async()=>{await loadAll();updateBadge();navigate('dashboard');})();
 </script>
+
 </body>
 </html>
