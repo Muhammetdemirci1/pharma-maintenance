@@ -193,10 +193,7 @@ function fiyatGoster(p){
   var pb=p.pb||'EUR';
   var giris=p.birim_fiyat_giris||p.birim_fiyat||0;
   var sembol=pbSembol(pb);
-  var orijinal=sembol+Number(giris).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  if(pb==='EUR') return orijinal;
-  var eurStr='<span style="font-size:10px;color:var(--text3);display:block">≈'+eur(p.birim_fiyat)+'</span>';
-  return orijinal+eurStr;
+  return sembol+Number(giris).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
 
@@ -221,11 +218,14 @@ async function fotografYukle(dosya, parKod){
 }
 
 async function fotografSil(parKod){
-  var uzantilar = ['jpg','jpeg','png','webp','gif'];
+  var uzantilar=['jpg','jpeg','png','webp','gif'];
   for(var i=0;i<uzantilar.length;i++){
-    await fetch('https://pknjdbbzkbxilyjxgxpd.supabase.co/storage/v1/object/parca-fotograflar/'+parKod+'.'+uzantilar[i], {
-      method: 'DELETE',
-      headers: {'apikey':'sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b','Authorization':'Bearer sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b'}
+    await fetch('https://pknjdbbzkbxilyjxgxpd.supabase.co/storage/v1/object/parca-fotograflar/'+parKod+'.'+uzantilar[i],{
+      method:'DELETE',
+      headers:{'apikey':'sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b','Authorization':'Bearer sb_publishable_YNi3qSnLyM-ZVlE1TckyNg_QkuZqt1b'}
+    });
+  }
+}
     });
   }
 }
@@ -329,13 +329,7 @@ async function loadAll(){
 
 function updateBadge(){
   const n=parcalar.filter(p=>{
-    const m=mevcut(p.kod);
-    const talep=p.yillik_talep||1;
-    const teslimat=p.teslimat||0;
-    const ss=Math.max(1,Math.round(1.65*0.05*Math.sqrt(teslimat||14)));
-    const rop=Math.max(1,Math.round((talep/365)*teslimat+ss));
-    const abcSinif=abc(p.birim_fiyat,p.kod);
-    return p.kritik||m<=(p.min_stok||1)||(m<=rop&&teslimat>0)||(teslimat>=30&&m<=ss)||(abcSinif==='A'&&m<=(p.min_stok||1)*2);
+    return kritikBilgi(p).nedenler.length>0;
   }).length;
   const el=document.getElementById('kritik-badge');
   if(el){el.textContent=n;el.style.display=n?'':'none';}
@@ -552,13 +546,25 @@ function renderKritik(){
     var ss=Math.max(1,Math.round(1.65*0.05*Math.sqrt(teslimat||14)));
     var rop=Math.max(1,Math.round((talep/365)*teslimat+ss));
     var abcSinif=abc(p.birim_fiyat,p.kod);
+
+    // KRİTİK PARÇA KRİTERLERİ:
+    // Parça kritik yedek parça sekmesinde görünmek için
+    // şu kriterlerden en az birini sağlamalı:
+    // 1. Elle "Kritik Parça" olarak işaretlenmiş
+    // 2. ABC sınıfı A (yüksek değerli)
+    // 3. Temin süresi ≥ 30 gün (uzun bekleme)
+
+    var kritikParça = p.kritik || abcSinif==='A' || teslimat>=30;
+
+    // Kritik parça değilse listeye girme
+    if(!kritikParça) return {m:m, ss:ss, rop:rop, nedenler:[], abcSinif:abcSinif};
+
+    // Kritik parça ise stok durumuna göre neden belirt
     var nedenler=[];
-    if(p.kritik) nedenler.push('Manuel');
-    if(m<=0) nedenler.push('Tükendi');
-    else if(m<=(p.min_stok||1)) nedenler.push('Min Stok Altı');
-    if(teslimat>0 && m<=rop && m>(p.min_stok||1)) nedenler.push('ROP Altı');
-    if(teslimat>=30 && m<=ss && m>(p.min_stok||1)) nedenler.push('Uzun Temin');
-    if(abcSinif==='A' && m<=(p.min_stok||1)*2 && m>(p.min_stok||1)) nedenler.push('A Sınıfı Düşük');
+    if(p.kritik) nedenler.push('Elle İşaretlendi');
+    if(abcSinif==='A') nedenler.push('Sınıf A');
+    if(teslimat>=30) nedenler.push('Uzun Temin ('+teslimat+' gün)');
+
     return {m:m, ss:ss, rop:rop, nedenler:nedenler, abcSinif:abcSinif};
   }
 
