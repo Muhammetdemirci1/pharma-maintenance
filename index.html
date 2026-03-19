@@ -644,6 +644,9 @@ function kritikBilgi(p){
 
 
 function sipVerKod(btn){showSiparisModal(btn.getAttribute('data-kod'));}
+
+function fotoZoomAc(){var el=document.getElementById('df-overlay');if(el){el.style.display='flex';}}
+function fotoZoomKapat(){var el=document.getElementById('df-overlay');if(el){el.style.display='none';}}
 function cikisYap(){
   sessionStorage.removeItem('auth');
   location.reload();
@@ -935,8 +938,8 @@ function showParcaDetay(id){
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:14px">
         <div style="flex-shrink:0">
-          <img src="${fotografUrl(p.kod)}" style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid var(--border);display:block;cursor:zoom-in" onclick="this.nextElementSibling.style.display='flex'" onerror="this.style.opacity=0">
-          <div onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out"><img src="${fotografUrl(p.kod)}" style="max-width:90vw;max-height:90vh;border-radius:12px"></div>
+          <img src="${fotografUrl(p.kod)}" style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid var(--border);display:block;cursor:zoom-in" onclick="fotoZoomAc()" onerror="this.style.opacity=0">
+          <div id="df-overlay" onclick="fotoZoomKapat()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out"><img src="${fotografUrl(p.kod)}" style="max-width:90vw;max-height:90vh;border-radius:12px"></div>
         </div>
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
