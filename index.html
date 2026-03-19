@@ -7,135 +7,261 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StokTakip — Yedek Parça Yönetim Sistemi</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--accent:#38bdf8;--gold:#f59e0b;--green:#10b981;--red:#ef4444;--purple:#a78bfa;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--border:#334155;--card:#1e293b;--card2:#162032;}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;font-size:13px;min-height:100vh}
+:root{
+  /* Sidebar — koyu */
+  --sb-bg:#111827;
+  --sb-hover:#1f2937;
+  --sb-active:#1e3a5f;
+  --sb-border:#1f2937;
+  --sb-text:#9ca3af;
+  --sb-text-active:#60a5fa;
+  --sb-accent:#3b82f6;
+
+  /* İçerik — açık */
+  --bg:#f8fafc;
+  --bg2:#ffffff;
+  --bg3:#f1f5f9;
+  --border:#e2e8f0;
+  --border2:#cbd5e1;
+  --text:#0f172a;
+  --text2:#475569;
+  --text3:#94a3b8;
+
+  /* Semantic */
+  --blue:#3b82f6;
+  --blue-light:#eff6ff;
+  --blue-mid:#bfdbfe;
+  --green:#10b981;
+  --green-light:#f0fdf4;
+  --red:#ef4444;
+  --red-light:#fef2f2;
+  --gold:#f59e0b;
+  --gold-light:#fffbeb;
+  --purple:#8b5cf6;
+
+  --radius:10px;
+  --radius-sm:6px;
+  --radius-lg:14px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+}
+
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.5}
+
+/* ── LAYOUT ────────────────────────────────────── */
 .app{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.logo{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
-.logo-title{font-size:14px;font-weight:600;color:var(--accent)}
-.logo-sub{font-size:10px;color:var(--text3);margin-top:2px}
-.nav{flex:1;padding:12px 8px;overflow-y:auto}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--text2);font-size:12px;transition:all 0.15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
-.nav-item:hover{background:var(--bg3);color:var(--text)}
-.nav-item.active{background:rgba(56,189,248,0.15);color:var(--accent);border-left:2px solid var(--accent)}
-.nav-icon{font-size:16px;width:20px;text-align:center}
-.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:2px 6px;border-radius:10px;font-weight:600}
-.conn-status{padding:10px 16px;border-top:1px solid var(--border);font-size:10px;display:flex;align-items:center;gap:6px}
-.conn-dot{width:7px;height:7px;border-radius:50%;background:var(--text3)}
+
+/* ── SIDEBAR ───────────────────────────────────── */
+.sidebar{width:240px;background:var(--sb-bg);display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid var(--sb-border)}
+.logo{padding:24px 20px 20px;border-bottom:1px solid var(--sb-border)}
+.logo-icon{width:36px;height:36px;background:var(--sb-accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.logo-title{font-size:15px;font-weight:600;color:#f9fafb;letter-spacing:-0.01em}
+.logo-sub{font-size:11px;color:var(--sb-text);margin-top:2px}
+
+.nav{flex:1;padding:12px 10px;overflow-y:auto}
+.nav-section{font-size:10px;font-weight:600;color:#4b5563;text-transform:uppercase;letter-spacing:0.08em;padding:12px 10px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--sb-text);font-size:13px;font-weight:400;transition:all 0.15s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--sb-hover);color:#e5e7eb}
+.nav-item.active{background:var(--sb-active);color:var(--sb-text-active);font-weight:500}
+.nav-icon{font-size:15px;width:20px;text-align:center;opacity:0.8}
+.nav-item.active .nav-icon{opacity:1}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
+
+.conn-status{padding:12px 20px;border-top:1px solid var(--sb-border);font-size:11px;display:flex;align-items:center;gap:7px;color:var(--sb-text)}
+.conn-dot{width:6px;height:6px;border-radius:50%;background:#374151;flex-shrink:0}
 .conn-dot.ok{background:var(--green)}
 .conn-dot.err{background:var(--red)}
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2)}
-.page-title{font-size:15px;font-weight:600;color:var(--text)}
+
+/* ── MAIN ──────────────────────────────────────── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+
+.topbar{padding:0 28px;height:60px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);box-shadow:var(--shadow)}
+.page-title{font-size:16px;font-weight:600;color:var(--text);letter-spacing:-0.01em}
 .topbar-actions{display:flex;gap:8px;align-items:center}
-.btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;font-size:12px;transition:all 0.15s}
-.btn:hover{background:var(--accent);color:#000;border-color:var(--accent)}
-.btn-primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600}
-.btn-primary:hover{background:#7dd3fc}
-.btn-danger{border-color:var(--red);color:var(--red)}
-.btn-danger:hover{background:var(--red);color:#fff}
-.btn-sm{padding:4px 10px;font-size:11px}
-.content{flex:1;overflow-y:auto;padding:24px}
-.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.kpi{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px}
-.kpi-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
-.kpi-value{font-size:22px;font-weight:700}
-.kpi-sub{font-size:10px;color:var(--text3);margin-top:4px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
-.section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:10px 12px;border-bottom:1px solid rgba(51,65,85,0.4);font-size:12px;color:var(--text2)}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,0.02)}
-.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600;white-space:nowrap}
-.badge-red{background:rgba(239,68,68,0.15);color:var(--red)}
-.badge-green{background:rgba(16,185,129,0.15);color:var(--green)}
-.badge-gold{background:rgba(245,158,11,0.15);color:var(--gold)}
-.badge-blue{background:rgba(56,189,248,0.15);color:var(--accent)}
-.badge-gray{background:rgba(100,116,139,0.2);color:var(--text3)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:1000}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:580px;max-width:95vw;max-height:90vh;overflow-y:auto}
-.modal-title{font-size:15px;font-weight:600;margin-bottom:20px;color:var(--text)}
-.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-group{display:flex;flex-direction:column;gap:5px}
-.form-group label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;font-weight:600}
-.form-group input,.form-group select,.form-group textarea{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-size:12px;outline:none;transition:border 0.15s;font-family:inherit}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent)}
-.form-group select option{background:var(--bg2)}
-.search-bar{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:12px;outline:none;width:200px}
-.search-bar:focus{border-color:var(--accent)}
-.alert{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:12px}
-.alert-warning{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:var(--gold)}
-.alert-danger{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:var(--red)}
-.empty{text-align:center;padding:48px;color:var(--text3);font-size:13px}
-.progress-bar{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:6px}
-.progress-fill{height:100%;border-radius:3px;transition:width 0.4s}
-.chart-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.chart-bar-label{font-size:11px;color:var(--text2);width:130px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chart-bar-track{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
-.chart-bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
-.chart-bar-val{font-size:11px;color:var(--text3);width:80px;text-align:right;flex-shrink:0}
-.loading{text-align:center;padding:40px;color:var(--text3)}
-.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
+
+.content{flex:1;overflow-y:auto;padding:28px}
+
+/* ── BUTTONS ───────────────────────────────────── */
+.btn{padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap}
+.btn:hover{background:var(--bg3);border-color:var(--border2);color:var(--text)}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:500}
+.btn-primary:hover{background:#2563eb;border-color:#2563eb}
+.btn-danger{border-color:#fca5a5;color:var(--red);background:var(--red-light)}
+.btn-danger:hover{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text3)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text2);border-color:transparent}
+
+/* ── CARDS ─────────────────────────────────────── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow)}
+.card-sm{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+
+/* ── KPI CARDS ─────────────────────────────────── */
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;box-shadow:var(--shadow);transition:box-shadow 0.15s}
+.kpi:hover{box-shadow:var(--shadow-md)}
+.kpi-label{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px}
+.kpi-value{font-size:26px;font-weight:600;letter-spacing:-0.02em;line-height:1}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:6px}
+.kpi-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:12px}
+.kpi-icon.blue{background:var(--blue-light)}
+.kpi-icon.green{background:var(--green-light)}
+.kpi-icon.red{background:var(--red-light)}
+.kpi-icon.gold{background:var(--gold-light)}
+
+/* ── GRIDS ─────────────────────────────────────── */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+
+/* ── SECTION TITLE ─────────────────────────────── */
+.section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px}
+
+/* ── TABLE ─────────────────────────────────────── */
 .table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--bg3)}
+th{text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f8fafc}
 
+/* ── BADGES ────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;letter-spacing:0.02em}
+.badge-red{background:var(--red-light);color:#dc2626}
+.badge-green{background:var(--green-light);color:#059669}
+.badge-gold{background:var(--gold-light);color:#d97706}
+.badge-blue{background:var(--blue-light);color:#2563eb}
+.badge-gray{background:var(--bg3);color:var(--text3)}
+.badge-purple{background:#f5f3ff;color:#7c3aed}
 
+/* ── PROGRESS ──────────────────────────────────── */
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;border-radius:3px;transition:width 0.5s}
 
+/* ── CHART BARS ────────────────────────────────── */
+.chart-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.chart-bar-label{font-size:11px;color:var(--text2);width:120px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-bar-track{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:4px;transition:width 0.5s}
+.chart-bar-val{font-size:11px;color:var(--text3);width:70px;text-align:right;flex-shrink:0}
 
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:#0f172a}
-::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:#475569}
+/* ── FORMS ─────────────────────────────────────── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;font-weight:500;color:var(--text2)}
+.form-group input,.form-group select,.form-group textarea{background:var(--bg);border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border 0.15s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.form-group select{cursor:pointer}
 
+/* ── SEARCH ────────────────────────────────────── */
+.search-wrap{position:relative;display:inline-flex;align-items:center}
+.search-icon{position:absolute;left:10px;color:var(--text3);font-size:13px;pointer-events:none}
+.search-bar{background:var(--bg);border:1.5px solid var(--border);color:var(--text);padding:8px 12px 8px 32px;border-radius:var(--radius-sm);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;width:220px;transition:border 0.15s}
+.search-bar:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
 
-@media (max-width: 768px) {
+/* ── MODAL ─────────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeIn .15s ease}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:600px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:slideUp .2s ease}
+.modal-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:22px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* ── ALERTS ────────────────────────────────────── */
+.alert{padding:12px 16px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px}
+.alert-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.alert-warning{background:var(--gold-light);border:1px solid #fde68a;color:#92400e}
+.alert-danger{background:var(--red-light);border:1px solid #fca5a5;color:#991b1b}
+.alert-success{background:var(--green-light);border:1px solid #a7f3d0;color:#065f46}
+.alert-info{background:var(--blue-light);border:1px solid var(--blue-mid);color:#1e40af}
+
+/* ── MISC ──────────────────────────────────────── */
+.empty{text-align:center;padding:48px 24px;color:var(--text3)}
+.empty-icon{font-size:32px;margin-bottom:10px;opacity:0.5}
+.loading{text-align:center;padding:48px;color:var(--text3)}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:8px;vertical-align:middle}
+.divider{height:1px;background:var(--border);margin:16px 0}
+.mono{font-family:'DM Mono',monospace}
+
+/* ── ANIMATIONS ────────────────────────────────── */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── LOGIN ─────────────────────────────────────── */
+#LO{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);display:flex;align-items:center;justify-content:center;z-index:9999}
+#LO::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(59,130,246,.08) 0%,transparent 60%)}
+.login-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:44px;width:400px;max-width:95vw;backdrop-filter:blur(20px);position:relative;z-index:1}
+.login-logo{text-align:center;margin-bottom:36px}
+.login-logo-mark{width:56px;height:56px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px}
+.login-logo-title{font-size:22px;font-weight:600;color:#f9fafb}
+.login-logo-sub{font-size:12px;color:#6b7280;margin-top:4px}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:11px;font-weight:500;color:#9ca3af;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.login-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#f9fafb;padding:11px 14px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border .15s}
+.login-field input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2)}
+.login-btn{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;margin-top:8px;letter-spacing:.01em}
+.login-btn:hover{background:linear-gradient(135deg,#2563eb,#1e40af);transform:translateY(-1px);box-shadow:0 8px 20px rgba(59,130,246,.3)}
+.login-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none;text-align:center}
+.pass-wrap{position:relative}
+.pass-wrap input{padding-right:40px}
+.pass-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6b7280;font-size:15px;padding:0}
+.pass-eye:hover{color:#9ca3af}
+
+/* ── SCROLLBAR ─────────────────────────────────── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+
+/* ── MOBILE ────────────────────────────────────── */
+@media(max-width:768px){
   .app{flex-direction:column;height:auto;min-height:100vh}
-  .sidebar{width:100%;flex-direction:row;height:auto;border-right:none;border-bottom:1px solid var(--border);overflow-x:auto}
-  .logo{display:none}
-  .nav{display:flex;flex-direction:row;padding:8px;gap:4px;overflow-x:auto;white-space:nowrap;flex:1}
-  .nav-item{flex-direction:column;padding:6px 10px;font-size:10px;gap:2px;border-left:none!important;min-width:60px;justify-content:center}
-  .nav-item.active{border-bottom:2px solid var(--accent);border-left:none}
-  .nav-icon{font-size:18px}
+  .sidebar{width:100%;height:auto;border-right:none;border-bottom:1px solid var(--sb-border)}
+  .logo{padding:14px 16px 12px;display:flex;align-items:center;gap:10px}
+  .logo-icon{margin-bottom:0;width:28px;height:28px;font-size:14px}
+  .logo-sub{display:none}
+  .nav{display:flex;flex-direction:row;padding:6px 8px;gap:2px;overflow-x:auto}
+  .nav-section{display:none}
+  .nav-item{flex-direction:column;padding:8px 10px;font-size:9px;gap:3px;min-width:56px;justify-content:center;border-radius:6px}
+  .nav-item.active{border-bottom:none}
   .conn-status{display:none}
-  .main{flex:1}
-  .topbar{padding:10px 14px;flex-wrap:wrap;gap:8px}
-  .topbar-actions{flex-wrap:wrap;gap:6px}
-  .content{padding:12px}
-  .grid-4{grid-template-columns:1fr 1fr;gap:8px}
-  .grid-2{grid-template-columns:1fr;gap:12px}
+  .content{padding:16px}
+  .grid-4{grid-template-columns:1fr 1fr;gap:10px}
+  .grid-2{grid-template-columns:1fr}
   .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table{min-width:600px}
-  .modal{width:95vw;padding:16px;max-height:95vh}
+  .modal{padding:20px}
   .form-grid{grid-template-columns:1fr}
-  .search-bar{width:140px}
-  .btn-sm{padding:3px 8px;font-size:10px}
-  #LO .modal-box{width:90vw;padding:24px}
+  .search-bar{width:160px}
 }
-@media (max-width: 480px) {
+@media(max-width:480px){
   .grid-4{grid-template-columns:1fr}
-  .kpi-value{font-size:18px}
 }
-
 </style>
 </head>
 <body>
-<div id="LO" style="position:fixed;top:0;left:0;right:0;bottom:0;width:100vw;height:100vh;background:#0f172a;z-index:99999;display:flex;align-items:center;justify-content:center">
-<div style="background:#1e293b;border:1px solid #334155;border-radius:16px;padding:40px;width:360px">
-<div style="text-align:center;margin-bottom:28px"><div style="font-size:22px;font-weight:700;color:#38bdf8">⚙ StokTakip</div><div style="font-size:11px;color:#64748b;margin-top:4px">Yedek Parça Yönetim Sistemi</div></div>
-<div id="LE" style="display:none;background:rgba(239,68,68,0.15);border:1px solid #ef4444;color:#ef4444;padding:8px;border-radius:8px;font-size:12px;text-align:center;margin-bottom:12px">Hatalı kullanıcı adı veya şifre!</div>
-<div style="font-size:10px;color:#64748b;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Kullanıcı Adı</div>
-<input id="LU" type="text" name="username" autocomplete="username" list="user-list" style="width:100%;padding:10px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:8px;font-size:13px;margin-bottom:14px;outline:none"><datalist id="user-list"><option value="Teknik"></datalist>
-<div style="font-size:10px;color:#64748b;margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em">Şifre</div>
-<div style="position:relative;margin-bottom:20px">
-<input id="LP" type="password" style="width:100%;padding:10px;padding-right:40px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:8px;font-size:13px;outline:none">
-<button type="button" onclick="var x=document.getElementById('LP');x.type=x.type==='password'?'text':'password';this.textContent=x.type==='password'?'👁':'🙈'" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:0;color:#64748b">👁</button>
-</div>
-<button onclick="LF()" style="width:100%;padding:11px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Giriş Yap</button>
+<div id="LO">
+<div class="login-box">
+  <div class="login-logo">
+    <div class="login-logo-mark">⚙</div>
+    <div class="login-logo-title">StokTakip</div>
+    <div class="login-logo-sub">Yedek Parça Yönetim Sistemi — Biofarma İlaç</div>
+  </div>
+  <div class="login-err" id="LE">Kullanıcı adı veya şifre hatalı</div>
+  <div class="login-field">
+    <label>Kullanıcı Adı</label>
+    <input id="LU" type="text" name="username" autocomplete="username" list="user-list" placeholder="Kullanıcı adınız">
+    <datalist id="user-list"><option value="Teknik"></datalist>
+  </div>
+  <div class="login-field">
+    <label>Şifre</label>
+    <div class="pass-wrap">
+      <input id="LP" type="password" placeholder="••••••••">
+      <button type="button" class="pass-eye" onclick="var x=document.getElementById('LP');x.type=x.type==='password'?'text':'password';this.textContent=x.type==='password'?'👁':'🙈'">👁</button>
+    </div>
+  </div>
+  <button class="login-btn" onclick="LF()">Giriş Yap</button>
 </div></div>
 <script>
 async function LF(){
@@ -160,21 +286,27 @@ if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLo
 <div class="app">
   <div class="sidebar">
     <div class="logo">
-      <div class="logo-title">⚙ StokTakip</div>
-      <div class="logo-sub">Yedek Parça Yönetim Sistemi</div>
+      <div class="logo-icon">⚙</div>
+      <div>
+        <div class="logo-title">StokTakip</div>
+        <div class="logo-sub">Yedek Parça Yönetimi</div>
+      </div>
     </div>
     <nav class="nav">
-      <button class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">📊</span>Dashboard</button>
-      <button class="nav-item" onclick="navigate('stok')"><span class="nav-icon">📦</span>Stok Yönetimi</button>
-      <button class="nav-item" onclick="navigate('kritik')"><span class="nav-icon">🔴</span>Kritik Yedek Parçalar<span class="nav-badge" id="kritik-badge" style="display:none">0</span></button>
-      <button class="nav-item" onclick="navigate('eoq')"><span class="nav-icon">📐</span>EOQ Hesaplama</button>
-      <button class="nav-item" onclick="navigate('siparis')"><span class="nav-icon">🛒</span>Sipariş Takip</button>
-      <button class="nav-item" onclick="navigate('hareket')"><span class="nav-icon">📋</span>Hareket Log</button>
-      <button class="nav-item" onclick="navigate('raporlar')"><span class="nav-icon">📈</span>Raporlar</button>
+      <div class="nav-section">Ana Menü</div>
+      <button class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">◈</span>Dashboard</button>
+      <button class="nav-item" onclick="navigate('stok')"><span class="nav-icon">◧</span>Stok Yönetimi</button>
+      <button class="nav-item" onclick="navigate('kritik')"><span class="nav-icon">◉</span>Kritik Parçalar<span class="nav-badge" id="kritik-badge" style="display:none">0</span></button>
+      <div class="nav-section">Planlama</div>
+      <button class="nav-item" onclick="navigate('eoq')"><span class="nav-icon">◎</span>EOQ Hesaplama</button>
+      <button class="nav-item" onclick="navigate('siparis')"><span class="nav-icon">◫</span>Sipariş Takip</button>
+      <button class="nav-item" onclick="navigate('hareket')"><span class="nav-icon">◈</span>Hareket Log</button>
+      <div class="nav-section">Analiz</div>
+      <button class="nav-item" onclick="navigate('raporlar')"><span class="nav-icon">◎</span>Raporlar</button>
     </nav>
     <div class="conn-status">
       <div class="conn-dot" id="conn-dot"></div>
-      <span id="conn-text" style="color:var(--text3)">Bağlanıyor...</span>
+      <span id="conn-text">Bağlanıyor...</span>
     </div>
   </div>
   <div class="main">
@@ -417,10 +549,10 @@ function renderDash(){
   const sonH=hareketler.slice(-6).reverse();
   document.getElementById('content').innerHTML=`
 <div class="grid-4">
-  <div class="kpi"><div class="kpi-label">Toplam Parça</div><div class="kpi-value" style="color:var(--accent)">${tp}</div><div class="kpi-sub">kayıtlı yedek parça</div></div>
-  <div class="kpi"><div class="kpi-label">Stok Değeri</div><div class="kpi-value" style="color:var(--gold)">${eur(topD)}</div><div class="kpi-sub">toplam envanter</div></div>
-  <div class="kpi"><div class="kpi-label">Bu Ay Kullanım</div><div class="kpi-value" style="color:var(--accent)">${buAyCikis} adet</div><div class="kpi-sub">${trendBadge(buAyCikis,gecenAyCikis)} geçen aya göre</div></div>
-  <div class="kpi"><div class="kpi-label">Bu Ay Sipariş</div><div class="kpi-value" style="color:var(--purple)">${eur(buAySip)}</div><div class="kpi-sub">${trendBadge(buAySip,gecenAySip)} geçen aya göre</div></div>
+  <div class="kpi"><div class="kpi-icon blue">📦</div><div class="kpi-label">Toplam Parça</div><div class="kpi-value" style="color:var(--blue)">${tp}</div><div class="kpi-sub">kayıtlı yedek parça</div></div>
+  <div class="kpi"><div class="kpi-icon gold">💰</div><div class="kpi-label">Stok Değeri</div><div class="kpi-value" style="color:var(--gold)">${eur(topD)}</div><div class="kpi-sub">toplam envanter değeri</div></div>
+  <div class="kpi"><div class="kpi-icon green">📈</div><div class="kpi-label">Bu Ay Kullanım</div><div class="kpi-value" style="color:var(--green)">${buAyCikis} adet</div><div class="kpi-sub">${trendBadge(buAyCikis,gecenAyCikis)} geçen aya göre</div></div>
+  <div class="kpi"><div class="kpi-icon red">🔴</div><div class="kpi-label">Kritik / Tükenen</div><div class="kpi-value" style="color:var(--red)">${krit} / ${tuk}</div><div class="kpi-sub">acil müdahale gerekli</div></div>
 </div>
 <div class="grid-2">
   <div class="card"><div class="section-title">ABC Analizi</div>
@@ -514,7 +646,7 @@ function renderDash(){
 
 }
 function renderStok(){
-  document.getElementById('topbar-actions').innerHTML=`<input class="search-bar" placeholder="🔍 Parça ara..." value="${stokSearch}" oninput="stokSearch=this.value;renderStok()"><button class="btn" onclick="refreshAll('stok')">↻ Yenile</button><button class="btn btn-primary" onclick="showParcaModal()">+ Yeni Parça</button>`;
+  document.getElementById('topbar-actions').innerHTML=`<div class="search-wrap"><span class="search-icon">🔍</span><input class="search-bar" placeholder="Parça ara..." value="${stokSearch}" oninput="stokSearch=this.value;renderStok()"><button class="btn" onclick="refreshAll('stok')">↻ Yenile</button><button class="btn btn-primary" onclick="showParcaModal()">+ Yeni Parça</button>`;
   const f=parcalar.filter(p=>!stokSearch||[p.kod,p.ad,p.tedarikci||'',p.ekipman||''].some(v=>v.toLowerCase().includes(stokSearch.toLowerCase())));
   const rows=f.map(p=>{
     const m=mevcut(p.kod),d=durum(p),a=abc(p.birim_fiyat,p.kod),ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';
@@ -730,7 +862,7 @@ function renderEOQ(){
     const topM=sm*(t/eoq)+I*(eoq/2);
     return`<tr><td style="color:var(--accent);font-weight:600">${p.kod}</td><td>${p.ad.length>28?p.ad.slice(0,28)+'…':p.ad}</td><td style="color:var(--gold)">${eur(p.birim_fiyat)}</td><td><input type="number" value="${t}" min="0.1" step="0.5" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td><td><input type="number" value="${sm}" min="1" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td><td style="color:var(--text3)">${p.teslimat||14}</td><td><b style="color:var(--accent)">${eoq}</b></td><td style="color:var(--gold)">${ss}</td><td><b style="color:var(--gold)">${rop}</b></td><td style="color:var(--text3)">${(t/eoq).toFixed(1)}x/yıl</td><td style="color:var(--green)">${eur(topM)}</td></tr>`;
   }).join('');
-  document.getElementById('content').innerHTML=`<div class="alert alert-warning">Yeşil hücreler düzenlenebilir — değiştirince otomatik kaydedilir.</div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>Birim Fiyat</th><th style="color:var(--green)">Yıllık Talep</th><th style="color:var(--green)">Sipariş Maliyet (€)</th><th>Temin (gün)</th><th>EOQ</th><th>Güv.Stok</th><th>ROP</th><th>Sipariş/Yıl</th><th>Yıllık Maliyet</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Önce parça ekleyin</div></td></tr>'}</tbody></table></div></div>`;
+  document.getElementById('content').innerHTML=`<div class="alert alert-info"><span class="alert-icon">ℹ</span>Yeşil hücreler düzenlenebilir — değiştirince otomatik kaydedilir.</div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>Birim Fiyat</th><th style="color:var(--green)">Yıllık Talep</th><th style="color:var(--green)">Sipariş Maliyet (€)</th><th>Temin (gün)</th><th>EOQ</th><th>Güv.Stok</th><th>ROP</th><th>Sipariş/Yıl</th><th>Yıllık Maliyet</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Önce parça ekleyin</div></td></tr>'}</tbody></table></div></div>`;
 }
 
 async function updateEOQ(id,alan,val){
