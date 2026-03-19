@@ -433,7 +433,7 @@ if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLo
       <div class="nav-section">Ana Menü</div>
       <button class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">◈</span>Dashboard</button>
       <button class="nav-item" onclick="navigate('stok')"><span class="nav-icon">◧</span>Stok Yönetimi</button>
-      <button class="nav-item" onclick="navigate('kritik')"><span class="nav-icon">◉</span>Kritik Parçalar<span class="nav-badge" id="kritik-badge" style="display:none">0</span></button>
+      <button class="nav-item" onclick="navigate('kritik')"><span class="nav-icon">◉</span>Kritik Yedek Parçalar<span class="nav-badge" id="kritik-badge" style="display:none">0</span></button>
       <div class="nav-section">Planlama</div>
       <button class="nav-item" onclick="navigate('eoq')"><span class="nav-icon">◎</span>EOQ Hesaplama</button>
       <button class="nav-item" onclick="navigate('siparis')"><span class="nav-icon">◫</span>Sipariş Takip</button>
@@ -1859,7 +1859,7 @@ function excelIndir(){
     var durum=m<=0?'ACİL SİPARİŞ':m<=(p.min_stok||1)?'KRİTİK':'UYARI';
     kritikData.push([p.kod,p.ad,p.ekipman||'',m,p.min_stok||0,rop,Number(p.birim_fiyat||0).toFixed(2),abcS,p.tedarikci||'',teslimat,nedenler.join(', '),durum]);
   });
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kritikData), 'Kritik Parçalar');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kritikData), 'Kritik Yedek Parçalar');
 
   // 3. Sipariş Takip sayfası
   var sipData = [['Sipariş No','Parça Kodu','Parça Adı','Tedarikçi','Miktar','Tutar (€)','Sipariş Tarihi','Tahmini Teslimat','Durum']];
