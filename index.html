@@ -957,7 +957,6 @@ function renderStok(){
       <td><span class="badge ${ac}">${a}</span></td>
       <td><span class="badge ${d.c}">${d.l}</span></td>
       <td style="color:var(--text2);font-size:11px">${p.tedarikci||'-'}</td>
-      <td style="color:var(--text3);font-family:DM Mono,monospace;font-size:11px">${p.lokasyon||'—'}</td>
       <td style="white-space:nowrap">
         <div style="display:flex;gap:4px">
         <button class="btn btn-sm" onclick="showParcaModal('${p.id}')">Düzenle</button>
@@ -980,9 +979,8 @@ function renderStok(){
         <th style="width:50px">ABC</th>
         <th style="width:80px">Durum</th>
         <th style="width:90px">Tedarikçi</th>
-        <th style="width:80px">Lokasyon</th>
         <th style="width:180px">İşlem</th>
-      </tr></thead><tbody>${rows||'<tr><td colspan="13"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
+      </tr></thead><tbody>${rows||'<tr><td colspan="12"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
 }
 
 
@@ -1066,7 +1064,6 @@ function showParcaDetay(id){
         <table style="width:100%">
           <tr><td style="padding:5px 0;font-size:11px;color:var(--text3);width:40%">Tedarikçi</td><td style="font-size:12px;color:var(--text2);font-weight:500">${p.tedarikci||'—'}</td></tr>
           <tr><td style="padding:5px 0;font-size:11px;color:var(--text3)">Teslimat</td><td style="font-size:12px;color:var(--text2)">${p.teslimat||'—'} gün</td></tr>
-          <tr><td style="padding:5px 0;font-size:11px;color:var(--text3)">Lokasyon</td><td style="font-size:12px;color:var(--text2);font-family:DM Mono,monospace">${p.lokasyon||'—'}</td></tr>
           <tr><td style="padding:5px 0;font-size:11px;color:var(--text3)">Birim</td><td style="font-size:12px;color:var(--text2)">${p.birim||'Adet'}</td></tr>
           <tr><td style="padding:5px 0;font-size:11px;color:var(--text3)">Kategori</td><td style="font-size:12px;color:var(--text2)">${p.kategori||'—'}</td></tr>
           ${p.notlar?'<tr><td style="padding:5px 0;font-size:11px;color:var(--text3)">Notlar</td><td style="font-size:11px;color:var(--text3)">'+p.notlar+'</td></tr>':''}
@@ -1156,6 +1153,7 @@ function showParcaModal(id){
 <option value="Fryma Pomad" ${(p.ekipman||'')=='Fryma Pomad'?'selected':''}>Fryma Pomad</option>
 <option value="Unipac" ${(p.ekipman||'')=='Unipac'?'selected':''}>Unipac</option>
 <option value="YJK Çözelti Reaktörü" ${(p.ekipman||'')=='YJK Çözelti Reaktörü'?'selected':''}>YJK Çözelti Reaktörü</option>
+<option value="Atölye" ${(p.ekipman||'')=='Atölye'?'selected':''}>Atölye</option>
 </select></div>
     <div class="form-group"><label>Birim Fiyat</label><input id="f-fiyat" type="number" step="0.01" value="${p.birim_fiyat_giris||p.birim_fiyat||''}"></div>
     <div class="form-group"><label>Para Birimi</label><select id="f-pb"><option ${(p.pb||'EUR')==='EUR'?'selected':''}>EUR</option><option ${p.pb==='USD'?'selected':''}>USD</option><option ${p.pb==='TRY'?'selected':''}>TRY</option><option ${p.pb==='CHF'?'selected':''}>CHF</option></select></div>
@@ -1281,7 +1279,7 @@ function renderKritik(){
     +'<th>Fiyat</th><th>ABC</th><th>Tedarikçi</th><th>Teslimat</th>'
     +'<th>İşlem</th>'
     +'</tr></thead>'
-    +'<tbody>'+(rows||'<tr><td colspan="13"><div class="empty">✅ Kritik parça yok!</div></td></tr>')+'</tbody>'
+    +'<tbody>'+(rows||'<tr><td colspan="12"><div class="empty">✅ Kritik parça yok!</div></td></tr>')+'</tbody>'
     +'</table></div></div>';
 }
 
@@ -1488,7 +1486,6 @@ function renderCycleCount(){
       +'<td style="font-family:DM Mono,monospace;color:var(--blue);font-weight:600;font-size:12px">'+p.kod+'</td>'
       +'<td style="font-size:12px">'+p.ad+'</td>'
       +'<td style="font-size:11px;color:var(--text3)">'+( p.ekipman||'—')+'</td>'
-      +'<td style="font-size:11px;color:var(--text3);font-family:DM Mono,monospace">'+(p.lokasyon||'—')+'</td>'
       +'<td style="text-align:center"><b style="color:'+(m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)')+'">'+m+'</b></td>'
       +'<td><input type="number" id="cc-'+p.id+'" min="0" placeholder="Sayılan" disabled '
       +'style="width:80px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg3);color:var(--text3);font-size:12px;text-align:center;font-family:DM Mono,monospace"></td>'
