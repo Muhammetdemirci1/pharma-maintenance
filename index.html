@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNiIgZmlsbD0iIzBmMTcyYSIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyMyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzEwYjk4MSI+4pqZPC90ZXh0Pgo8L3N2Zz4=">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiI+CiAgPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNyIgZmlsbD0iIzExMTgyNyIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIyMiIgZmlsbD0iIzNiODJmNiI+8J+boDwvdGV4dD4KPC9zdmc+">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StokTakip — Yedek Parça Yönetim Sistemi</title>
 <style>
@@ -57,7 +57,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 /* ── SIDEBAR ───────────────────────────────────── */
 .sidebar{width:240px;background:var(--sb-bg);display:flex;flex-direction:column;flex-shrink:0;border-right:1px solid var(--sb-border)}
 .logo{padding:24px 20px 20px;border-bottom:1px solid var(--sb-border)}
-.logo-icon{width:36px;height:36px;background:var(--sb-accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.logo-icon{width:44px;height:44px;background:var(--sb-accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px}
 .logo-title{font-size:15px;font-weight:600;color:#f9fafb;letter-spacing:-0.01em}
 .logo-sub{font-size:11px;color:var(--sb-text);margin-top:2px}
 
@@ -190,30 +190,45 @@ tbody tr:hover td{background:#f8fafc}
 @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── LOGIN ─────────────────────────────────────── */
-#LO{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);display:flex;align-items:center;justify-content:center;z-index:9999}
-#LO::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(59,130,246,.08) 0%,transparent 60%)}
-.login-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:44px;width:400px;max-width:95vw;backdrop-filter:blur(20px);position:relative;z-index:1}
-.login-logo{text-align:center;margin-bottom:36px}
-.login-logo-mark{width:56px;height:56px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px}
-.login-logo-title{font-size:22px;font-weight:600;color:#f9fafb}
-.login-logo-sub{font-size:12px;color:#6b7280;margin-top:4px}
+#LO{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#LO-bg{position:absolute;inset:0;background:#050d1a}
+#LO-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 50%,rgba(30,58,138,.5) 0%,transparent 60%)}
+#LO-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 80% 30%,rgba(6,78,59,.3) 0%,transparent 55%)}
+.login-wrap{display:flex;width:900px;max-width:95vw;height:520px;max-height:95vh;border-radius:20px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6);position:relative;z-index:1}
+.login-left{flex:1;background:linear-gradient(145deg,#0f2647 0%,#0a1628 100%);padding:48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.login-left::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:rgba(59,130,246,.06);pointer-events:none}
+.login-left::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;background:rgba(16,185,129,.05);pointer-events:none}
+.login-brand{position:relative;z-index:1}
+.login-brand-icon{width:72px;height:72px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:20px;box-shadow:0 8px 24px rgba(59,130,246,.3)}
+.login-brand-name{font-size:26px;font-weight:700;color:#f9fafb;letter-spacing:-.02em}
+.login-brand-sub{font-size:12px;color:#6b7280;margin-top:6px;line-height:1.5}
+.login-features{position:relative;z-index:1}
+.login-feat{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.login-feat-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.login-feat-text{font-size:12px;color:#9ca3af}
+.login-right{width:360px;background:#ffffff;padding:44px;display:flex;flex-direction:column;justify-content:center}
+.login-right-title{font-size:20px;font-weight:700;color:#0f172a;margin-bottom:4px;letter-spacing:-.02em}
+.login-right-sub{font-size:12px;color:#94a3b8;margin-bottom:28px}
 .login-field{margin-bottom:16px}
-.login-field label{display:block;font-size:11px;font-weight:500;color:#9ca3af;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
-.login-field input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#f9fafb;padding:11px 14px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:border .15s}
-.login-field input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2)}
-.login-btn{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;margin-top:8px;letter-spacing:.01em}
-.login-btn:hover{background:linear-gradient(135deg,#2563eb,#1e40af);transform:translateY(-1px);box-shadow:0 8px 20px rgba(59,130,246,.3)}
-.login-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none;text-align:center}
+.login-field label{display:block;font-size:11px;font-weight:600;color:#475569;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+.login-field input{width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;color:#0f172a;padding:11px 14px;border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none;transition:all .15s}
+.login-field input:focus{border-color:#3b82f6;background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.login-btn{width:100%;padding:12px;border-radius:8px;border:none;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:8px;letter-spacing:.01em}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,130,246,.35)}
+.login-btn:active{transform:translateY(0)}
+.login-err{background:#fef2f2;border:1.5px solid #fca5a5;color:#dc2626;padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;display:none;text-align:center;font-weight:500}
 .pass-wrap{position:relative}
 .pass-wrap input{padding-right:40px}
-.pass-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6b7280;font-size:15px;padding:0}
-.pass-eye:hover{color:#9ca3af}
+.pass-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:15px;padding:0;line-height:1}
+.pass-eye:hover{color:#475569}
+@media(max-width:640px){.login-wrap{flex-direction:column;height:auto}.login-left{padding:28px;min-height:180px}.login-features{display:none}.login-right{width:100%;padding:28px}}
 
 /* ── SCROLLBAR ─────────────────────────────────── */
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* ── MOBILE ────────────────────────────────────── */
 @media(max-width:768px){
@@ -242,27 +257,122 @@ tbody tr:hover td{background:#f8fafc}
 </head>
 <body>
 <div id="LO">
-<div class="login-box">
-  <div class="login-logo">
-    <div class="login-logo-mark">⚙</div>
-    <div class="login-logo-title">StokTakip</div>
-    <div class="login-logo-sub">Yedek Parça Yönetim Sistemi — Biofarma İlaç</div>
-  </div>
-  <div class="login-err" id="LE">Kullanıcı adı veya şifre hatalı</div>
-  <div class="login-field">
-    <label>Kullanıcı Adı</label>
-    <input id="LU" type="text" name="username" autocomplete="username" list="user-list" placeholder="Kullanıcı adınız">
-    <datalist id="user-list"><option value="Teknik"></datalist>
-  </div>
-  <div class="login-field">
-    <label>Şifre</label>
-    <div class="pass-wrap">
-      <input id="LP" type="password" placeholder="••••••••">
-      <button type="button" class="pass-eye" onclick="var x=document.getElementById('LP');x.type=x.type==='password'?'text':'password';this.textContent=x.type==='password'?'👁':'🙈'">👁</button>
+  <div id="LO-bg"></div>
+  <div class="login-wrap">
+    <div class="login-left">
+      <div class="login-brand">
+        <div class="login-brand-icon">🛠</div>
+        <div class="login-brand-name">StokTakip</div>
+        <div class="login-brand-sub" style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-top:8px">Yedek Parça Yönetim Sistemi<br><span style="color:#94a3b8;font-size:11px">Biofarma İlaç San. ve Tic. A.Ş.</span></div>
+      </div>
+      <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none">
+        <svg width="100%" height="100%" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <style>
+              .geo-line{stroke:rgba(59,130,246,0.15);stroke-width:1;fill:none}
+              .geo-dot{fill:rgba(59,130,246,0.3)}
+              .geo-tri{stroke:rgba(16,185,129,0.12);stroke-width:1;fill:rgba(16,185,129,0.03)}
+              .geo-hex{stroke:rgba(99,102,241,0.12);stroke-width:1;fill:none}
+              @keyframes rotSlow{from{transform-origin:200px 200px;transform:rotate(0deg)}to{transform-origin:200px 200px;transform:rotate(360deg)}}
+              @keyframes rotRev{from{transform-origin:200px 200px;transform:rotate(360deg)}to{transform-origin:200px 200px;transform:rotate(0deg)}}
+              @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+              @keyframes pulse2{0%,100%{opacity:0.3}50%{opacity:0.8}}
+              .ring1{animation:rotSlow 30s linear infinite}
+              .ring2{animation:rotRev 20s linear infinite}
+              .ring3{animation:rotSlow 45s linear infinite}
+              .floater{animation:float 6s ease-in-out infinite}
+              .floater2{animation:float 8s ease-in-out 2s infinite}
+              .floater3{animation:float 5s ease-in-out 1s infinite}
+              .pulser{animation:pulse2 3s ease-in-out infinite}
+              .pulser2{animation:pulse2 4s ease-in-out 1.5s infinite}
+            </style>
+          </defs>
+
+          <!-- Büyük çember halkaları -->
+          <circle class="geo-line ring1" cx="200" cy="200" r="160"/>
+          <circle class="geo-line ring2" cx="200" cy="200" r="120"/>
+          <circle class="geo-line ring3" cx="200" cy="200" r="80"/>
+
+          <!-- Izgara çizgiler -->
+          <line class="geo-line" x1="0" y1="200" x2="400" y2="200" opacity="0.4"/>
+          <line class="geo-line" x1="200" y1="0" x2="200" y2="400" opacity="0.4"/>
+          <line class="geo-line" x1="0" y1="0" x2="400" y2="400" opacity="0.2"/>
+          <line class="geo-line" x1="400" y1="0" x2="0" y2="400" opacity="0.2"/>
+
+          <!-- Dönen altıgen -->
+          <g class="ring1">
+            <polygon class="geo-hex" points="200,60 254,90 254,150 200,180 146,150 146,90"/>
+          </g>
+          <g class="ring2">
+            <polygon class="geo-hex" points="200,100 240,122 240,166 200,188 160,166 160,122"/>
+          </g>
+
+          <!-- Üçgenler -->
+          <g class="floater">
+            <polygon class="geo-tri" points="60,80 100,150 20,150"/>
+          </g>
+          <g class="floater2">
+            <polygon class="geo-tri" points="320,60 360,130 280,130"/>
+          </g>
+          <g class="floater3">
+            <polygon class="geo-tri" points="340,280 370,330 310,330"/>
+          </g>
+          <g class="floater">
+            <polygon class="geo-tri" points="30,300 70,370 -10,370"/>
+          </g>
+
+          <!-- Nokta ızgarası -->
+          <g class="pulser">
+            <circle class="geo-dot" cx="40" cy="40" r="2"/>
+            <circle class="geo-dot" cx="80" cy="40" r="1.5"/>
+            <circle class="geo-dot" cx="120" cy="40" r="2"/>
+            <circle class="geo-dot" cx="40" cy="80" r="1.5"/>
+            <circle class="geo-dot" cx="80" cy="80" r="2.5"/>
+            <circle class="geo-dot" cx="360" cy="360" r="2"/>
+            <circle class="geo-dot" cx="320" cy="360" r="1.5"/>
+            <circle class="geo-dot" cx="360" cy="320" r="2"/>
+          </g>
+          <g class="pulser2">
+            <circle class="geo-dot" cx="360" cy="40" r="2"/>
+            <circle class="geo-dot" cx="320" cy="40" r="1.5"/>
+            <circle class="geo-dot" cx="360" cy="80" r="2"/>
+            <circle class="geo-dot" cx="40" cy="360" r="2"/>
+            <circle class="geo-dot" cx="80" cy="360" r="1.5"/>
+            <circle class="geo-dot" cx="40" cy="320" r="2"/>
+          </g>
+
+          <!-- Merkez ışıltı -->
+          <circle cx="200" cy="200" r="6" fill="rgba(59,130,246,0.6)" class="pulser"/>
+          <circle cx="200" cy="200" r="3" fill="rgba(255,255,255,0.8)"/>
+
+          <!-- Bağlantı çizgileri -->
+          <line class="geo-line" x1="60" y1="80" x2="200" y2="200" opacity="0.3"/>
+          <line class="geo-line" x1="340" y1="280" x2="200" y2="200" opacity="0.3"/>
+          <line class="geo-line" x1="320" y1="60" x2="200" y2="200" opacity="0.2"/>
+          <line class="geo-line" x1="40" y1="300" x2="200" y2="200" opacity="0.2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="login-right">
+      <div class="login-right-title">Hoş geldiniz</div>
+      <div class="login-right-sub">Devam etmek için giriş yapın</div>
+      <div class="login-err" id="LE">Kullanıcı adı veya şifre hatalı</div>
+      <div class="login-field">
+        <label>Kullanıcı Adı</label>
+        <input id="LU" type="text" name="username" autocomplete="username" list="user-list" placeholder="Kullanıcı adınız">
+        <datalist id="user-list"><option value="Teknik"></datalist>
+      </div>
+      <div class="login-field">
+        <label>Şifre</label>
+        <div class="pass-wrap">
+          <input id="LP" type="password" placeholder="••••••••">
+          <button type="button" class="pass-eye" onclick="var x=document.getElementById('LP');x.type=x.type==='password'?'text':'password';this.textContent=x.type==='password'?'👁':'🙈'">👁</button>
+        </div>
+      </div>
+      <button class="login-btn" onclick="LF()">Giriş Yap →</button>
     </div>
   </div>
-  <button class="login-btn" onclick="LF()">Giriş Yap</button>
-</div></div>
+</div>
 <script>
 async function LF(){
   var u=document.getElementById('LU').value;
@@ -286,7 +396,7 @@ if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLo
 <div class="app">
   <div class="sidebar">
     <div class="logo">
-      <div class="logo-icon">⚙</div>
+      <div class="logo-icon">🛠</div>
       <div>
         <div class="logo-title">StokTakip</div>
         <div class="logo-sub">Yedek Parça Yönetimi</div>
@@ -304,6 +414,11 @@ if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLo
       <div class="nav-section">Analiz</div>
       <button class="nav-item" onclick="navigate('raporlar')"><span class="nav-icon">◎</span>Raporlar</button>
     </nav>
+    <div style="padding:10px;border-top:1px solid var(--sb-border)">
+      <button onclick="cikisYap()" style="width:100%;display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:none;background:none;color:#6b7280;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(239,68,68,.1)';this.style.color='#ef4444'" onmouseout="this.style.background='none';this.style.color='#6b7280'">
+        <span style="font-size:14px">⎋</span> Çıkış Yap
+      </button>
+    </div>
     <div class="conn-status">
       <div class="conn-dot" id="conn-dot"></div>
       <span id="conn-text">Bağlanıyor...</span>
@@ -362,7 +477,7 @@ async function sbInsert(t,d){const r=await fetch(`${SB_URL}/rest/v1/${t}`,{metho
 async function sbUpdate(t,id,d){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',headers:{...HDR,'Prefer':'return=representation'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function sbDelete(t,id){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:HDR});if(!r.ok)throw new Error(await r.text());}
 
-let parcalar=[],siparisler=[],hareketler=[],stokSearch='';
+let parcalar=[],siparisler=[],hareketler=[],stokSearch='',stokFiltre='tumu',stokSirala='kod',stokSiralaDir=1;
 
 
 function pbSembol(pb){ return {EUR:'€',USD:'$',TRY:'₺',CHF:'Fr'}[pb]||pb; }
@@ -422,7 +537,7 @@ function bildirimGonder(baslik, mesaj, kritiklik){
   var icon = kritiklik === 'acil' ? '🔴' : '⚠️';
   new Notification(icon + ' StokTakip — ' + baslik, {
     body: mesaj,
-    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%230f172a"/><text x="16" y="23" text-anchor="middle" font-size="20" fill="%2310b981">⚙</text></svg>'
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="%230f172a"/><text x="16" y="23" text-anchor="middle" font-size="20" fill="%2310b981">🛠</text></svg>'
   });
 }
 
@@ -506,6 +621,12 @@ function kritikBilgi(p){
   }
 
 
+
+function sipVerKod(btn){showSiparisModal(btn.getAttribute('data-kod'));}
+function cikisYap(){
+  sessionStorage.removeItem('auth');
+  location.reload();
+}
 function toggleAcil(){
   var el=document.getElementById('acil-detay');
   if(el) el.style.display=el.style.display==='none'?'block':'none';
@@ -587,21 +708,72 @@ function renderDash(){
     // Detay — başta gizli
     acilHtml+='<div id="acil-detay" style="display:none;margin-top:6px;border:1px solid var(--border);border-radius:10px;overflow:hidden">';
     acil.forEach(function(p){
-      acilHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border)">'
-        +'<div><span style="color:var(--accent);font-weight:600;font-size:12px">'+p.kod+'</span>'
-        +' <span style="color:var(--text2);font-size:12px">'+p.ad+'</span>'
-        +' <span style="color:var(--text3);font-size:11px;margin-left:6px">'+(p.ekipman||'')+'</span></div>'
-        +'<span style="background:var(--red);color:#fff;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:600">STOK YOK</span>'
-        +'</div>';
+      var tes=p.teslimat?p.teslimat+' gün':'?';
+      var abcK=abc(p.birim_fiyat,p.kod);
+      var abcRenk=abcK==='A'?'#dc2626':abcK==='B'?'#d97706':'#64748b';
+      var aktifSip=siparisler.find(function(s){return s.par_kod===p.kod&&(s.durum==='Beklemede'||s.durum==='Kargoda');});
+      acilHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px">'
+        +'<div style="display:flex;align-items:center;gap:12px;min-width:0">'
+        +'<div style="width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0"></div>'
+        +'<div style="min-width:0">'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+        +'<span style="color:var(--blue);font-weight:600;font-size:13px;font-family:DM Mono,monospace">'+p.kod+'</span>'
+        +'<span style="color:var(--text);font-size:13px">'+p.ad+'</span>'
+        +'<span style="background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:4px;font-size:10px">'+( p.ekipman||'-')+'</span>'
+        +'<span style="color:'+abcRenk+';font-size:10px;font-weight:600;border:1px solid '+abcRenk+';padding:1px 6px;border-radius:4px">'+abcK+'</span>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:16px;margin-top:4px">'
+        +'<span style="font-size:11px;color:var(--text3)">⏱ Temin: <b style="color:var(--text2)">'+tes+'</b></span>'
+        +'<span style="font-size:11px;color:var(--text3)">💰 <b style="color:var(--text2)">'+eur(p.birim_fiyat)+'</b></span>'
+        +'<span style="font-size:11px;color:var(--text3)">Tedarikçi: <b style="color:var(--text2)">'+(p.tedarikci||'-')+'</b></span>'
+        +'</div>'
+        +'</div></div>'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
+        +'<span style="background:#fef2f2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid #fca5a5">STOK YOK</span>'
+        +(aktifSip
+          ?'<span style="display:flex;align-items:center;gap:5px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500">'
+           +'<span style="width:7px;height:7px;border-radius:50%;background:#3b82f6;animation:pulse 1.5s infinite"></span>'
+           +aktifSip.durum+' — '+aktifSip.sip_no+'</span>'
+          :'<button onclick="sipVerKod(this)" data-kod="'+p.kod+'" style="padding:5px 12px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Sipariş Ver</button>')
+        +'</div></div>';
     });
     kritikDusuk.forEach(function(p){
       var m=mevcut(p.kod);
-      acilHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border)">'
-        +'<div><span style="color:var(--accent);font-weight:600;font-size:12px">'+p.kod+'</span>'
-        +' <span style="color:var(--text2);font-size:12px">'+p.ad+'</span>'
-        +' <span style="color:var(--text3);font-size:11px;margin-left:6px">'+(p.ekipman||'')+'</span></div>'
-        +'<span style="color:var(--gold);font-size:11px">'+m+' / '+( p.min_stok||1)+'</span>'
-        +'</div>';
+      var oran=Math.round(m/(p.min_stok||1)*100);
+      var tes=p.teslimat?p.teslimat+' gün':'?';
+      var abcK=abc(p.birim_fiyat,p.kod);
+      var abcRenk=abcK==='A'?'#dc2626':abcK==='B'?'#d97706':'#64748b';
+      var aktifSip=siparisler.find(function(s){return s.par_kod===p.kod&&(s.durum==='Beklemede'||s.durum==='Kargoda');});
+      var aktifSip=siparisler.find(function(s){return s.par_kod===p.kod&&(s.durum==='Beklemede'||s.durum==='Kargoda');});
+      acilHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px">'
+        +'<div style="display:flex;align-items:center;gap:12px;min-width:0">'
+        +'<div style="width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0"></div>'
+        +'<div style="min-width:0">'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
+        +'<span style="color:var(--blue);font-weight:600;font-size:13px;font-family:DM Mono,monospace">'+p.kod+'</span>'
+        +'<span style="color:var(--text);font-size:13px">'+p.ad+'</span>'
+        +'<span style="background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:4px;font-size:10px">'+(p.ekipman||'-')+'</span>'
+        +'<span style="color:'+abcRenk+';font-size:10px;font-weight:600;border:1px solid '+abcRenk+';padding:1px 6px;border-radius:4px">'+abcK+'</span>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:16px;margin-top:4px">'
+        +'<span style="font-size:11px;color:var(--text3)">📦 Stok: <b style="color:'+(m<=0?'var(--red)':'var(--gold)')+'">'+m+' / '+(p.min_stok||1)+'</b></span>'
+        +'<span style="font-size:11px;color:var(--text3)">⏱ Temin: <b style="color:var(--text2)">'+tes+'</b></span>'
+        +'<span style="font-size:11px;color:var(--text3)">💰 <b style="color:var(--text2)">'+eur(p.birim_fiyat)+'</b></span>'
+        +'<span style="font-size:11px;color:var(--text3)">Tedarikçi: <b style="color:var(--text2)">'+(p.tedarikci||'-')+'</b></span>'
+        +'</div>'
+        +'</div></div>'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
+        +'<div style="text-align:right">'
+        +'<div style="font-size:10px;color:var(--text3);margin-bottom:3px">'+oran+'% doluluk</div>'
+        +'<div style="width:80px;height:5px;background:var(--border);border-radius:3px"><div style="height:5px;width:'+Math.min(100,oran)+'%;background:var(--gold);border-radius:3px"></div></div>'
+        +'</div>'
+        +'<span style="background:#fffbeb;color:#d97706;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid #fde68a">KRİTİK</span>'
+        +(aktifSip
+          ?'<span style="display:flex;align-items:center;gap:5px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500">'
+           +'<span style="width:7px;height:7px;border-radius:50%;background:#3b82f6;animation:pulse 1.5s infinite"></span>'
+           +aktifSip.durum+' — '+aktifSip.sip_no+'</span>'
+          :'<button onclick="sipVerKod(this)" data-kod="'+p.kod+'" style="padding:5px 12px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Sipariş Ver</button>')
+        +'</div></div>';
     });
     acilHtml+='</div></div>';
   }
@@ -646,14 +818,41 @@ function renderDash(){
 
 }
 function renderStok(){
-  document.getElementById('topbar-actions').innerHTML=`<div class="search-wrap"><span class="search-icon">🔍</span><input class="search-bar" placeholder="Parça ara..." value="${stokSearch}" oninput="stokSearch=this.value;renderStok()"><button class="btn" onclick="refreshAll('stok')">↻ Yenile</button><button class="btn btn-primary" onclick="showParcaModal()">+ Yeni Parça</button>`;
-  const f=parcalar.filter(p=>!stokSearch||[p.kod,p.ad,p.tedarikci||'',p.ekipman||''].some(v=>v.toLowerCase().includes(stokSearch.toLowerCase())));
+  document.getElementById('topbar-actions').innerHTML=`
+    <div class="search-wrap"><span class="search-icon">🔍</span><input class="search-bar" placeholder="Parça ara..." value="${stokSearch}" oninput="stokSearch=this.value;renderStok()"></div>
+    <select style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer" onchange="stokFiltre=this.value;renderStok()">
+      <option value="tumu" ${stokFiltre==='tumu'?'selected':''}>Tüm Parçalar</option>
+      <option value="kritik" ${stokFiltre==='kritik'?'selected':''}>Kritik / Tükenen</option>
+      <option value="A" ${stokFiltre==='A'?'selected':''}>ABC — A Sınıfı</option>
+      <option value="B" ${stokFiltre==='B'?'selected':''}>ABC — B Sınıfı</option>
+      <option value="C" ${stokFiltre==='C'?'selected':''}>ABC — C Sınıfı</option>
+    </select>
+    <button class="btn" onclick="refreshAll('stok')">↻</button>
+    <button class="btn btn-primary" onclick="showParcaModal()">+ Yeni Parça</button>`;
+  var f=parcalar.filter(function(p){
+    var aramaOk=!stokSearch||[p.kod,p.ad,p.tedarikci||'',p.ekipman||''].some(function(v){return v.toLowerCase().includes(stokSearch.toLowerCase());});
+    var filtreOk=true;
+    if(stokFiltre==='kritik'){var m=mevcut(p.kod);filtreOk=m<=(p.min_stok||1);}
+    else if(stokFiltre==='A'||stokFiltre==='B'||stokFiltre==='C'){filtreOk=abc(p.birim_fiyat,p.kod)===stokFiltre;}
+    return aramaOk&&filtreOk;
+  });
+  // Sıralama
+  f=f.slice().sort(function(a,b){
+    var av,bv;
+    if(stokSirala==='kod'){av=a.kod;bv=b.kod;}
+    else if(stokSirala==='ad'){av=a.ad;bv=b.ad;}
+    else if(stokSirala==='stok'){av=mevcut(a.kod);bv=mevcut(b.kod);}
+    else if(stokSirala==='fiyat'){av=a.birim_fiyat;bv=b.birim_fiyat;}
+    else{av=a.kod;bv=b.kod;}
+    if(typeof av==='string') return stokSiralaDir*av.localeCompare(bv,'tr');
+    return stokSiralaDir*(av-bv);
+  });
   const rows=f.map(p=>{
     const m=mevcut(p.kod),d=durum(p),a=abc(p.birim_fiyat,p.kod),ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';
     const fotoUrl=fotografUrl(p.kod);
     return`<tr>
       <td style="width:44px;padding:6px"><img src="${fotoUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--border)" onerror="this.style.opacity='0'" loading="lazy"></td>
-      <td style="color:var(--accent);font-weight:600">${p.kod}</td>
+      <td style="color:var(--accent);font-weight:600;white-space:nowrap;font-family:DM Mono,monospace">${p.kod}</td>
       <td>${p.ad}</td>
       <td style="color:var(--text3)">${p.kategori||'-'}</td>
       <td style="color:var(--text3)">${p.ekipman||'-'}</td>
@@ -670,7 +869,7 @@ function renderStok(){
       </td>
     </tr>`;
   }).join('');
-  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Resim</th><th>Kod</th><th>Parça Adı</th><th>Kategori</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>Fiyat</th><th>ABC</th><th>Tedarikçi</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
+  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Resim</th><th onclick="stokSirala='kod';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;min-width:90px">Kod</th><th onclick="stokSirala='ad';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none">Parça Adı</th><th>Kategori</th><th>Ekipman</th><th onclick="stokSirala='stok';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none">Stok</th><th>Min</th><th onclick="stokSirala='fiyat';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none">Fiyat</th><th>ABC</th><th>Durum</th><th>Tedarikçi</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
 }
 
 function showParcaModal(id){
@@ -835,7 +1034,7 @@ function renderKritik(){
       +'<td style="color:var(--text3)">'+(p.teslimat||'-')+' gün</td>'
       
       
-      +'<td><button class="btn btn-sm btn-primary" onclick="showSiparisModal(\''+p.kod+'\')">Sipariş Ver</button></td>'
+      +'<td><button class="btn btn-sm btn-primary" onclick="sipVerKod(this)" data-kod="'+p.kod+'" >Sipariş Ver</button></td>'
       +'</tr>';
   }).join('');
 
@@ -860,7 +1059,7 @@ function renderEOQ(){
     const ss=Math.max(1,Math.round(1.65*0.05*Math.sqrt(p.teslimat||14)));
     const rop=Math.max(1,Math.round((t/365)*(p.teslimat||14)+ss));
     const topM=sm*(t/eoq)+I*(eoq/2);
-    return`<tr><td style="color:var(--accent);font-weight:600">${p.kod}</td><td>${p.ad.length>28?p.ad.slice(0,28)+'…':p.ad}</td><td style="color:var(--gold)">${eur(p.birim_fiyat)}</td><td><input type="number" value="${t}" min="0.1" step="0.5" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td><td><input type="number" value="${sm}" min="1" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td><td style="color:var(--text3)">${p.teslimat||14}</td><td><b style="color:var(--accent)">${eoq}</b></td><td style="color:var(--gold)">${ss}</td><td><b style="color:var(--gold)">${rop}</b></td><td style="color:var(--text3)">${(t/eoq).toFixed(1)}x/yıl</td><td style="color:var(--green)">${eur(topM)}</td></tr>`;
+    return`<tr><td style="color:var(--accent);font-weight:600;white-space:nowrap;font-family:DM Mono,monospace">${p.kod}</td><td>${p.ad.length>28?p.ad.slice(0,28)+'…':p.ad}</td><td style="color:var(--gold)">${eur(p.birim_fiyat)}</td><td><input type="number" value="${t}" min="0.1" step="0.5" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td><td><input type="number" value="${sm}" min="1" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td><td style="color:var(--text3)">${p.teslimat||14}</td><td><b style="color:var(--accent)">${eoq}</b></td><td style="color:var(--gold)">${ss}</td><td><b style="color:var(--gold)">${rop}</b></td><td style="color:var(--text3)">${(t/eoq).toFixed(1)}x/yıl</td><td style="color:var(--green)">${eur(topM)}</td></tr>`;
   }).join('');
   document.getElementById('content').innerHTML=`<div class="alert alert-info"><span class="alert-icon">ℹ</span>Yeşil hücreler düzenlenebilir — değiştirince otomatik kaydedilir.</div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>Birim Fiyat</th><th style="color:var(--green)">Yıllık Talep</th><th style="color:var(--green)">Sipariş Maliyet (€)</th><th>Temin (gün)</th><th>EOQ</th><th>Güv.Stok</th><th>ROP</th><th>Sipariş/Yıl</th><th>Yıllık Maliyet</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Önce parça ekleyin</div></td></tr>'}</tbody></table></div></div>`;
 }
@@ -944,141 +1143,183 @@ function renderRaporlar(){
     '<button class="btn" onclick="refreshAll(\'raporlar\')">↻ Yenile</button>'
     +'<button class="btn btn-primary" onclick="excelIndir()">⬇ Excel İndir</button>';
 
-  // ── Aylık kullanım (ÇIKIŞ hareketleri) ──────────────────────
-  var aylikKullanim={};
-  hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){
-    var ay=h.tarih?h.tarih.slice(0,7):'Bilinmiyor';
-    var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
-    var deger=(Number(h.miktar)||0)*(p.birim_fiyat||0);
-    if(!aylikKullanim[ay]) aylikKullanim[ay]={adet:0,deger:0};
-    aylikKullanim[ay].adet+=Number(h.miktar)||0;
-    aylikKullanim[ay].deger+=deger;
-  });
-  var aylar=Object.keys(aylikKullanim).sort();
-  var maxAyDeger=Math.max.apply(null,aylar.map(function(a){return aylikKullanim[a].deger;})||[1]);
+  // Hesaplamalar
+  var toplamDeger=parcalar.reduce(function(s,p){return s+mevcut(p.kod)*p.birim_fiyat;},0);
+  var toplamCikis=hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+  var toplamSip=siparisler.reduce(function(s,x){return s+(x.tutar||0);},0);
+  var tamSip=siparisler.filter(function(s){return s.durum==='Tamamlandı';}).length;
 
-  // ── Tedarikçi bazlı harcama ──────────────────────────────────
-  var tedHarcama={};
+  // Aylık çıkış (son 6 ay)
+  var aylar=[];
+  for(var i=5;i>=0;i--){var d=new Date();d.setMonth(d.getMonth()-i);aylar.push({yil:d.getFullYear(),ay:d.getMonth()+1,label:d.toLocaleString('tr-TR',{month:'short'})});}
+  var aylikCikis=aylar.map(function(a){
+    return hareketler.filter(function(h){
+      if(h.tip!=='ÇIKIŞ'||!h.tarih) return false;
+      var hd=new Date(h.tarih);
+      return hd.getFullYear()===a.yil&&hd.getMonth()+1===a.ay;
+    }).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+  });
+  var aylikGiris=aylar.map(function(a){
+    return hareketler.filter(function(h){
+      if(h.tip!=='GİRİŞ'||!h.tarih) return false;
+      var hd=new Date(h.tarih);
+      return hd.getFullYear()===a.yil&&hd.getMonth()+1===a.ay;
+    }).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+  });
+
+  // ABC dağılımı
+  var abcSay={A:0,B:0,C:0};
+  var abcDeger={A:0,B:0,C:0};
   parcalar.forEach(function(p){
-    var ted=p.tedarikci||'Bilinmiyor';
-    var deger=mevcut(p.kod)*p.birim_fiyat;
-    tedHarcama[ted]=(tedHarcama[ted]||0)+deger;
+    var k=abc(p.birim_fiyat,p.kod);
+    abcSay[k]++;
+    abcDeger[k]+=mevcut(p.kod)*p.birim_fiyat;
   });
-  var tedList=Object.entries(tedHarcama).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
-  var maxTed=tedList[0]?tedList[0][1]:1;
 
-  // ── Ekipman bazlı tüketim ────────────────────────────────────
-  var ekpTuketim={};
-  hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){
-    var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
-    var ekp=p.ekipman||'Bilinmiyor';
-    var deger=(Number(h.miktar)||0)*(p.birim_fiyat||0);
-    if(!ekpTuketim[ekp]) ekpTuketim[ekp]={adet:0,deger:0};
-    ekpTuketim[ekp].adet+=Number(h.miktar)||0;
-    ekpTuketim[ekp].deger+=deger;
-  });
-  var ekpList=Object.entries(ekpTuketim).sort(function(a,b){return b[1].deger-a[1].deger;}).slice(0,8);
-  var maxEkp=ekpList[0]?ekpList[0][1].deger:1;
-
-  // ── ABC harcama ───────────────────────────────────────────────
-  var abcHarc={A:{deger:0,say:0},B:{deger:0,say:0},C:{deger:0,say:0}};
+  // Tedarikçi bazlı stok değeri (top 5)
+  var tedDeger={};
   parcalar.forEach(function(p){
-    var a=abc(p.birim_fiyat,p.kod);
-    abcHarc[a].deger+=mevcut(p.kod)*p.birim_fiyat;
-    abcHarc[a].say++;
+    var t=p.tedarikci||'Belirtilmemiş';
+    tedDeger[t]=(tedDeger[t]||0)+mevcut(p.kod)*p.birim_fiyat;
   });
-  var topAbcDeger=abcHarc.A.deger+abcHarc.B.deger+abcHarc.C.deger||1;
+  var tedList=Object.entries(tedDeger).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
 
-  // ── Toplam KPI ───────────────────────────────────────────────
-  var toplamCikis=hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).reduce(function(s,h){
-    var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
-    return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);
-  },0);
-  var toplamGiris=hareketler.filter(function(h){return h.tip==='GİRİŞ';}).reduce(function(s,h){
-    var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
-    return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);
-  },0);
-  var toplamSiparis=siparisler.filter(function(s){return s.durum==='Tamamlandı';}).reduce(function(s,x){return s+(x.tutar||0);},0);
+  document.getElementById('content').innerHTML=`
+<div class="grid-4" style="margin-bottom:20px">
+  <div class="kpi"><div class="kpi-icon blue">📦</div><div class="kpi-label">Toplam Stok Değeri</div><div class="kpi-value" style="color:var(--blue)">${eur(toplamDeger)}</div></div>
+  <div class="kpi"><div class="kpi-icon red">📤</div><div class="kpi-label">Toplam Çıkış</div><div class="kpi-value" style="color:var(--red)">${toplamCikis} adet</div></div>
+  <div class="kpi"><div class="kpi-icon gold">🛒</div><div class="kpi-label">Toplam Sipariş</div><div class="kpi-value" style="color:var(--gold)">${eur(toplamSip)}</div></div>
+  <div class="kpi"><div class="kpi-icon green">✅</div><div class="kpi-label">Tamamlanan Sipariş</div><div class="kpi-value" style="color:var(--green)">${tamSip}</div></div>
+</div>
 
-  document.getElementById('content').innerHTML=
-    // KPI
-    '<div class="grid-4" style="margin-bottom:16px">'
-    +'<div class="kpi"><div class="kpi-label">Toplam Kullanım (€)</div><div class="kpi-value" style="color:var(--red)">'+eur(toplamCikis)+'</div><div class="kpi-sub">tüm zamanlar ÇIKIŞ</div></div>'
-    +'<div class="kpi"><div class="kpi-label">Toplam Giriş (€)</div><div class="kpi-value" style="color:var(--green)">'+eur(toplamGiris)+'</div><div class="kpi-sub">tüm zamanlar GİRİŞ</div></div>'
-    +'<div class="kpi"><div class="kpi-label">Tamamlanan Sipariş</div><div class="kpi-value" style="color:var(--gold)">'+eur(toplamSiparis)+'</div><div class="kpi-sub">tamamlanan siparişler</div></div>'
-    +'<div class="kpi"><div class="kpi-label">Hareket Sayısı</div><div class="kpi-value" style="color:var(--accent)">'+hareketler.length+'</div><div class="kpi-sub">toplam kayıt</div></div>'
-    +'</div>'
+<div class="grid-2">
+  <div class="card">
+    <div class="section-title">Aylık Stok Hareketi (Son 6 Ay)</div>
+    <div style="position:relative;height:220px">
+      <canvas id="chart-aylik"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">ABC Sınıfı Dağılımı</div>
+    <div style="position:relative;height:220px;display:flex;align-items:center;justify-content:center">
+      <canvas id="chart-abc" style="max-width:220px;max-height:220px"></canvas>
+    </div>
+  </div>
+</div>
 
-    // Aylık kullanım + Tedarikçi
-    +'<div class="grid-2">'
+<div class="grid-2">
+  <div class="card">
+    <div class="section-title">Tedarikçi Bazlı Stok Değeri (Top 5)</div>
+    <div style="position:relative;height:200px">
+      <canvas id="chart-ted"></canvas>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">Sipariş Durumu Dağılımı</div>
+    <div style="position:relative;height:200px;display:flex;align-items:center;justify-content:center">
+      <canvas id="chart-sip" style="max-width:200px;max-height:200px"></canvas>
+    </div>
+  </div>
+</div>`;
 
-    +'<div class="card"><div class="section-title">Aylık Stok Kullanımı (€)</div>'
-    +(aylar.length?aylar.map(function(ay){
-      var pct=maxAyDeger?Math.round(aylikKullanim[ay].deger/maxAyDeger*100):0;
-      return '<div class="chart-bar-row">'
-        +'<div class="chart-bar-label">'+ay+'</div>'
-        +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--red)"></div></div>'
-        +'<div class="chart-bar-val">'+eur(aylikKullanim[ay].deger)+'</div>'
-        +'</div>';
-    }).join(''):'<div class="empty">Henüz ÇIKIŞ hareketi yok</div>')
-    +'</div>'
+  // Chart.js yükle ve çiz
+  if(typeof Chart==='undefined'){
+    var sc=document.createElement('script');
+    sc.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+    sc.onload=function(){cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList);};
+    document.head.appendChild(sc);
+  } else {
+    cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList);
+  }
+}
 
-    +'<div class="card"><div class="section-title">Tedarikçi Bazlı Stok Değeri (€)</div>'
-    +(tedList.length?tedList.map(function(e){
-      var pct=maxTed?Math.round(e[1]/maxTed*100):0;
-      return '<div class="chart-bar-row">'
-        +'<div class="chart-bar-label">'+e[0]+'</div>'
-        +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--accent)"></div></div>'
-        +'<div class="chart-bar-val">'+eur(e[1])+'</div>'
-        +'</div>';
-    }).join(''):'<div class="empty">Henüz veri yok</div>')
-    +'</div>'
-    +'</div>'
+function cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList){
+  Chart.defaults.font.family="'DM Sans',sans-serif";
+  Chart.defaults.font.size=11;
+  Chart.defaults.color='#94a3b8';
 
-    // Ekipman + ABC
-    +'<div class="grid-2">'
+  // 1. Aylık hareket — çubuk grafik
+  var ctx1=document.getElementById('chart-aylik');
+  if(ctx1){
+    new Chart(ctx1,{
+      type:'bar',
+      data:{
+        labels:aylar.map(function(a){return a.label;}),
+        datasets:[
+          {label:'Çıkış',data:aylikCikis,backgroundColor:'rgba(239,68,68,0.7)',borderRadius:4},
+          {label:'Giriş',data:aylikGiris,backgroundColor:'rgba(16,185,129,0.7)',borderRadius:4}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,padding:16}}},
+        scales:{x:{grid:{display:false}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{stepSize:1}}}
+      }
+    });
+  }
 
-    +'<div class="card"><div class="section-title">Ekipman Bazlı Parça Tüketimi (€)</div>'
-    +(ekpList.length?ekpList.map(function(e){
-      var pct=maxEkp?Math.round(e[1].deger/maxEkp*100):0;
-      return '<div class="chart-bar-row">'
-        +'<div class="chart-bar-label">'+e[0]+'</div>'
-        +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--gold)"></div></div>'
-        +'<div class="chart-bar-val">'+eur(e[1].deger)+' ('+e[1].adet+' adet)</div>'
-        +'</div>';
-    }).join(''):'<div class="empty">Henüz ÇIKIŞ hareketi yok</div>')
-    +'</div>'
+  // 2. ABC dağılımı — donut
+  var ctx2=document.getElementById('chart-abc');
+  if(ctx2){
+    new Chart(ctx2,{
+      type:'doughnut',
+      data:{
+        labels:['Sınıf A','Sınıf B','Sınıf C'],
+        datasets:[{
+          data:[abcSay.A,abcSay.B,abcSay.C],
+          backgroundColor:['#ef4444','#f59e0b','#94a3b8'],
+          borderWidth:0,hoverOffset:4
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,cutout:'65%',
+        plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:14}}}
+      }
+    });
+  }
 
-    +'<div class="card"><div class="section-title">ABC Sınıfına Göre Stok Değeri</div>'
-    +['A','B','C'].map(function(k){
-      var pct=Math.round(abcHarc[k].deger/topAbcDeger*100);
-      var cl=k==='A'?'var(--red)':k==='B'?'var(--gold)':'var(--text3)';
-      return '<div style="margin-bottom:14px">'
-        +'<div style="display:flex;justify-content:space-between;margin-bottom:5px">'
-        +'<span style="font-size:12px;color:var(--text2)">Sınıf <b style="color:'+cl+'">'+k+'</b> — '+abcHarc[k].say+' parça</span>'
-        +'<span style="font-size:11px;color:var(--text3)">'+eur(abcHarc[k].deger)+' ('+pct+'%)</span>'
-        +'</div>'
-        +'<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+cl+'"></div></div>'
-        +'</div>';
-    }).join('')
-    +'</div>'
-    +'</div>'
+  // 3. Tedarikçi — yatay çubuk
+  var ctx3=document.getElementById('chart-ted');
+  if(ctx3&&tedList.length){
+    new Chart(ctx3,{
+      type:'bar',
+      data:{
+        labels:tedList.map(function(x){return x[0].length>15?x[0].slice(0,15)+'…':x[0];}),
+        datasets:[{
+          label:'Stok Değeri (€)',
+          data:tedList.map(function(x){return Number(x[1].toFixed(2));}),
+          backgroundColor:'rgba(59,130,246,0.7)',borderRadius:4
+        }]
+      },
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:function(v){return '€'+v.toLocaleString('tr-TR');}}},y:{grid:{display:false}}}
+      }
+    });
+  }
 
-    // Aylık detay tablo
-    +(aylar.length?
-      '<div class="card" style="padding:0;overflow:hidden">'
-      +'<div style="padding:14px 16px;border-bottom:1px solid var(--border)"><div class="section-title" style="margin:0">Aylık Detay</div></div>'
-      +'<div class="table-wrap"><table>'
-      +'<thead><tr><th>Ay</th><th>Kullanılan Adet</th><th>Kullanım Değeri (€)</th></tr></thead>'
-      +'<tbody>'+aylar.map(function(ay){
-        return '<tr>'
-          +'<td style="color:var(--accent)">'+ay+'</td>'
-          +'<td>'+aylikKullanim[ay].adet+' adet</td>'
-          +'<td style="color:var(--red)">'+eur(aylikKullanim[ay].deger)+'</td>'
-          +'</tr>';
-      }).join('')+'</tbody>'
-      +'</table></div></div>'
-    :'');
+  // 4. Sipariş durumu — donut
+  var ctx4=document.getElementById('chart-sip');
+  if(ctx4){
+    var sipDurum={Beklemede:0,Kargoda:0,'Tamamlandı':0,'İptal':0};
+    siparisler.forEach(function(s){if(sipDurum[s.durum]!==undefined)sipDurum[s.durum]++;});
+    new Chart(ctx4,{
+      type:'doughnut',
+      data:{
+        labels:Object.keys(sipDurum),
+        datasets:[{
+          data:Object.values(sipDurum),
+          backgroundColor:['#f59e0b','#3b82f6','#10b981','#94a3b8'],
+          borderWidth:0,hoverOffset:4
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,cutout:'65%',
+        plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:14}}}
+      }
+    });
+  }
 }
 
 function closeModal(){document.getElementById('modal-container').innerHTML='';}
