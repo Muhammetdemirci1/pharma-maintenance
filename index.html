@@ -934,7 +934,10 @@ function showParcaDetay(id){
   <div class="modal-overlay"><div class="modal" style="width:700px;max-width:95vw">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:14px">
-        <img src="${fotografUrl(p.kod)}" style="width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid var(--border)" onerror="this.style.display='none'">
+        <div style="flex-shrink:0">
+          <img src="${fotografUrl(p.kod)}" style="width:80px;height:80px;object-fit:cover;border-radius:10px;border:1px solid var(--border);display:block;cursor:zoom-in" onclick="this.nextElementSibling.style.display='flex'" onerror="this.style.opacity=0">
+          <div onclick="this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out"><img src="${fotografUrl(p.kod)}" style="max-width:90vw;max-height:90vh;border-radius:12px"></div>
+        </div>
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
             <span style="font-size:18px;font-weight:700;color:var(--blue);font-family:DM Mono,monospace">${p.kod}</span>
@@ -998,12 +1001,18 @@ function showParcaDetay(id){
         : '<div style="font-size:12px;color:var(--text3);padding:8px 0">Hareket kaydı yok</div>'}
     </div>
 
+    <!-- Büyük fotoğraf overlay -->
+    <div id="detay-foto-full" onclick="this.style.display='none'" 
+      style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out">
+      <img src="${fotografUrl(p.kod)}" style="max-width:90vw;max-height:90vh;border-radius:12px;object-fit:contain" onerror="document.getElementById('detay-foto-full').style.display='none'">
+    </div>
+
     <div class="modal-footer">
       <button class="btn" onclick="closeModal()">Kapat</button>
       <button class="btn" onclick="closeModal();showHareketModal('${p.kod}')">+ Hareket Ekle</button>
       <button class="btn btn-primary" onclick="closeModal();showParcaModal('${p.id}')">Düzenle</button>
     </div>
-  </div></div>`;
+  </div></div>\`;
 }
 
 function showParcaModal(id){
