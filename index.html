@@ -946,30 +946,45 @@ function renderStok(){
     const m=mevcut(p.kod),d=durum(p),a=abc(p.birim_fiyat,p.kod),ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';
     const fotoUrl=fotografUrl(p.kod);
     return`<tr id="stok-row-${p.id}" style="${seciliParcalar.has(p.id)?'background:var(--blue-light)':''}">
-      <td><input type="checkbox" class="stok-chk" data-id="${p.id}" ${seciliParcalar.has(p.id)?'checked':''} onchange="stokSecToggle(this)" style="width:15px;height:15px;cursor:pointer"></td>
-      <td style="width:44px;padding:6px"><img src="${fotoUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--border)" onerror="this.style.opacity='0'" loading="lazy"></td>
-      <td style="color:var(--accent);font-weight:600;white-space:nowrap;font-family:DM Mono,monospace">${p.kod}</td>
+      <td style="width:36px;text-align:center"><input type="checkbox" class="stok-chk" data-id="${p.id}" ${seciliParcalar.has(p.id)?'checked':''} onchange="stokSecToggle(this)" style="width:15px;height:15px;cursor:pointer"></td>
+      <td style="width:50px;padding:6px"><img src="${fotoUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--border)" onerror="this.style.opacity='0'" loading="lazy"></td>
+      <td style="color:var(--blue);font-weight:600;white-space:nowrap;font-family:DM Mono,monospace;font-size:12px">${p.kod}</td>
       <td><span onclick="showParcaDetay('${p.id}')" style="cursor:pointer;color:var(--text);font-weight:500" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text)'">${p.ad}</span></td>
-      <td style="color:var(--text3)">${p.kategori||'-'}</td>
-      <td style="color:var(--text3)">${p.ekipman||'-'}</td>
-      <td><b style="color:${m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)'}">${m}</b></td>
-      <td style="color:var(--text3)">${p.min_stok||0}</td>
+      <td style="color:var(--text3);font-size:11px">${p.kategori||'-'}</td>
+      <td style="color:var(--text3);font-size:11px">${p.ekipman||'-'}</td>
+      <td style="text-align:center"><b style="color:${m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)":'var(--green)'}">${m}</b></td>
+      <td style="text-align:center;color:var(--text3)">${p.min_stok||0}</td>
       <td style="color:var(--gold)">${fiyatGoster(p)}</td>
       <td><span class="badge ${ac}">${a}</span></td>
       <td><span class="badge ${d.c}">${d.l}</span></td>
-      <td style="color:var(--text3)">${p.tedarikci||'-'}</td>
+      <td style="color:var(--text2);font-size:11px">${p.tedarikci||'-'}</td>
+      <td style="color:var(--text3);font-family:DM Mono,monospace;font-size:11px">${p.lokasyon||'—'}</td>
       <td style="white-space:nowrap">
-        <div style="display:flex;gap:4px;flex-wrap:nowrap">
-        <button class="btn btn-sm" onclick="showParcaDetay('${p.id}')" title="Detay">👁</button>
-        <button class="btn btn-sm" onclick="showParcaModal('${p.id}')" title="Düzenle">✏</button>
-        <button class="btn btn-sm" onclick="showHareketModal('${p.kod}')" title="Hareket">↕</button>
-        <button class="btn btn-sm" onclick="showQR('${p.kod}')" title="QR">⬛</button>
-        <button class="btn btn-sm btn-danger" onclick="parcaSil('${p.id}','${p.kod}')" title="Sil">🗑</button>
+        <div style="display:flex;gap:4px">
+        <button class="btn btn-sm" onclick="showParcaModal('${p.id}')">Düzenle</button>
+        <button class="btn btn-sm" onclick="showHareketModal('${p.kod}')">Hareket</button>
+        <button class="btn btn-sm" onclick="showQR('${p.kod}')">QR</button>
+        <button class="btn btn-sm btn-danger" onclick="parcaSil('${p.id}','${p.kod}')">Sil</button>
         </div>
       </td>
     </tr>`;
   }).join('');
-  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="overflow-x:auto;max-height:calc(100vh - 180px);overflow-y:auto"><table style="min-width:900px"><thead><tr><th>Resim</th><th onclick="stokSirala='kod';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:90px;white-space:nowrap">Kod</th><th onclick="stokSirala='ad';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;min-width:140px">Parça Adı</th><th>Kategori</th><th>Ekipman</th><th onclick="stokSirala='stok';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:60px;text-align:center">Stok</th><th style="width:50px;text-align:center">Min</th><th onclick="stokSirala='fiyat';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:100px">Fiyat</th><th>ABC</th><th>Durum</th><th>Tedarikçi</th><th>Lokasyon</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
+  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="overflow-x:auto;max-height:calc(100vh - 180px);overflow-y:auto"><table style="min-width:900px"><thead><tr>
+        <th style="width:36px"><input type="checkbox" id="stok-tumu" onchange="stokTumunuSec(this.checked)" style="width:15px;height:15px;cursor:pointer"></th>
+        <th style="width:50px">Resim</th>
+        <th onclick="stokSirala=\'kod\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:90px">Kod</th>
+        <th onclick="stokSirala=\'ad\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;min-width:130px">Parça Adı</th>
+        <th style="width:90px">Kategori</th>
+        <th style="min-width:110px">Ekipman</th>
+        <th onclick="stokSirala=\'stok\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:60px;text-align:center">Stok</th>
+        <th style="width:50px;text-align:center">Min</th>
+        <th onclick="stokSirala=\'fiyat\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:100px">Fiyat</th>
+        <th style="width:50px">ABC</th>
+        <th style="width:80px">Durum</th>
+        <th style="width:90px">Tedarikçi</th>
+        <th style="width:80px">Lokasyon</th>
+        <th style="width:180px">İşlem</th>
+      </tr></thead><tbody>${rows||'<tr><td colspan="14"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
 }
 
 
