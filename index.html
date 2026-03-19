@@ -434,6 +434,7 @@ if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLo
       <button class="nav-item" onclick="navigate('hareket')"><span class="nav-icon">◈</span>Hareket Log</button>
       <div class="nav-section">Analiz</div>
       <button class="nav-item" onclick="navigate('raporlar')"><span class="nav-icon">◎</span>Raporlar</button>
+      <button class="nav-item" onclick="navigate('cyclecount')"><span class="nav-icon">◉</span>Cycle Count</button>
     </nav>
     <div style="padding:10px;border-top:1px solid var(--sb-border)">
       <button onclick="cikisYap()" style="width:100%;display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:none;background:none;color:#6b7280;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(239,68,68,.1)';this.style.color='#ef4444'" onmouseout="this.style.background='none';this.style.color='#6b7280'">
@@ -498,7 +499,7 @@ async function sbInsert(t,d){const r=await fetch(`${SB_URL}/rest/v1/${t}`,{metho
 async function sbUpdate(t,id,d){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',headers:{...HDR,'Prefer':'return=representation'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function sbDelete(t,id){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:HDR});if(!r.ok)throw new Error(await r.text());}
 
-let parcalar=[],siparisler=[],hareketler=[],stokSearch='',stokFiltre='tumu',stokSirala='kod',stokSiralaDir=1;
+let parcalar=[],siparisler=[],hareketler=[],stokSearch='',stokFiltre='tumu',stokSirala='kod',stokSiralaDir=1,seciliParcalar=new Set();
 
 
 function pbSembol(pb){ return {EUR:'€',USD:'$',TRY:'₺',CHF:'Fr'}[pb]||pb; }
@@ -647,6 +648,70 @@ function sipVerKod(btn){showSiparisModal(btn.getAttribute('data-kod'));}
 
 function fotoZoomAc(){var el=document.getElementById('df-overlay');if(el){el.style.display='flex';}}
 function fotoZoomKapat(){var el=document.getElementById('df-overlay');if(el){el.style.display='none';}}
+
+function stokSecToggle(chk){
+  var id=chk.dataset.id;
+  if(chk.checked) seciliParcalar.add(id);
+  else seciliParcalar.delete(id);
+  renderTopluToolbar();
+  // Satır rengini güncelle
+  var row=document.getElementById('stok-row-'+id);
+  if(row) row.style.background=chk.checked?'var(--blue-light)':'';
+}
+
+function stokTumunuSec(durum){
+  seciliParcalar.clear();
+  var f=document.querySelectorAll('.stok-chk');
+  f.forEach(function(chk){
+    chk.checked=durum;
+    if(durum){
+      seciliParcalar.add(chk.dataset.id);
+      var row=document.getElementById('stok-row-'+chk.dataset.id);
+      if(row) row.style.background='var(--blue-light)';
+    } else {
+      var row=document.getElementById('stok-row-'+chk.dataset.id);
+      if(row) row.style.background='';
+    }
+  });
+  renderTopluToolbar();
+}
+
+function renderTopluToolbar(){
+  var say=seciliParcalar.size;
+  var wrap=document.getElementById('toplu-toolbar');
+  if(!wrap) return;
+  if(say===0){
+    wrap.style.display='none';
+    return;
+  }
+  wrap.style.display='flex';
+  document.getElementById('toplu-say').textContent=say+' parça seçili';
+}
+
+async function topluSil(){
+  if(seciliParcalar.size===0) return;
+  if(!confirm(seciliParcalar.size+' parçayı silmek istediğinize emin misiniz?')) return;
+  try{
+    for(var id of seciliParcalar){
+      await sbDelete('parcalar',id);
+    }
+    seciliParcalar.clear();
+    await refreshAll('stok');
+  }catch(e){alert('Hata: '+e.message);}
+}
+
+function topluIptal(){
+  seciliParcalar.clear();
+  document.querySelectorAll('.stok-chk').forEach(function(chk){
+    chk.checked=false;
+    var row=document.getElementById('stok-row-'+chk.dataset.id);
+    if(row) row.style.background='';
+  });
+  var tumu=document.getElementById('stok-tumu');
+  if(tumu) tumu.checked=false;
+  renderTopluToolbar();
+}
+
 function cikisYap(){
   sessionStorage.removeItem('auth');
   location.reload();
@@ -669,8 +734,8 @@ let curPage='dashboard';
 function navigate(page){
   curPage=page;
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.getAttribute('onclick').includes("'"+page+"'")));
-  document.getElementById('page-title').textContent={dashboard:'Dashboard',stok:'Stok Yönetimi',kritik:'Kritik Yedek Parçalar',eoq:'EOQ Hesaplama',siparis:'Sipariş Takip',hareket:'Hareket Log',raporlar:'Raporlar'}[page]||page;
-  ({dashboard:renderDash,stok:renderStok,kritik:renderKritik,eoq:renderEOQ,siparis:renderSiparis,hareket:renderHareket,raporlar:renderRaporlar})[page]?.();
+  document.getElementById('page-title').textContent={dashboard:'Dashboard',stok:'Stok Yönetimi',kritik:'Kritik Yedek Parçalar',eoq:'EOQ Hesaplama',siparis:'Sipariş Takip',hareket:'Hareket Log',raporlar:'Raporlar',cyclecount:'Cycle Count — Fiziksel Sayım'}[page]||page;
+  ({dashboard:renderDash,stok:renderStok,kritik:renderKritik,eoq:renderEOQ,siparis:renderSiparis,hareket:renderHareket,raporlar:renderRaporlar,cyclecount:renderCycleCount})[page]?.();
 }
 
 function renderDash(){
@@ -874,7 +939,8 @@ function renderStok(){
   const rows=f.map(p=>{
     const m=mevcut(p.kod),d=durum(p),a=abc(p.birim_fiyat,p.kod),ac=a==='A'?'badge-red':a==='B'?'badge-gold':'badge-gray';
     const fotoUrl=fotografUrl(p.kod);
-    return`<tr>
+    return`<tr id="stok-row-${p.id}" style="${seciliParcalar.has(p.id)?'background:var(--blue-light)':''}">
+      <td><input type="checkbox" class="stok-chk" data-id="${p.id}" ${seciliParcalar.has(p.id)?'checked':''} onchange="stokSecToggle(this)" style="width:15px;height:15px;cursor:pointer"></td>
       <td style="width:44px;padding:6px"><img src="${fotoUrl}" style="width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid var(--border)" onerror="this.style.opacity='0'" loading="lazy"></td>
       <td style="color:var(--accent);font-weight:600;white-space:nowrap;font-family:DM Mono,monospace">${p.kod}</td>
       <td><span onclick="showParcaDetay('${p.id}')" style="cursor:pointer;color:var(--text);font-weight:500" onmouseover="this.style.color='var(--blue)'" onmouseout="this.style.color='var(--text)'">${p.ad}</span></td>
@@ -1386,6 +1452,167 @@ function showTedarikcModal(){
       <button class="btn btn-primary" onclick="closeModal();navigate('stok')">Parça Ekle →</button>
     </div>
   </div></div>`;
+}
+
+
+function renderCycleCount(){
+  document.getElementById('topbar-actions').innerHTML=
+    '<button class="btn" onclick="ccBaslat()">🔄 Yeni Sayım Başlat</button>'
+    +'<button class="btn btn-primary" onclick="ccKaydet()" id="cc-kaydet-btn" style="display:none">✅ Farkları Kaydet</button>';
+
+  var rows=parcalar.map(function(p){
+    var m=mevcut(p.kod);
+    return '<tr id="cc-row-'+p.id+'">'
+      +'<td><input type="checkbox" class="cc-chk" data-id="'+p.id+'" style="width:16px;height:16px;cursor:pointer"></td>'
+      +'<td style="font-family:DM Mono,monospace;color:var(--blue);font-weight:600;font-size:12px">'+p.kod+'</td>'
+      +'<td style="font-size:12px">'+p.ad+'</td>'
+      +'<td style="font-size:11px;color:var(--text3)">'+( p.ekipman||'—')+'</td>'
+      +'<td style="font-size:11px;color:var(--text3);font-family:DM Mono,monospace">'+(p.lokasyon||'—')+'</td>'
+      +'<td style="text-align:center"><b style="color:'+(m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)')+'">'+m+'</b></td>'
+      +'<td><input type="number" id="cc-'+p.id+'" min="0" placeholder="Sayılan" disabled '
+      +'style="width:80px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;background:var(--bg3);color:var(--text3);font-size:12px;text-align:center;font-family:DM Mono,monospace"></td>'
+      +'<td id="cc-fark-'+p.id+'" style="font-size:12px;font-weight:600;text-align:center">—</td>'
+      +'</tr>';
+  }).join('');
+
+  document.getElementById('content').innerHTML=`
+<div class="alert alert-info" style="margin-bottom:16px">
+  <span class="alert-icon">ℹ</span>
+  <div><b>Cycle Count (Fiziksel Sayım)</b> — Sistemdeki stok miktarını fiziksel sayımla karşılaştırın. Fark varsa DÜZELTME hareketi otomatik oluşturulur.</div>
+</div>
+<div class="card" style="padding:0;overflow:hidden">
+  <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--bg3)">
+    <input type="checkbox" id="cc-tumu" onchange="ccTumunuSec(this.checked)" style="width:16px;height:16px;cursor:pointer">
+    <span style="font-size:12px;font-weight:500;color:var(--text2)">Tümünü Seç</span>
+    <span id="cc-secili-say" style="font-size:11px;color:var(--text3)"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th style="width:36px"></th>
+        <th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Lokasyon</th>
+        <th style="text-align:center">Sistem Stoğu</th>
+        <th style="text-align:center">Sayılan Miktar</th>
+        <th style="text-align:center">Fark</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+</div>`;
+
+  // Checkbox değişince sayı alanını aktif et
+  document.querySelectorAll('.cc-chk').forEach(function(chk){
+    chk.addEventListener('change', function(){
+      var id=this.dataset.id;
+      var input=document.getElementById('cc-'+id);
+      if(this.checked){
+        input.disabled=false;
+        input.style.background='var(--bg)';
+        input.style.color='var(--text)';
+        input.focus();
+      } else {
+        input.disabled=true;
+        input.value='';
+        input.style.background='var(--bg3)';
+        input.style.color='var(--text3)';
+        document.getElementById('cc-fark-'+id).innerHTML='—';
+      }
+      ccGuncelleSay();
+    });
+  });
+
+  // Sayılan miktar girilince farkı göster
+  parcalar.forEach(function(p){
+    var input=document.getElementById('cc-'+p.id);
+    if(!input) return;
+    input.addEventListener('input', function(){
+      var sayilan=parseInt(this.value);
+      if(isNaN(sayilan)) return;
+      var sistem=mevcut(p.kod);
+      var fark=sayilan-sistem;
+      var el=document.getElementById('cc-fark-'+p.id);
+      if(fark===0) el.innerHTML='<span style="color:var(--green)">✓ Eşit</span>';
+      else if(fark>0) el.innerHTML='<span style="color:var(--blue)">+'+fark+' Fazla</span>';
+      else el.innerHTML='<span style="color:var(--red)">'+fark+' Eksik</span>';
+      document.getElementById('cc-kaydet-btn').style.display='';
+    });
+  });
+}
+
+function ccTumunuSec(durum){
+  document.querySelectorAll('.cc-chk').forEach(function(chk){
+    chk.checked=durum;
+    var id=chk.dataset.id;
+    var input=document.getElementById('cc-'+id);
+    if(input){
+      input.disabled=!durum;
+      input.style.background=durum?'var(--bg)':'var(--bg3)';
+      input.style.color=durum?'var(--text)':'var(--text3)';
+    }
+  });
+  ccGuncelleSay();
+}
+
+function ccGuncelleSay(){
+  var say=document.querySelectorAll('.cc-chk:checked').length;
+  var el=document.getElementById('cc-secili-say');
+  if(el) el.textContent=say>0?say+' parça seçili':'';
+}
+
+function ccBaslat(){
+  document.querySelectorAll('.cc-chk').forEach(function(chk){
+    chk.checked=false;
+    var input=document.getElementById('cc-'+chk.dataset.id);
+    if(input){input.disabled=true;input.value='';input.style.background='var(--bg3)';input.style.color='var(--text3)';}
+    var fark=document.getElementById('cc-fark-'+chk.dataset.id);
+    if(fark) fark.innerHTML='—';
+  });
+  document.getElementById('cc-tumu').checked=false;
+  document.getElementById('cc-kaydet-btn').style.display='none';
+  ccGuncelleSay();
+}
+
+async function ccKaydet(){
+  var bugun=new Date().toISOString().slice(0,10);
+  var sayimlar=[];
+  document.querySelectorAll('.cc-chk:checked').forEach(function(chk){
+    var id=chk.dataset.id;
+    var p=parcalar.find(function(x){return x.id===id;});
+    if(!p) return;
+    var input=document.getElementById('cc-'+id);
+    if(!input||input.value==='') return;
+    var sayilan=parseInt(input.value);
+    if(isNaN(sayilan)) return;
+    var sistem=mevcut(p.kod);
+    var fark=sayilan-sistem;
+    if(fark!==0) sayimlar.push({p:p, fark:fark, sayilan:sayilan});
+  });
+
+  if(sayimlar.length===0){alert('Fark bulunamadı veya hiçbir parça seçilmedi.');return;}
+
+  var onay=confirm(sayimlar.length+' parçada fark bulundu. Düzeltme hareketleri oluşturulsun mu?
+
+'
+    +sayimlar.map(function(s){return s.p.kod+': '+mevcut(s.p.kod)+' → '+s.sayilan+' ('+( s.fark>0?'+':'')+s.fark+')';}).join('
+'));
+  if(!onay) return;
+
+  try{
+    for(var i=0;i<sayimlar.length;i++){
+      var s=sayimlar[i];
+      await sbInsert('hareketler',{
+        par_kod:s.p.kod,
+        tip:'DÜZELTME',
+        miktar:s.sayilan,
+        tarih:bugun,
+        kullanan:'Cycle Count',
+        i_emri:'CC-'+bugun,
+        aciklama:'Fiziksel sayım: Sistem='+mevcut(s.p.kod)+', Sayılan='+s.sayilan+', Fark='+(s.fark>0?'+':'')+s.fark
+      });
+    }
+    await refreshAll('cyclecount');
+    alert('✅ '+sayimlar.length+' düzeltme hareketi kaydedildi.');
+  }catch(e){alert('Hata: '+e.message);}
 }
 
 function renderRaporlar(){
