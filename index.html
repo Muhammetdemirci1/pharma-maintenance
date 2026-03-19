@@ -692,9 +692,9 @@ async function topluSil(){
   if(seciliParcalar.size===0) return;
   if(!confirm(seciliParcalar.size+' parçayı silmek istediğinize emin misiniz?')) return;
   try{
-    for(var id of seciliParcalar){
+    seciliParcalar.forEach(async function(id){
       await sbDelete('parcalar',id);
-    }
+    });
     seciliParcalar.clear();
     await refreshAll('stok');
   }catch(e){alert('Hata: '+e.message);}
@@ -1590,11 +1590,8 @@ async function ccKaydet(){
 
   if(sayimlar.length===0){alert('Fark bulunamadı veya hiçbir parça seçilmedi.');return;}
 
-  var onay=confirm(sayimlar.length+' parçada fark bulundu. Düzeltme hareketleri oluşturulsun mu?
-
-'
-    +sayimlar.map(function(s){return s.p.kod+': '+mevcut(s.p.kod)+' → '+s.sayilan+' ('+( s.fark>0?'+':'')+s.fark+')';}).join('
-'));
+  var onay=confirm(sayimlar.length+' parçada fark bulundu. Düzeltme hareketleri oluşturulsun mu?\n\n'
+    +sayimlar.map(function(s){return s.p.kod+': '+mevcut(s.p.kod)+' -> '+s.sayilan+' ('+(s.fark>0?'+':'')+s.fark+')';}).join('\n'));
   if(!onay) return;
 
   try{
