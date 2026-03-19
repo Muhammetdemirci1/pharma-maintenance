@@ -384,6 +384,15 @@ async function LF(){
   if(uh==='5dedffe32144e8b2968f1c69a0b8f909e463a089a8cfac3ce72123120c56cb79'&&ph==='79282175708d38707c95940fc655a437a78d2def8fa9a4b397a9937706414779'){
     document.getElementById('LO').style.display='none';
     sessionStorage.setItem('auth','1');
+    // QR'dan gelindi mi?
+    var urlParams=new URLSearchParams(window.location.search);
+    var parcaKod=urlParams.get('parca');
+    if(parcaKod){
+      setTimeout(function(){
+        var p=parcalar.find(function(x){return x.kod===parcaKod;});
+        if(p){navigate('stok');setTimeout(function(){showParcaDetay(p.id);},300);}
+      },300);
+    }
   }else{
     document.getElementById('LE').style.display='block';
     document.getElementById('LP').value='';
@@ -393,7 +402,17 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Enter') LF();
   if(e.key==='Escape') closeModal();
 });
-if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLoaded',function(){var lo=document.getElementById('LO');if(lo)lo.style.display='none';});}
+if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLoaded',function(){
+  var lo=document.getElementById('LO');if(lo)lo.style.display='none';
+  setTimeout(function(){
+    var urlParams=new URLSearchParams(window.location.search);
+    var parcaKod=urlParams.get('parca');
+    if(parcaKod){
+      var p=parcalar.find(function(x){return x.kod===parcaKod;});
+      if(p){navigate('stok');setTimeout(function(){showParcaDetay(p.id);},500);}
+    }
+  },800);
+});}
 </script>
 <div class="app">
   <div class="sidebar">
