@@ -123,6 +123,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;fon
 .table-wrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse}
 thead{background:var(--bg3)}
+thead tr th{position:sticky;top:0;z-index:10;background:var(--bg3);box-shadow:0 1px 0 var(--border)}
 th{text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
 td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);vertical-align:middle}
 tr:last-child td{border-bottom:none}
@@ -225,6 +226,11 @@ tbody tr:hover td{background:#f8fafc}
 
 /* ── SCROLLBAR ─────────────────────────────────── */
 ::-webkit-scrollbar{width:5px;height:5px}
+.table-wrap::-webkit-scrollbar{height:8px;width:8px}
+.table-wrap::-webkit-scrollbar-track{background:var(--bg3);border-radius:4px}
+.table-wrap::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+.table-wrap::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+.table-wrap{scrollbar-width:thin}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 ::-webkit-scrollbar-thumb:hover{background:var(--text3)}
@@ -953,14 +959,17 @@ function renderStok(){
       <td><span class="badge ${d.c}">${d.l}</span></td>
       <td style="color:var(--text3)">${p.tedarikci||'-'}</td>
       <td style="white-space:nowrap">
-        <button class="btn btn-sm" onclick="showParcaModal('${p.id}')">Düzenle</button>
-        <button class="btn btn-sm" onclick="showHareketModal('${p.kod}')">Hareket</button>
-        <button class="btn btn-sm" onclick="showQR('${p.kod}')">QR</button>
-        <button class="btn btn-sm btn-danger" onclick="parcaSil('${p.id}','${p.kod}')">Sil</button>
+        <div style="display:flex;gap:4px;flex-wrap:nowrap">
+        <button class="btn btn-sm" onclick="showParcaDetay('${p.id}')" title="Detay">👁</button>
+        <button class="btn btn-sm" onclick="showParcaModal('${p.id}')" title="Düzenle">✏</button>
+        <button class="btn btn-sm" onclick="showHareketModal('${p.kod}')" title="Hareket">↕</button>
+        <button class="btn btn-sm" onclick="showQR('${p.kod}')" title="QR">⬛</button>
+        <button class="btn btn-sm btn-danger" onclick="parcaSil('${p.id}','${p.kod}')" title="Sil">🗑</button>
+        </div>
       </td>
     </tr>`;
   }).join('');
-  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Resim</th><th onclick="stokSirala='kod';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;min-width:90px">Kod</th><th onclick="stokSirala='ad';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none">Parça Adı</th><th>Kategori</th><th>Ekipman</th><th onclick="stokSirala='stok';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none">Stok</th><th>Min</th><th onclick="stokSirala='fiyat';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none">Fiyat</th><th>ABC</th><th>Durum</th><th>Tedarikçi</th><th>Lokasyon</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
+  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="overflow-x:auto;max-height:calc(100vh - 180px);overflow-y:auto"><table style="min-width:900px"><thead><tr><th>Resim</th><th onclick="stokSirala='kod';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:90px;white-space:nowrap">Kod</th><th onclick="stokSirala='ad';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;min-width:140px">Parça Adı</th><th>Kategori</th><th>Ekipman</th><th onclick="stokSirala='stok';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:60px;text-align:center">Stok</th><th style="width:50px;text-align:center">Min</th><th onclick="stokSirala='fiyat';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:100px">Fiyat</th><th>ABC</th><th>Durum</th><th>Tedarikçi</th><th>Lokasyon</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Henüz parça eklenmedi</div></td></tr>'}</tbody></table></div></div>`;
 }
 
 
@@ -1256,7 +1265,7 @@ function renderKritik(){
     +'<div class="card" style="padding:0;overflow:hidden">'
     +'<div class="table-wrap"><table>'
     +'<thead><tr>'
-    +'<th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Stok</th><th>Min</th><th>ROP</th>'
+    +'<th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Stok</th><th style="width:50px;text-align:center">Min</th><th>ROP</th>'
     +'<th>Fiyat</th><th>ABC</th><th>Tedarikçi</th><th>Teslimat</th>'
     +'<th>İşlem</th>'
     +'</tr></thead>'
