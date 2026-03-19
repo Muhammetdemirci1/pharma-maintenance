@@ -456,7 +456,15 @@ if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLo
       </div>
     </div>
     </div>
-    <div class="content" id="content"><div class="loading"><span class="spinner"></span>Yükleniyor...</div></div>
+    <div id="content" class="content">
+  <div id="toplu-toolbar" style="display:none;position:sticky;top:0;z-index:100;background:var(--blue);color:#fff;padding:10px 20px;border-radius:10px;margin-bottom:12px;align-items:center;gap:12px;box-shadow:0 4px 12px rgba(59,130,246,.3)">
+    <span id="toplu-say" style="font-size:13px;font-weight:600"></span>
+    <div style="flex:1"></div>
+    <button onclick="topluSil()" style="padding:6px 14px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;font-size:12px;cursor:pointer;font-family:Inter,sans-serif">🗑 Sil</button>
+    <button onclick="topluIptal()" style="padding:6px 14px;background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;font-size:12px;cursor:pointer;font-family:Inter,sans-serif">✕ İptal</button>
+  </div>
+  <div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text3)">Veriler yükleniyor...</div></div>
+</div>
   </div>
 </div>
 <div id="modal-container"></div>
@@ -614,7 +622,7 @@ function durum(p){const m=mevcut(p.kod);if(m<=0)return{l:'TÜKENDİ',c:'badge-re
 function fmt(n,d=0){return Number(n||0).toLocaleString('tr-TR',{minimumFractionDigits:d,maximumFractionDigits:d});}
 function eur(n){return '€'+fmt(n,2);}
 function today(){return new Date().toISOString().slice(0,10);}
-function loading(){document.getElementById('content').innerHTML='<div class="loading"><span class="spinner"></span>Yükleniyor...</div>';}
+function loading(){document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div><div style="font-size:13px;color:var(--text3)">Veriler yükleniyor...</div></div>';}
 
 async function loadAll(){
   try{
