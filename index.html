@@ -1968,11 +1968,21 @@ async function updSipDurum(id,d){
 async function sipSil(id){if(!confirm('Siparişi silmek istediğinize emin misiniz?'))return;await sbDelete('siparisler',id);await refreshAll('siparis');}
 
 function renderHareket(){
+  // Önce mevcut filtre değerlerini oku
+  var harTipVal=document.getElementById('har-tip-filtre')?document.getElementById('har-tip-filtre').value:'';
+  var harBasVal=document.getElementById('har-tarih-bas')?document.getElementById('har-tarih-bas').value:'';
+  var harBitVal=document.getElementById('har-tarih-bit')?document.getElementById('har-tarih-bit').value:'';
+
+  // Topbar'ı yeniden oluştur — mevcut değerleri koru
   document.getElementById('topbar-actions').innerHTML=
     '<select id="har-tip-filtre" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer">'
-    +'<option value="">Tüm Tipler</option><option value="GİRİŞ">GİRİŞ</option><option value="ÇIKIŞ">ÇIKIŞ</option><option value="DÜZELTME">DÜZELTME</option></select>'
-    +'<input type="date" id="har-tarih-bas" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px">'
-    +'<input type="date" id="har-tarih-bit" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px">'
+    +'<option value="" '+(harTipVal===''?'selected':'')+'>Tüm Tipler</option>'
+    +'<option value="GİRİŞ" '+(harTipVal==='GİRİŞ'?'selected':'')+'>GİRİŞ</option>'
+    +'<option value="ÇIKIŞ" '+(harTipVal==='ÇIKIŞ'?'selected':'')+'>ÇIKIŞ</option>'
+    +'<option value="DÜZELTME" '+(harTipVal==='DÜZELTME'?'selected':'')+'>DÜZELTME</option></select>'
+    +'<input type="date" id="har-tarih-bas" value="'+harBasVal+'" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px">'
+    +'<input type="date" id="har-tarih-bit" value="'+harBitVal+'" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px">'
+    +(harBasVal||harBitVal?'<button class="btn" onclick="harPage=1;document.getElementById(\'har-tarih-bas\').value=\'\';document.getElementById(\'har-tarih-bit\').value=\'\';renderHareket()">✕ Temizle</button>':'')
     +'<button class="btn" onclick="refreshAll(\'hareket\')">↻ Yenile</button>'
     +'<button class="btn btn-primary" onclick="showHareketModal()">+ Yeni Hareket</button>';
   // Özet hesapla
@@ -1980,9 +1990,9 @@ function renderHareket(){
   var harCikisToplam=hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).reduce(function(s,h){return s+(h.miktar||0);},0);
   var harBuAy=new Date().toISOString().slice(0,7);
   var harBuAyCikis=hareketler.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(harBuAy);}).reduce(function(s,h){return s+(h.miktar||0);},0);
-  var harTip=document.getElementById('har-tip-filtre')?document.getElementById('har-tip-filtre').value:'';
-  var harBas=document.getElementById('har-tarih-bas')?document.getElementById('har-tarih-bas').value:'';
-  var harBit=document.getElementById('har-tarih-bit')?document.getElementById('har-tarih-bit').value:'';
+  var harTip=harTipVal||'';
+  var harBas=harBasVal||'';
+  var harBit=harBitVal||'';
   var filtHar=hareketler.filter(function(h){
     if(harTip && h.tip!==harTip) return false;
     if(harBas && h.tarih && h.tarih<harBas) return false;
