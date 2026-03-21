@@ -1861,8 +1861,7 @@ function renderEOQ(){
   document.getElementById('content').innerHTML=`<div class="alert alert-info"><span class="alert-icon">ℹ</span>Yeşil hücreler düzenlenebilir — değiştirince otomatik kaydedilir.</div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>Birim Fiyat</th><th style="color:var(--green)">Yıllık Talep</th><th style="color:var(--green)">Sipariş Maliyet (€)</th><th>Temin (gün)</th><th>EOQ</th><th>Güv.Stok</th><th>ROP</th><th>Sipariş/Yıl</th><th>Yıllık Maliyet</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Önce parça ekleyin</div></td></tr>'}</tbody></table></div></div>`;
 }
 
-async 
-function showEOQGrafik(parId){
+async function showEOQGrafik(parId){
   var p=parcalar.find(function(x){return x.id===parId;});
   if(!p) return;
   var D=p.yillik_talep||1, S=p.siparis_maliyet||50, H=p.birim_fiyat*EOQ_H||1;
