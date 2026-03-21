@@ -650,13 +650,6 @@ if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLo
       <button class="nav-item" onclick="navigate('cyclecount')"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span>Cycle Count</button>
     </nav>
 
-    <div style="padding:8px 16px;border-top:1px solid var(--sb-border)">
-      <div style="font-size:9px;color:#374151;line-height:1.8">
-        <span style="color:#4b5563">Kısayollar:</span><br>
-        Alt+1-7 Sayfa • N Yeni Parça<br>
-        R Yenile • / Arama • Esc Kapat
-      </div>
-    </div>
     <div class="conn-status">
       <div class="conn-dot" id="conn-dot"></div>
       <span id="conn-text">Bağlanıyor...</span>
@@ -1558,33 +1551,29 @@ function renderDash(){
   });
   extraHtml+='</div></div>';
 
-  // ── STOK DEĞERİ TRENDİ (Son 6 Ay) ──────────────────────────
-  var stokDegerTrend='<div class="card" style="margin-bottom:16px"><div class="section-title">Stok Değeri Trendi (Son 6 Ay)</div>';
+  // ── AYLIK KULLANIM DEĞERİ TRENDİ (Son 6 Ay) ────────────────
+  var stokDegerTrend='<div class="card" style="margin-bottom:16px"><div class="section-title">Aylık Kullanım Değeri (Son 6 Ay)</div>';
   var aylarTrend=[];
-  for(var ti=5;ti>=0;ti--){var td=new Date();td.setMonth(td.getMonth()-ti);aylarTrend.push({yil:td.getFullYear(),ay:td.getMonth()+1,label:td.toLocaleString('tr-TR',{month:'short',year:'2-digit'})});}
-
-  // Her ay sonu için tahmini stok değeri — o aya kadar olan hareketlerden hesapla
-  var aylikDeger=aylarTrend.map(function(a){
-    var ayStr=a.yil+'-'+(String(a.ay).padStart(2,'0'));
-    // O aya kadar olan tüm hareketleri dikkate alarak her parçanın stok miktarını hesapla
-    var toplamDeger=parcalar.reduce(function(sum,p){
-      var baslangic=p.baslangic||0;
-      var giris=hareketler.filter(function(h){return h.par_kod===p.kod&&h.tip==='GİRİŞ'&&(h.tarih||'')<=ayStr+'99';}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
-      var cikis=hareketler.filter(function(h){return h.par_kod===p.kod&&h.tip==='ÇIKIŞ'&&(h.tarih||'')<=ayStr+'99';}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
-      var duzeltme=hareketler.filter(function(h){return h.par_kod===p.kod&&h.tip==='DÜZELTME'&&(h.tarih||'')<=ayStr+'99';}).reduce(function(s,h,i,arr){return arr[arr.length-1].miktar;},0);
-      var sonStok=duzeltme>0?duzeltme:Math.max(0,baslangic+giris-cikis);
-      return sum+sonStok*(p.birim_fiyat||0);
-    },0);
-    return {label:a.label,deger:Math.round(toplamDeger)};
-  });
-
-  var maxDeger=Math.max.apply(null,aylikDeger.map(function(x){return x.deger;}))||1;
-  aylikDeger.forEach(function(a){
-    var pct=Math.round(a.deger/maxDeger*100);
+  for(var ti=5;ti>=0;ti--){
+    var td=new Date();td.setDate(1);td.setMonth(td.getMonth()-ti);
+    var ayStr=td.getFullYear()+'-'+String(td.getMonth()+1).padStart(2,'0');
+    var label=td.toLocaleString('tr-TR',{month:'short',year:'2-digit'});
+    // O aydaki çıkışların toplam değeri
+    var ayDeger=hareketler
+      .filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(ayStr);})
+      .reduce(function(s,h){
+        var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
+        return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);
+      },0);
+    aylarTrend.push({label:label,deger:Math.round(ayDeger)});
+  }
+  var maxDeger2=Math.max.apply(null,aylarTrend.map(function(x){return x.deger;}))||1;
+  aylarTrend.forEach(function(a){
+    var pct=Math.round(a.deger/maxDeger2*100);
     stokDegerTrend+='<div class="chart-bar-row">'
       +'<div class="chart-bar-label">'+a.label+'</div>'
       +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--gold)"></div></div>'
-      +'<div class="chart-bar-val">'+eur(a.deger)+'</div>'
+      +'<div class="chart-bar-val">'+(a.deger>0?eur(a.deger):'—')+'</div>'
       +'</div>';
   });
   stokDegerTrend+='</div>';
