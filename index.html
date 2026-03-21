@@ -282,6 +282,60 @@ tr:last-child td{border-bottom:none}
 .notif-item.unread{background:var(--blue-light)}
 .notif-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 
+
+/* ── SAYFA GEÇİŞ ANİMASYONU ─────────────────────────────── */
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes countUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+.page-enter{animation:pageIn .25s cubic-bezier(.4,0,.2,1)}
+.card-enter{animation:cardIn .3s cubic-bezier(.34,1.56,.64,1) both}
+
+/* Skeleton loader */
+.skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--border) 50%,var(--bg3) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
+
+/* KPI animasyonu */
+.kpi-value{transition:all .3s ease}
+
+/* Tablo satır animasyonu */
+tbody tr{animation:pageIn .2s ease both}
+tbody tr:nth-child(1){animation-delay:.02s}
+tbody tr:nth-child(2){animation-delay:.04s}
+tbody tr:nth-child(3){animation-delay:.06s}
+tbody tr:nth-child(4){animation-delay:.08s}
+tbody tr:nth-child(5){animation-delay:.1s}
+tbody tr:nth-child(6){animation-delay:.12s}
+tbody tr:nth-child(7){animation-delay:.14s}
+tbody tr:nth-child(8){animation-delay:.16s}
+tbody tr:nth-child(9){animation-delay:.18s}
+tbody tr:nth-child(10){animation-delay:.2s}
+
+/* Buton ripple efekti */
+.btn{position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .15s}
+.btn:active::after{background:rgba(0,0,0,.06)}
+
+/* Nav item hover animasyonu */
+.nav-item{position:relative}
+.nav-item::after{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--sb-accent);opacity:.3;transition:width .2s;border-radius:0 4px 4px 0}
+.nav-item:hover::after{width:3px}
+.nav-item.active::after{width:3px;opacity:1}
+
+/* Badge pulse animasyonu */
+.nav-badge{animation:pulseBadge 2s infinite}
+@keyframes pulseBadge{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* Card hover lift */
+.kpi{will-change:transform}
+
+/* Sidebar geçişi */
+.sidebar{transition:width .2s ease}
+
+/* Topbar shadow scroll */
+.topbar{transition:box-shadow .2s}
+
 </style>
 </head>
 <body>
@@ -344,6 +398,60 @@ tr:last-child td{border-bottom:none}
 .notif-item:hover{background:var(--bg3)}
 .notif-item.unread{background:var(--blue-light)}
 .notif-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+
+/* ── SAYFA GEÇİŞ ANİMASYONU ─────────────────────────────── */
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes countUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+.page-enter{animation:pageIn .25s cubic-bezier(.4,0,.2,1)}
+.card-enter{animation:cardIn .3s cubic-bezier(.34,1.56,.64,1) both}
+
+/* Skeleton loader */
+.skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--border) 50%,var(--bg3) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
+
+/* KPI animasyonu */
+.kpi-value{transition:all .3s ease}
+
+/* Tablo satır animasyonu */
+tbody tr{animation:pageIn .2s ease both}
+tbody tr:nth-child(1){animation-delay:.02s}
+tbody tr:nth-child(2){animation-delay:.04s}
+tbody tr:nth-child(3){animation-delay:.06s}
+tbody tr:nth-child(4){animation-delay:.08s}
+tbody tr:nth-child(5){animation-delay:.1s}
+tbody tr:nth-child(6){animation-delay:.12s}
+tbody tr:nth-child(7){animation-delay:.14s}
+tbody tr:nth-child(8){animation-delay:.16s}
+tbody tr:nth-child(9){animation-delay:.18s}
+tbody tr:nth-child(10){animation-delay:.2s}
+
+/* Buton ripple efekti */
+.btn{position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .15s}
+.btn:active::after{background:rgba(0,0,0,.06)}
+
+/* Nav item hover animasyonu */
+.nav-item{position:relative}
+.nav-item::after{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--sb-accent);opacity:.3;transition:width .2s;border-radius:0 4px 4px 0}
+.nav-item:hover::after{width:3px}
+.nav-item.active::after{width:3px;opacity:1}
+
+/* Badge pulse animasyonu */
+.nav-badge{animation:pulseBadge 2s infinite}
+@keyframes pulseBadge{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+
+/* Card hover lift */
+.kpi{will-change:transform}
+
+/* Sidebar geçişi */
+.sidebar{transition:width .2s ease}
+
+/* Topbar shadow scroll */
+.topbar{transition:box-shadow .2s}
 
 </style>
           </defs>
@@ -577,7 +685,7 @@ async function sbInsert(t,d){const r=await fetch(`${SB_URL}/rest/v1/${t}`,{metho
 async function sbUpdate(t,id,d){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'PATCH',headers:{...HDR,'Prefer':'return=representation'},body:JSON.stringify(d)});if(!r.ok)throw new Error(await r.text());return r.json();}
 async function sbDelete(t,id){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.${id}`,{method:'DELETE',headers:HDR});if(!r.ok)throw new Error(await r.text());}
 
-let parcalar=[],siparisler=[],hareketler=[],stokSearch='',stokFiltre='tumu',stokKategoriFiltre='',stokSirala='kod',stokSiralaDir=1,seciliParcalar=new Set();
+let parcalar=[],siparisler=[],hareketler=[],stokSearch='',stokFiltre='tumu',stokKategoriFiltre='',stokSirala='kod',stokSiralaDir=1,seciliParcalar=new Set(),harPage=1,harPageSize=50;
 
 
 function pbSembol(pb){ return {EUR:'€',USD:'$',TRY:'₺',CHF:'Fr'}[pb]||pb; }
@@ -1127,6 +1235,7 @@ function navigate(page){
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.getAttribute('onclick').includes("'"+page+"'")));
   document.getElementById('page-title').textContent={dashboard:'Dashboard',stok:'Stok Yönetimi',kritik:'Kritik Yedek Parçalar',eoq:'EOQ Hesaplama',siparis:'Sipariş Takip',hareket:'Hareket Log',raporlar:'Raporlar',cyclecount:'Cycle Count — Fiziksel Sayım'}[page]||page;
   ({dashboard:renderDash,stok:renderStok,kritik:renderKritik,eoq:renderEOQ,siparis:renderSiparis,hareket:renderHareket,raporlar:renderRaporlar,cyclecount:renderCycleCount})[page]?.();
+  var ce=document.getElementById('content');if(ce){ce.classList.remove('page-enter');void ce.offsetWidth;ce.classList.add('page-enter');}
 }
 
 function renderDash(){
@@ -1692,7 +1801,7 @@ function renderEOQ(){
     const ss=Math.max(1,Math.round(1.65*0.05*Math.sqrt(p.teslimat||14)));
     const rop=Math.max(1,Math.round((t/365)*(p.teslimat||14)+ss));
     const topM=sm*(t/eoq)+I*(eoq/2);
-    return`<tr><td style="color:var(--accent);font-weight:600;white-space:nowrap;font-family:DM Mono,monospace">${p.kod}</td><td>${p.ad.length>28?p.ad.slice(0,28)+'…':p.ad}</td><td style="color:var(--gold)">${eur(p.birim_fiyat)}</td><td><input type="number" value="${t}" min="0.1" step="0.5" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td><td><input type="number" value="${sm}" min="1" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td><td style="color:var(--text3)">${p.teslimat||14}</td><td><b style="color:var(--accent)">${eoq}</b></td><td style="color:var(--gold)">${ss}</td><td><b style="color:var(--gold)">${rop}</b></td><td style="color:var(--text3)">${(t/eoq).toFixed(1)}x/yıl</td><td style="color:var(--green)">${eur(topM)}</td></tr>`;
+    return`<tr style="${gecikti?'background:#fef2f2;':''}"><td style="color:var(--accent);font-weight:600;white-space:nowrap;font-family:DM Mono,monospace">${p.kod}</td><td>${p.ad.length>28?p.ad.slice(0,28)+'…':p.ad}</td><td style="color:var(--gold)">${eur(p.birim_fiyat)}</td><td><input type="number" value="${t}" min="0.1" step="0.5" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td><td><input type="number" value="${sm}" min="1" style="width:65px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:11px;font-weight:600" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td><td style="color:var(--text3)">${p.teslimat||14}</td><td><b style="color:var(--accent)">${eoq}</b></td><td style="color:var(--gold)">${ss}</td><td><b style="color:var(--gold)">${rop}</b></td><td style="color:var(--text3)">${(t/eoq).toFixed(1)}x/yıl</td><td style="color:var(--green)">${eur(topM)}</td></tr>`;
   }).join('');
   document.getElementById('content').innerHTML=`<div class="alert alert-info"><span class="alert-icon">ℹ</span>Yeşil hücreler düzenlenebilir — değiştirince otomatik kaydedilir.</div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>Birim Fiyat</th><th style="color:var(--green)">Yıllık Talep</th><th style="color:var(--green)">Sipariş Maliyet (€)</th><th>Temin (gün)</th><th>EOQ</th><th>Güv.Stok</th><th>ROP</th><th>Sipariş/Yıl</th><th>Yıllık Maliyet</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Önce parça ekleyin</div></td></tr>'}</tbody></table></div></div>`;
 }
@@ -1770,8 +1879,12 @@ function renderHareket(){
     if(harBit && h.tarih && h.tarih>harBit) return false;
     return true;
   });
-  const rows=filtHar.slice().reverse().map(h=>{const p=parcalar.find(x=>x.kod===h.par_kod)||{};const cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return`<tr><td style="color:var(--text3)">${h.tarih||''}</td><td style="color:var(--accent);font-weight:600">${h.par_kod}</td><td>${p.ad||'-'}</td><td style="color:var(--text3)">${h.kullanan||'-'}</td><td><span class="badge ${cl}">${h.tip}</span></td><td><b>${h.miktar}</b></td><td style="color:var(--text3)">${h.i_emri||'-'}</td><td style="color:var(--text3)">${h.aciklama||'-'}</td><td><button class="btn btn-sm btn-danger" onclick="harSil('${h.id}')">Sil</button></td></tr>`;}).join('');
-  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="max-height:calc(100vh - 200px);overflow-y:auto"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Kullanan</th><th>Tip</th><th>Miktar</th><th>İş Emri</th><th>Açıklama</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="9"><div class="empty"><div class="empty-icon">📋</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Henüz hareket kaydı yok</div><div style="font-size:12px;color:var(--text3)">Parça giriş/çıkışları burada görünecek</div></div></td></tr>'}</tbody></table></div></div>`;
+  var harToplam=filtHar.length;
+  var harMaxPage=Math.max(1,Math.ceil(harToplam/harPageSize));
+  if(harPage>harMaxPage) harPage=harMaxPage;
+  var harSlice=filtHar.slice().reverse().slice((harPage-1)*harPageSize, harPage*harPageSize);
+  const rows=harSlice.map(h=>{const p=parcalar.find(x=>x.kod===h.par_kod)||{};const cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return`<tr><td style="color:var(--text3)">${h.tarih||''}</td><td style="color:var(--accent);font-weight:600">${h.par_kod}</td><td>${p.ad||'-'}</td><td style="color:var(--text3)">${h.kullanan||'-'}</td><td><span class="badge ${cl}">${h.tip}</span></td><td><b>${h.miktar}</b></td><td style="color:var(--text3)">${h.i_emri||'-'}</td><td style="color:var(--text3)">${h.aciklama||'-'}</td><td><button class="btn btn-sm btn-danger" onclick="harSil('${h.id}')">Sil</button></td></tr>`;}).join('');
+  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="max-height:calc(100vh - 200px);overflow-y:auto"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Kullanan</th><th>Tip</th><th>Miktar</th><th>İş Emri</th><th>Açıklama</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="9"><div class="empty"><div class="empty-icon">📋</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Henüz hareket kaydı yok</div><div style="font-size:12px;color:var(--text3)">Parça giriş/çıkışları burada görünecek</div></div></td></tr>'}</tbody></table></div></div><div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg3)"><span style="font-size:12px;color:var(--text3)">${harToplam} kayıt — Sayfa ${harPage} / ${harMaxPage}</span><div style="display:flex;gap:6px">${harPage>1?'<button class="btn btn-sm" onclick="harPage=1;renderHareket()">«</button><button class="btn btn-sm" onclick="harPage--;renderHareket()">‹</button>':''}${harPage<harMaxPage?'<button class="btn btn-sm" onclick="harPage++;renderHareket()">›</button><button class="btn btn-sm" onclick="harPage=harMaxPage;renderHareket()">»</button>':''}</div></div>`;
 }
 function showHareketModal(ok){
   const sec=parcalar.map(p=>`<option value="${p.kod}" ${p.kod===ok?'selected':''}>${p.kod} — ${p.ad} (Stok: ${mevcut(p.kod)})</option>`).join('');
