@@ -79,9 +79,9 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 
 /* ── MAIN ─────────────────────────────── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{padding:0 24px;height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);box-shadow:var(--shadow-sm);flex-shrink:0;gap:20px}
-.page-title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.02em}
-.topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}
+.topbar{padding:0 24px;height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);box-shadow:var(--shadow-sm);flex-shrink:0;gap:16px;overflow:hidden}
+.page-title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.02em;white-space:nowrap;flex-shrink:0}
+.topbar-actions{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;flex-shrink:1;min-width:0;scrollbar-width:none}.topbar-actions::-webkit-scrollbar{display:none}
 .content{flex:1;overflow-y:auto;padding:24px}
 
 /* ── BUTTONS ─────────────────────────── */
@@ -658,7 +658,7 @@ if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLo
   <div class="main">
     <div class="topbar">
       <div class="page-title" id="page-title">Dashboard</div>
-      <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
         <div id="topbar-actions" class="topbar-actions"></div>
         <div style="position:relative;flex-shrink:0">
           <button onclick="toggleNotifPanel()" style="width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s" title="Bildirimler">🔔</button>
@@ -1388,7 +1388,7 @@ function navigate(page){
 function renderDash(){
   document.getElementById('topbar-actions').innerHTML=
     '<div class="search-wrap"><span class="search-icon">🔍</span>'
-    +'<input class="search-bar" id="dash-search" placeholder="Parça ara..." onkeydown="if(event.key===\'Enter\'){var v=this.value;if(v){stokSearch=v;navigate(\'stok\')}}" style="width:180px"></div>'
+    +'<input class="search-bar" id="dash-search" placeholder="Parça ara..." onkeydown="if(event.key===\'Enter\'){var v=this.value;if(v){stokSearch=v;navigate(\'stok\')}}" style="width:150px"></div>'
     +'<button class="btn btn-ghost" onclick="refreshAll(\'dashboard\')">↻ Yenile</button>';
   kurGuncelle();
   const tp=parcalar.length,krit=parcalar.filter(p=>mevcut(p.kod)<=(p.min_stok||1)).length,tuk=parcalar.filter(p=>mevcut(p.kod)<=0).length;
@@ -1586,7 +1586,7 @@ function renderDash(){
 function renderStok(){
   document.getElementById('topbar-actions').innerHTML=
     '<div class="search-wrap"><span class="search-icon">🔍</span><input class="search-bar" placeholder="Parça ara..." value="'+stokSearch+'" oninput="stokSearch=this.value;renderStok()"></div>'
-    +'<select style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer" onchange="stokFiltre=this.value;renderStok()">'  
+    +'<select style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;cursor:pointer;max-width:130px" onchange="stokFiltre=this.value;renderStok()">'  
     +'<option value="tumu" '+(stokFiltre==='tumu'?'selected':'')+'>Tüm Parçalar</option>'
     +'<option value="kritik" '+(stokFiltre==='kritik'?'selected':'')+'>Kritik / Tükenen</option>'
     +'<option value="tukendi" '+(stokFiltre==='tukendi'?'selected':'')+'>Stok Yok</option>'
@@ -1594,12 +1594,10 @@ function renderStok(){
     +'<option value="B" '+(stokFiltre==='B'?'selected':'')+'>ABC — B Sınıfı</option>'
     +'<option value="C" '+(stokFiltre==='C'?'selected':'')+'>ABC — C Sınıfı</option>'
     +'</select>'
-    +'<select style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer" onchange="stokKategoriFiltre=this.value;renderStok()">'  
-    +'<option value="">Tüm Kategoriler</option>'
+    +'<select style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;cursor:pointer" onchange="stokKategoriFiltre=this.value;renderStok()">'  
+    +'<option value="">Kategori</option>'
     +['Mekanik','Elektrik','Pnömatik','Hidrolik','Elektronik','Sarf Malzeme','Diğer'].map(function(k){return '<option value="'+k+'" '+(stokKategoriFiltre===k?'selected':'')+'>'+k+'</option>';}).join('')
     +'</select>'
-    +'<button class="btn" onclick="showSutunMenu()">⊞ Sütunlar</button>'
-    +'<button class="btn" onclick="showImportModal()">📥 İçe Aktar</button>'
     +'<button class="btn" onclick="refreshAll(\'stok\')">↻</button>'
     +'<button class="btn btn-primary" onclick="showParcaModal()">+ Yeni Parça</button>';
   var f=parcalar.filter(function(p){
@@ -1659,7 +1657,7 @@ function renderStok(){
         <th style="width:50px">ABC</th>
         <th style="width:80px">Durum</th>
         <th style="width:90px">Tedarikçi</th>
-        <th style="width:180px">İşlem</th>
+        <th style="width:130px">İşlem</th>
       </tr></thead><tbody>${rows||'<tr><td colspan="12"><div class="empty"><div class="empty-icon">📦</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Henüz parça eklenmedi</div><div style="font-size:12px;color:var(--text3);margin-bottom:16px">İlk yedek parçanızı ekleyerek başlayın</div><button class="btn btn-primary" onclick="showParcaModal()">+ İlk Parçayı Ekle</button></div></td></tr>'}</tbody></table></div></div>`;
 }
 
@@ -1974,7 +1972,14 @@ function eoqParamGuncelle(){
 }
 
 function renderEOQ(){
-  document.getElementById('topbar-actions').innerHTML=`<button class="btn" onclick="refreshAll('eoq')">↻ Yenile</button>`;
+  document.getElementById('topbar-actions').innerHTML=
+    '<span style="font-size:10px;color:var(--text3)">k:</span>'
+    +'<input type="number" id="eoq-k" value="2.33" step="0.01" min="1" max="3.5" title="Güvenlik katsayısı" style="width:48px;padding:4px 5px;border:1px solid var(--border);border-radius:5px;font-size:11px;background:var(--bg2)" onchange="eoqParamGuncelle()">'
+    +'<span style="font-size:10px;color:var(--text3)">σ:</span>'
+    +'<input type="number" id="eoq-s" value="0.20" step="0.01" min="0.01" max="1" title="Talep sapması" style="width:48px;padding:4px 5px;border:1px solid var(--border);border-radius:5px;font-size:11px;background:var(--bg2)" onchange="eoqParamGuncelle()">'
+    +'<span style="font-size:10px;color:var(--text3)">H%:</span>'
+    +'<input type="number" id="eoq-h" value="25" step="1" min="5" max="50" title="Tutma maliyeti %" style="width:44px;padding:4px 5px;border:1px solid var(--border);border-radius:5px;font-size:11px;background:var(--bg2)" onchange="eoqParamGuncelle()">'
+    +'<button class="btn" onclick="refreshAll(\'eoq\')">↻</button>';
   // Gerçek talep hesapla — son 12 ay çıkış hareketlerinden
   var sonYil=new Date();sonYil.setFullYear(sonYil.getFullYear()-1);
   var sonYilStr=sonYil.toISOString().slice(0,10);
@@ -2196,13 +2201,13 @@ function renderHareket(){
 
   // Topbar'ı yeniden oluştur — mevcut değerleri koru
   document.getElementById('topbar-actions').innerHTML=
-    '<select id="har-tip-filtre" onchange="harPage=1;renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer">'
+    '<select id="har-tip-filtre" onchange="harPage=1;renderHareket()" style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;cursor:pointer">'
     +'<option value="" '+(harTipVal===''?'selected':'')+'>Tüm Tipler</option>'
     +'<option value="GİRİŞ" '+(harTipVal==='GİRİŞ'?'selected':'')+'>GİRİŞ</option>'
     +'<option value="ÇIKIŞ" '+(harTipVal==='ÇIKIŞ'?'selected':'')+'>ÇIKIŞ</option>'
     +'<option value="DÜZELTME" '+(harTipVal==='DÜZELTME'?'selected':'')+'>DÜZELTME</option></select>'
-    +'<input type="date" id="har-tarih-bas" value="'+harBasVal+'" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px">'
-    +'<input type="date" id="har-tarih-bit" value="'+harBitVal+'" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px">'
+    +'<input type="date" id="har-tarih-bas" value="'+harBasVal+'" onchange="renderHareket()" style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px">'
+    +'<input type="date" id="har-tarih-bit" value="'+harBitVal+'" onchange="renderHareket()" style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px">'
     +(harBasVal||harBitVal?'<button class="btn" onclick="harPage=1;document.getElementById(\'har-tarih-bas\').value=\'\';document.getElementById(\'har-tarih-bit\').value=\'\';renderHareket()">✕ Temizle</button>':'')
     +'<button class="btn" onclick="refreshAll(\'hareket\')">↻ Yenile</button>'
     +'<button class="btn" onclick="showTopluHareketModal()">↕ Toplu Hareket</button>'
@@ -2512,15 +2517,11 @@ function renderRaporlar(){
   var raporBasStr=localStorage.getItem('raporBas')||new Date(new Date().setMonth(new Date().getMonth()-3)).toISOString().slice(0,10);
   var raporBitStr=localStorage.getItem('raporBit')||new Date().toISOString().slice(0,10);
   document.getElementById('topbar-actions').innerHTML=
-    '<label style="font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px">'
-    +'Başlangıç: <input type="date" id="rapor-bas" value="'+raporBasStr+'" onchange="localStorage.setItem(\'raporBas\',this.value);renderRaporlar()" style="padding:5px 8px;border-radius:5px;border:1.5px solid var(--border);font-size:11px;background:var(--bg2)">'
-    +'</label>'
-    +'<label style="font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px">'
-    +'Bitiş: <input type="date" id="rapor-bit" value="'+raporBitStr+'" onchange="localStorage.setItem(\'raporBit\',this.value);renderRaporlar()" style="padding:5px 8px;border-radius:5px;border:1.5px solid var(--border);font-size:11px;background:var(--bg2)">'
-    +'</label>'
-    +'<button class="btn" onclick="localStorage.removeItem(\'raporBas\');localStorage.removeItem(\'raporBit\');renderRaporlar()">↺ Sıfırla</button>'
+    '<input type="date" id="rapor-bas" value="'+raporBasStr+'" title="Başlangıç tarihi" onchange="localStorage.setItem(\'raporBas\',this.value);renderRaporlar()" style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);font-size:11px;background:var(--bg2);color:var(--text2);width:120px">'
+    +'<input type="date" id="rapor-bit" value="'+raporBitStr+'" title="Bitiş tarihi" onchange="localStorage.setItem(\'raporBit\',this.value);renderRaporlar()" style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);font-size:11px;background:var(--bg2);color:var(--text2);width:120px">'
+    +'<button class="btn" onclick="localStorage.removeItem(\'raporBas\');localStorage.removeItem(\'raporBit\');renderRaporlar()">↺</button>'
     +'<button class="btn" onclick="refreshAll(\'raporlar\')">↻ Yenile</button>'
-    +'<button class="btn btn-primary" onclick="excelIndir()">⬇ Excel İndir</button>';
+    +'<button class="btn btn-primary" onclick="excelIndir()">⬇ Excel</button>';
 
   // Hesaplamalar
   var rBas=document.getElementById('rapor-bas')?document.getElementById('rapor-bas').value:(localStorage.getItem('raporBas')||'2000-01-01');
