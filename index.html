@@ -1261,6 +1261,102 @@ function rolKontrol(aksiyon){
   return true;
 }
 
+
+function showTopluHareketModal(){
+  var parcaOptions = parcalar.map(function(p){
+    var m=mevcut(p.kod);
+    return '<option value="'+p.kod+'">'+p.kod+' — '+p.ad+' (Stok: '+m+')</option>';
+  }).join('');
+
+  document.getElementById('modal-container').innerHTML=`
+  <div class="modal-overlay"><div class="modal" style="width:640px">
+    <div class="modal-title">↕ Toplu Hareket Girişi</div>
+    <div class="alert alert-info"><span class="alert-icon">ℹ</span>Aynı anda birden fazla parça için hareket kaydı oluşturun.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="form-group">
+        <label>Hareket Tipi</label>
+        <select id="th-tip" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:6px;font-size:13px">
+          <option value="ÇIKIŞ">ÇIKIŞ</option>
+          <option value="GİRİŞ">GİRİŞ</option>
+          <option value="DÜZELTME">DÜZELTME</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tarih</label>
+        <input type="date" id="th-tarih" value="${new Date().toISOString().slice(0,10)}" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:6px;font-size:13px">
+      </div>
+      <div class="form-group">
+        <label>Kullanan</label>
+        <input id="th-kullanan" placeholder="Teknisyen adı" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:6px;font-size:13px">
+      </div>
+      <div class="form-group">
+        <label>İş Emri</label>
+        <input id="th-iemri" placeholder="İş emri no" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:6px;font-size:13px">
+      </div>
+    </div>
+
+    <div class="section-title">Parçalar</div>
+    <div id="th-parcalar">
+      <div class="th-satir" style="display:grid;grid-template-columns:1fr 80px 28px;gap:8px;margin-bottom:8px">
+        <select class="th-parca" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:12px">${parcaOptions}</select>
+        <input type="number" class="th-miktar" min="1" value="1" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:12px;text-align:center">
+        <button onclick="this.closest('.th-satir').remove()" style="background:var(--red-light);border:1px solid var(--red);color:var(--red);border-radius:6px;cursor:pointer;font-size:14px">×</button>
+      </div>
+    </div>
+    <button onclick="thSatirEkle()" class="btn" style="margin-top:4px;width:100%">+ Parça Ekle</button>
+
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">İptal</button>
+      <button class="btn btn-primary" onclick="topluHareketKaydet()">Kaydet</button>
+    </div>
+  </div></div>`;
+}
+
+function thSatirEkle(){
+  var wrap=document.getElementById('th-parcalar');
+  if(!wrap) return;
+  var parcaOptions=parcalar.map(function(p){
+    return '<option value="'+p.kod+'">'+p.kod+' — '+p.ad+' (Stok: '+mevcut(p.kod)+')</option>';
+  }).join('');
+  var div=document.createElement('div');
+  div.className='th-satir';
+  div.style.cssText='display:grid;grid-template-columns:1fr 80px 28px;gap:8px;margin-bottom:8px';
+  div.innerHTML='<select class="th-parca" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:12px">'+parcaOptions+'</select>'
+    +'<input type="number" class="th-miktar" min="1" value="1" style="background:var(--bg3);border:1.5px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:12px;text-align:center">'
+    +'<button onclick="this.closest(\'.th-satir\').remove()" style="background:var(--red-light);border:1px solid var(--red);color:var(--red);border-radius:6px;cursor:pointer;font-size:14px">×</button>';
+  wrap.appendChild(div);
+}
+
+async function topluHareketKaydet(){
+  var tip=document.getElementById('th-tip').value;
+  var tarih=document.getElementById('th-tarih').value||new Date().toISOString().slice(0,10);
+  var kullanan=document.getElementById('th-kullanan').value||'';
+  var iemri=document.getElementById('th-iemri').value||'';
+  var satirlar=document.querySelectorAll('.th-satir');
+  if(!satirlar.length){alert('En az 1 parça ekleyin.');return;}
+  var islemler=[];
+  satirlar.forEach(function(s){
+    var kod=s.querySelector('.th-parca').value;
+    var miktar=parseInt(s.querySelector('.th-miktar').value)||1;
+    if(kod && miktar>0) islemler.push({kod:kod,miktar:miktar});
+  });
+  if(!islemler.length) return;
+  try{
+    for(var i=0;i<islemler.length;i++){
+      await sbInsert('hareketler',{
+        par_kod:islemler[i].kod, tip:tip, miktar:islemler[i].miktar,
+        tarih:tarih, kullanan:kullanan, i_emri:iemri,
+        aciklama:'Toplu hareket girişi'
+      });
+    }
+    closeModal();
+    await refreshAll('hareket');
+    bildirimEkle('Toplu Hareket',''+islemler.length+' parça için '+tip+' hareketi kaydedildi.','success');
+    alert('✅ '+islemler.length+' parça için hareket kaydedildi.');
+  }catch(e){alert('Hata: '+e.message);}
+}
+
 function cikisYap(){
   sessionStorage.removeItem('auth');
   location.reload();
@@ -1461,6 +1557,38 @@ function renderDash(){
     extraHtml+='<div class="chart-bar-row"><div class="chart-bar-label">'+a.label+'</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--green)"></div></div><div class="chart-bar-val">'+a.toplam+' adet</div></div>';
   });
   extraHtml+='</div></div>';
+
+  // ── STOK DEĞERİ TRENDİ (Son 6 Ay) ──────────────────────────
+  var stokDegerTrend='<div class="card" style="margin-bottom:16px"><div class="section-title">Stok Değeri Trendi (Son 6 Ay)</div>';
+  var aylarTrend=[];
+  for(var ti=5;ti>=0;ti--){var td=new Date();td.setMonth(td.getMonth()-ti);aylarTrend.push({yil:td.getFullYear(),ay:td.getMonth()+1,label:td.toLocaleString('tr-TR',{month:'short',year:'2-digit'})});}
+
+  // Her ay sonu için tahmini stok değeri — o aya kadar olan hareketlerden hesapla
+  var aylikDeger=aylarTrend.map(function(a){
+    var ayStr=a.yil+'-'+(String(a.ay).padStart(2,'0'));
+    // O aya kadar olan tüm hareketleri dikkate alarak her parçanın stok miktarını hesapla
+    var toplamDeger=parcalar.reduce(function(sum,p){
+      var baslangic=p.baslangic||0;
+      var giris=hareketler.filter(function(h){return h.par_kod===p.kod&&h.tip==='GİRİŞ'&&(h.tarih||'')<=ayStr+'99';}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+      var cikis=hareketler.filter(function(h){return h.par_kod===p.kod&&h.tip==='ÇIKIŞ'&&(h.tarih||'')<=ayStr+'99';}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+      var duzeltme=hareketler.filter(function(h){return h.par_kod===p.kod&&h.tip==='DÜZELTME'&&(h.tarih||'')<=ayStr+'99';}).reduce(function(s,h,i,arr){return arr[arr.length-1].miktar;},0);
+      var sonStok=duzeltme>0?duzeltme:Math.max(0,baslangic+giris-cikis);
+      return sum+sonStok*(p.birim_fiyat||0);
+    },0);
+    return {label:a.label,deger:Math.round(toplamDeger)};
+  });
+
+  var maxDeger=Math.max.apply(null,aylikDeger.map(function(x){return x.deger;}))||1;
+  aylikDeger.forEach(function(a){
+    var pct=Math.round(a.deger/maxDeger*100);
+    stokDegerTrend+='<div class="chart-bar-row">'
+      +'<div class="chart-bar-label">'+a.label+'</div>'
+      +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--gold)"></div></div>'
+      +'<div class="chart-bar-val">'+eur(a.deger)+'</div>'
+      +'</div>';
+  });
+  stokDegerTrend+='</div>';
+  extraHtml = stokDegerTrend + extraHtml;
 
   var mevcutIcerik = document.getElementById('content').innerHTML;
   document.getElementById('content').innerHTML = acilHtml + mevcutIcerik + extraHtml;
@@ -1992,6 +2120,7 @@ function renderHareket(){
     +'<input type="date" id="har-tarih-bit" value="'+harBitVal+'" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px">'
     +(harBasVal||harBitVal?'<button class="btn" onclick="harPage=1;document.getElementById(\'har-tarih-bas\').value=\'\';document.getElementById(\'har-tarih-bit\').value=\'\';renderHareket()">✕ Temizle</button>':'')
     +'<button class="btn" onclick="refreshAll(\'hareket\')">↻ Yenile</button>'
+    +'<button class="btn" onclick="showTopluHareketModal()">↕ Toplu Hareket</button>'
     +'<button class="btn btn-primary" onclick="showHareketModal()">+ Yeni Hareket</button>';
   // Özet hesapla
   var harGirisToplam=hareketler.filter(function(h){return h.tip==='GİRİŞ';}).reduce(function(s,h){return s+(h.miktar||0);},0);
