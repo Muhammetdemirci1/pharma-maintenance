@@ -2005,34 +2005,81 @@ function renderEOQ(){
     var gercekVsPlanlanan=p.yillik_talep>0?Math.round((D/p.yillik_talep-1)*100):0;
     var t=p.yillik_talep||1;
     var topM=yillikToplamMaliyet;
-    return`<tr style="${siparisDurumu==='acil'?'background:#fef2f2;':siparisDurumu==='uyari'?'background:#fffbeb;':''}">
-      <td style="color:var(--accent);font-weight:600;white-space:nowrap;font-family:DM Mono,monospace">${p.kod}</td>
-      <td>${p.ad.length>24?p.ad.slice(0,24)+'…':p.ad}</td>
-      <td><span class="badge ${abc(p.birim_fiyat,p.kod)==='A'?'badge-red':abc(p.birim_fiyat,p.kod)==='B'?'badge-gold':'badge-gray'}">${abc(p.birim_fiyat,p.kod)}</span></td>
-      <td style="text-align:center"><b style="color:${stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)'}">${stokMevcut}</b><span style="color:var(--text3);font-size:10px"> / ${rop}</span></td>
-      <td style="color:var(--green);font-weight:600;text-align:center">${D}</td>
-      <td><input type="number" value="${t}" min="0.1" step="0.5" style="width:58px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:3px 5px;border-radius:5px;font-size:11px" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td>
-      <td><input type="number" value="${sm}" min="1" style="width:58px;background:var(--bg);border:1px solid var(--green);color:var(--green);padding:3px 5px;border-radius:5px;font-size:11px" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td>
-      <td style="color:var(--text3);text-align:center">${p.teslimat||14}</td>
-      <td style="text-align:center"><b style="color:var(--blue);font-size:15px">${eoq}</b></td>
-      <td style="color:var(--gold);text-align:center">${ss}</td>
-      <td style="text-align:center"><b style="color:var(--gold)">${rop}</b></td>
-      <td style="color:var(--green)">${eur(topM)}</td>
-      <td>${siparisDurumu==='acil'
-        ?'<span style="background:var(--red);color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700">⚠ SİPARİŞ VER</span>'
-        :siparisDurumu==='uyari'
-        ?'<span style="background:var(--gold);color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700">⚡ YAKLAŞIYOR</span>'
-        :'<span style="color:var(--green);font-size:11px">✓ Yeterli</span>'}</td>
+    return`
+    <tr style="${siparisDurumu==='acil'?'border-left:3px solid var(--red);':siparisDurumu==='uyari'?'border-left:3px solid var(--gold);':''}background:${siparisDurumu==='acil'?'rgba(239,68,68,.04)':siparisDurumu==='uyari'?'rgba(245,158,11,.04)':''};">
+      <td style="font-weight:600;font-family:'DM Mono',monospace;color:var(--blue);font-size:12px;white-space:nowrap">${p.kod}</td>
+      <td style="max-width:160px"><div style="font-weight:500;font-size:13px;color:var(--text)">${p.ad.length>22?p.ad.slice(0,22)+'…':p.ad}</div><div style="font-size:10px;color:var(--text3)">${p.ekipman||'—'}</div></td>
+      <td style="text-align:center"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;line-height:20px;text-align:center;background:${abc(p.birim_fiyat,p.kod)==='A'?'rgba(239,68,68,.15)':abc(p.birim_fiyat,p.kod)==='B'?'rgba(245,158,11,.15)':'rgba(100,116,139,.15)'};color:${abc(p.birim_fiyat,p.kod)==='A'?'var(--red)':abc(p.birim_fiyat,p.kod)==='B'?'var(--gold)':'var(--text3)'}">${abc(p.birim_fiyat,p.kod)}</span></td>
+      <td style="text-align:center">
+        <div style="font-size:16px;font-weight:700;color:${stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)'}">${stokMevcut}</div>
+        <div style="font-size:10px;color:var(--text3)">ROP: ${rop}</div>
+      </td>
+      <td style="text-align:center">
+        <div style="font-size:14px;font-weight:600;color:var(--green)">${D}</div>
+        <div style="font-size:10px;color:var(--text3)">adet/yıl</div>
+      </td>
+      <td style="text-align:center"><input type="number" value="${t}" min="0.1" step="0.5" style="width:60px;background:var(--bg3);border:1.5px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:12px;font-weight:600;text-align:center" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td>
+      <td style="text-align:center"><input type="number" value="${sm}" min="1" style="width:60px;background:var(--bg3);border:1.5px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:12px;font-weight:600;text-align:center" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td>
+      <td style="text-align:center;color:var(--text3);font-size:13px">${p.teslimat||14}g</td>
+      <td style="text-align:center">
+        <div style="font-size:20px;font-weight:700;color:var(--blue)">${eoq}</div>
+        <div style="font-size:10px;color:var(--text3)">${(D/eoq).toFixed(1)}x/yıl</div>
+      </td>
+      <td style="text-align:center"><span style="display:inline-block;padding:3px 10px;background:rgba(245,158,11,.1);color:var(--gold);font-weight:600;border-radius:4px;font-size:13px">${ss}</span></td>
+      <td style="text-align:center"><span style="display:inline-block;padding:3px 10px;background:rgba(245,158,11,.1);color:var(--gold);font-weight:600;border-radius:4px;font-size:13px">${rop}</span></td>
+      <td style="text-align:right;font-weight:600;color:var(--text)">${eur(topM)}</td>
+      <td style="text-align:center">
+        ${siparisDurumu==='acil'
+          ?'<button onclick="sipVerKod(this)" data-kod="${p.kod}" style="background:var(--red);color:#fff;border:none;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">⚠ Sipariş Ver</button>'
+          :siparisDurumu==='uyari'
+          ?'<span style="background:rgba(245,158,11,.15);color:var(--gold);padding:4px 8px;border-radius:5px;font-size:11px;font-weight:600">⚡ Yaklaşıyor</span>'
+          :'<span style="color:var(--green);font-size:12px;font-weight:500">✓ Yeterli</span>'}
+      </td>
+      <td><button class="btn btn-sm" onclick="showEOQGrafik('${p.id}')" title="Grafik">📊</button></td>
     </tr>`;
+
   }).join('');
+
   document.getElementById('content').innerHTML=
-    // MRO Özet kartları
-    '<div class="grid-3" style="margin-bottom:16px">'
-    +'<div class="kpi" style="border-top:3px solid var(--blue)"><div class="kpi-icon blue">💰</div><div class="kpi-label">Toplam Stok Değeri</div><div class="kpi-value" style="color:var(--blue)">'+eur(toplamStokDeger)+'</div><div class="kpi-sub">MRO envanter değeri</div></div>'
-    +'<div class="kpi" style="border-top:3px solid var(--gold)"><div class="kpi-icon gold">📊</div><div class="kpi-label">Yıllık EOQ Maliyeti</div><div class="kpi-value" style="color:var(--gold)">'+eur(Math.round(toplamYillikMaliyet))+'</div><div class="kpi-sub">sipariş + tutma toplam</div></div>'
-    +'<div class="kpi" style="border-top:3px solid '+(siparisBekleyenSay>0?'var(--red)':'var(--green)')+'"><div class="kpi-icon '+(siparisBekleyenSay>0?'red':'green')+'">'+( siparisBekleyenSay>0?'⚠':'✅')+'</div><div class="kpi-label">Sipariş Gereken</div><div class="kpi-value" style="color:'+(siparisBekleyenSay>0?'var(--red)':'var(--green)')+'">'+siparisBekleyenSay+'</div><div class="kpi-sub">parça ROP altında</div></div>'
+    '<div style="display:flex;gap:12px;margin-bottom:20px">'
+    +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;border-top:3px solid var(--blue)">'
+    +'<div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">MRO Stok Değeri</div>'
+    +'<div style="font-size:24px;font-weight:700;color:var(--blue)">'+eur(toplamStokDeger)+'</div>'
+    +'<div style="font-size:11px;color:var(--text3);margin-top:4px">Toplam envanter değeri</div></div>'
+    +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;border-top:3px solid var(--gold)">'
+    +'<div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Yıllık EOQ Maliyeti</div>'
+    +'<div style="font-size:24px;font-weight:700;color:var(--gold)">'+eur(Math.round(toplamYillikMaliyet))+'</div>'
+    +'<div style="font-size:11px;color:var(--text3);margin-top:4px">Sipariş + tutma toplamı</div></div>'
+    +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;border-top:3px solid '+(siparisBekleyenSay>0?'var(--red)':'var(--green)')+'">'
+    +'<div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Sipariş Gereken</div>'
+    +'<div style="font-size:24px;font-weight:700;color:'+(siparisBekleyenSay>0?'var(--red)':'var(--green)')+'">'+siparisBekleyenSay+'</div>'
+    +'<div style="font-size:11px;color:var(--text3);margin-top:4px">Parça ROP altında</div></div>'
     +'</div>'
-    +`<div class="alert alert-info"><span class="alert-icon">ℹ</span>Yeşil hücreler düzenlenebilir. <b>Gerçek Talep</b> = son 12 ay hareket logdan otomatik hesaplanır.</div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>ABC</th><th>Stok/ROP</th><th style="color:var(--green)">Gerçek<br>Talep</th><th style="color:var(--green)">Plan<br>Talep</th><th style="color:var(--green)">Sipariş<br>Maliyet</th><th>Temin<br>(gün)</th><th><span class="tt" data-tip="Toplam maliyeti minimize eden sipariş miktarı">EOQ ℹ</span></th><th><span class="tt" data-tip="Beklenmedik gecikmelere karşı tampon stok">G.Stok ℹ</span></th><th><span class="tt" data-tip="Bu seviyeye düşünce sipariş ver">ROP ℹ</span></th><th>Yıllık<br>Maliyet</th><th>Öneri</th></tr></thead><tbody>${rows||'<tr><td colspan="13"><div class="empty">Önce parça ekleyin</div></td></tr>'}</tbody></table></div></div>`;
+    +`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)">
+      <span style="color:var(--blue);font-size:14px">ℹ</span>
+      <span><b style="color:var(--green)">Gerçek Talep</b> = son 12 ay hareket logdan otomatik. Yeşil hücreler düzenlenebilir. ⚠ = bugün sipariş ver.</span>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="table-wrap"><table>
+        <thead><tr style="background:var(--bg3)">
+          <th style="width:90px">Kod</th>
+          <th>Parça Adı</th>
+          <th style="width:36px;text-align:center">ABC</th>
+          <th style="width:72px;text-align:center">Stok<br><span style="font-size:9px;color:var(--text3);font-weight:400">/ ROP</span></th>
+          <th style="width:72px;text-align:center;color:var(--green)">Gerçek<br>Talep</th>
+          <th style="width:70px;text-align:center;color:var(--green)">Plan<br>Talep</th>
+          <th style="width:70px;text-align:center;color:var(--green)">Sipariş<br>Mal.</th>
+          <th style="width:44px;text-align:center">Temin</th>
+          <th style="width:64px;text-align:center"><span class="tt" data-tip="Ekonomik Sipariş Miktarı — Toplam maliyeti minimize eden miktar">EOQ ℹ</span></th>
+          <th style="width:52px;text-align:center"><span class="tt" data-tip="Güvenlik stoğu — beklenmedik durumlara karşı tampon">G.Stok ℹ</span></th>
+          <th style="width:52px;text-align:center"><span class="tt" data-tip="Yeniden Sipariş Noktası — bu seviyede sipariş ver">ROP ℹ</span></th>
+          <th style="width:80px;text-align:right">Yıllık<br>Maliyet</th>
+          <th style="width:110px;text-align:center">Öneri</th>
+          <th style="width:36px"></th>
+        </tr></thead>
+        <tbody>${rows||'<tr><td colspan="14"><div class="empty">Önce parça ekleyin</div></td></tr>'}</tbody>
+      </table></div>
+    </div>`;
 }
 
 async function showEOQGrafik(parId){
