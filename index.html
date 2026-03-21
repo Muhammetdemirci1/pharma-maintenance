@@ -1234,8 +1234,8 @@ function navigate(page){
   curPage=page;
   document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active',el.getAttribute('onclick').includes("'"+page+"'")));
   document.getElementById('page-title').textContent={dashboard:'Dashboard',stok:'Stok Yönetimi',kritik:'Kritik Yedek Parçalar',eoq:'EOQ Hesaplama',siparis:'Sipariş Takip',hareket:'Hareket Log',raporlar:'Raporlar',cyclecount:'Cycle Count — Fiziksel Sayım'}[page]||page;
-  ({dashboard:renderDash,stok:renderStok,kritik:renderKritik,eoq:renderEOQ,siparis:renderSiparis,hareket:renderHareket,raporlar:renderRaporlar,cyclecount:renderCycleCount})[page]?.();
   var ce=document.getElementById('content');if(ce){ce.classList.remove('page-enter');void ce.offsetWidth;ce.classList.add('page-enter');}
+  ({dashboard:renderDash,stok:renderStok,kritik:renderKritik,eoq:renderEOQ,siparis:renderSiparis,hareket:renderHareket,raporlar:renderRaporlar,cyclecount:renderCycleCount})[page]?.();
 }
 
 function renderDash(){
