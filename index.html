@@ -336,6 +336,18 @@ tbody tr:nth-child(10){animation-delay:.2s}
 /* Topbar shadow scroll */
 .topbar{transition:box-shadow .2s}
 
+
+.tt{position:relative;display:inline-flex;align-items:center}
+.tt::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:#0f172a;color:#f1f5f9;font-size:11px;padding:5px 10px;border-radius:6px;
+  white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);font-family:'Inter',sans-serif;font-weight:400;max-width:200px;
+  white-space:normal;text-align:center;line-height:1.4}
+.tt:hover::after{opacity:1}
+.tt::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);
+  border:4px solid transparent;border-top-color:#0f172a;pointer-events:none;opacity:0;transition:opacity .15s}
+.tt:hover::before{opacity:1}
+
 </style>
 </head>
 <body>
@@ -452,6 +464,18 @@ tbody tr:nth-child(10){animation-delay:.2s}
 
 /* Topbar shadow scroll */
 .topbar{transition:box-shadow .2s}
+
+
+.tt{position:relative;display:inline-flex;align-items:center}
+.tt::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:#0f172a;color:#f1f5f9;font-size:11px;padding:5px 10px;border-radius:6px;
+  white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);font-family:'Inter',sans-serif;font-weight:400;max-width:200px;
+  white-space:normal;text-align:center;line-height:1.4}
+.tt:hover::after{opacity:1}
+.tt::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);
+  border:4px solid transparent;border-top-color:#0f172a;pointer-events:none;opacity:0;transition:opacity .15s}
+.tt:hover::before{opacity:1}
 
 </style>
           </defs>
@@ -570,6 +594,27 @@ document.addEventListener('keydown',function(e){
   if(e.key==='Enter') LF();
   if(e.key==='Escape') closeModal();
 });
+// Global klavye kısayolları (login sonrası)
+document.addEventListener('keydown',function(e){
+  if(!sessionStorage.getItem('auth')) return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT') return;
+  if(e.altKey){
+    if(e.key==='1') navigate('dashboard');
+    else if(e.key==='2') navigate('stok');
+    else if(e.key==='3') navigate('kritik');
+    else if(e.key==='4') navigate('eoq');
+    else if(e.key==='5') navigate('siparis');
+    else if(e.key==='6') navigate('hareket');
+    else if(e.key==='7') navigate('raporlar');
+  }
+  if(e.key==='n'&&curPage==='stok') showParcaModal();
+  if(e.key==='r') refreshAll(curPage);
+  if(e.key==='/'&&curPage==='stok'){
+    e.preventDefault();
+    var sb=document.querySelector('.search-bar');
+    if(sb) sb.focus();
+  }
+});
 if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLoaded',function(){
   var lo=document.getElementById('LO');if(lo)lo.style.display='none';
   setTimeout(function(){
@@ -605,6 +650,13 @@ if(sessionStorage.getItem('auth')==='1'){document.addEventListener('DOMContentLo
       <button class="nav-item" onclick="navigate('cyclecount')"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span>Cycle Count</button>
     </nav>
 
+    <div style="padding:8px 16px;border-top:1px solid var(--sb-border)">
+      <div style="font-size:9px;color:#374151;line-height:1.8">
+        <span style="color:#4b5563">Kısayollar:</span><br>
+        Alt+1-7 Sayfa • N Yeni Parça<br>
+        R Yenile • / Arama • Esc Kapat
+      </div>
+    </div>
     <div class="conn-status">
       <div class="conn-dot" id="conn-dot"></div>
       <span id="conn-text">Bağlanıyor...</span>
@@ -1239,7 +1291,10 @@ function navigate(page){
 }
 
 function renderDash(){
-  document.getElementById('topbar-actions').innerHTML='<button class="btn btn-ghost" onclick="refreshAll(\'dashboard\')">↻ Yenile</button>';
+  document.getElementById('topbar-actions').innerHTML=
+    '<div class="search-wrap"><span class="search-icon">🔍</span>'
+    +'<input class="search-bar" id="dash-search" placeholder="Parça ara..." onkeydown="if(event.key===\'Enter\'){var v=this.value;if(v){stokSearch=v;navigate(\'stok\')}}" style="width:180px"></div>'
+    +'<button class="btn btn-ghost" onclick="refreshAll(\'dashboard\')">↻ Yenile</button>';
   kurGuncelle();
   const tp=parcalar.length,krit=parcalar.filter(p=>mevcut(p.kod)<=(p.min_stok||1)).length,tuk=parcalar.filter(p=>mevcut(p.kod)<=0).length;
   const topD=parcalar.reduce((s,p)=>s+mevcut(p.kod)*p.birim_fiyat,0);
@@ -1806,6 +1861,57 @@ function renderEOQ(){
   document.getElementById('content').innerHTML=`<div class="alert alert-info"><span class="alert-icon">ℹ</span>Yeşil hücreler düzenlenebilir — değiştirince otomatik kaydedilir.</div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Kod</th><th>Parça Adı</th><th>Birim Fiyat</th><th style="color:var(--green)">Yıllık Talep</th><th style="color:var(--green)">Sipariş Maliyet (€)</th><th>Temin (gün)</th><th>EOQ</th><th>Güv.Stok</th><th>ROP</th><th>Sipariş/Yıl</th><th>Yıllık Maliyet</th></tr></thead><tbody>${rows||'<tr><td colspan="11"><div class="empty">Önce parça ekleyin</div></td></tr>'}</tbody></table></div></div>`;
 }
 
+async 
+function showEOQGrafik(parId){
+  var p=parcalar.find(function(x){return x.id===parId;});
+  if(!p) return;
+  var D=p.yillik_talep||1, S=p.siparis_maliyet||50, H=p.birim_fiyat*EOQ_H||1;
+  var eoq=Math.max(1,Math.round(Math.sqrt(2*D*S/H)));
+  
+  document.getElementById('modal-container').innerHTML=
+    '<div class="modal-overlay"><div class="modal" style="width:600px">'
+    +'<div class="modal-title">📊 EOQ Maliyet Analizi — '+p.kod+' '+p.ad+'</div>'
+    +'<div style="position:relative;height:280px"><canvas id="eoq-chart"></canvas></div>'
+    +'<div class="grid-3" style="margin-top:16px">'
+    +'<div style="text-align:center;padding:10px;background:var(--bg3);border-radius:8px"><div style="font-size:10px;color:var(--text3);margin-bottom:4px">EOQ</div><div style="font-size:20px;font-weight:700;color:var(--blue)">'+eoq+' adet</div></div>'
+    +'<div style="text-align:center;padding:10px;background:var(--bg3);border-radius:8px"><div style="font-size:10px;color:var(--text3);margin-bottom:4px">Yıllık Sipariş</div><div style="font-size:20px;font-weight:700;color:var(--gold)">'+Math.round(D/eoq)+'x</div></div>'
+    +'<div style="text-align:center;padding:10px;background:var(--bg3);border-radius:8px"><div style="font-size:10px;color:var(--text3);margin-bottom:4px">Min Toplam Maliyet</div><div style="font-size:20px;font-weight:700;color:var(--green)">'+eur(Math.round(Math.sqrt(2*D*S*H)))+'</div></div>'
+    +'</div>'
+    +'<div class="modal-footer"><button class="btn" onclick="closeModal()">Kapat</button></div>'
+    +'</div></div>';
+
+  setTimeout(function(){
+    var ctx=document.getElementById('eoq-chart');
+    if(!ctx) return;
+    var points=[];
+    for(var q=Math.max(1,Math.round(eoq*0.2));q<=eoq*3;q+=Math.max(1,Math.round(eoq*0.1))){
+      var sipMal=(D/q)*S;
+      var tutMal=(q/2)*H;
+      points.push({q:q,sip:Math.round(sipMal),tut:Math.round(tutMal),top:Math.round(sipMal+tutMal)});
+    }
+    new Chart(ctx,{
+      type:'line',
+      data:{
+        labels:points.map(function(x){return x.q;}),
+        datasets:[
+          {label:'Sipariş Maliyeti',data:points.map(function(x){return x.sip;}),borderColor:'#3b82f6',fill:false,tension:.4,pointRadius:0},
+          {label:'Tutma Maliyeti',data:points.map(function(x){return x.tut;}),borderColor:'#f59e0b',fill:false,tension:.4,pointRadius:0},
+          {label:'Toplam Maliyet',data:points.map(function(x){return x.top;}),borderColor:'#10b981',fill:false,tension:.4,borderWidth:2.5,pointRadius:0}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'top',labels:{boxWidth:10,padding:14}}},
+        scales:{
+          x:{title:{display:true,text:'Sipariş Miktarı (adet)',font:{size:11}},grid:{display:false}},
+          y:{title:{display:true,text:'Maliyet (€)',font:{size:11}},grid:{color:'rgba(0,0,0,.05)'}}
+        },
+        annotation:{annotations:[{type:'line',xMin:eoq,xMax:eoq,borderColor:'#ef4444',borderWidth:2,borderDash:[4,4],label:{content:'EOQ='+eoq,display:true}}]}
+      }
+    });
+  },100);
+}
+
 async function updateEOQ(id,alan,val){
   const p=parcalar.find(x=>x.id===id);
   if(p){p[alan]=parseFloat(val)||0;await sbUpdate('parcalar',id,{[alan]:p[alan]});}
@@ -1870,6 +1976,11 @@ function renderHareket(){
     +'<input type="date" id="har-tarih-bit" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px">'
     +'<button class="btn" onclick="refreshAll(\'hareket\')">↻ Yenile</button>'
     +'<button class="btn btn-primary" onclick="showHareketModal()">+ Yeni Hareket</button>';
+  // Özet hesapla
+  var harGirisToplam=hareketler.filter(function(h){return h.tip==='GİRİŞ';}).reduce(function(s,h){return s+(h.miktar||0);},0);
+  var harCikisToplam=hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).reduce(function(s,h){return s+(h.miktar||0);},0);
+  var harBuAy=new Date().toISOString().slice(0,7);
+  var harBuAyCikis=hareketler.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(harBuAy);}).reduce(function(s,h){return s+(h.miktar||0);},0);
   var harTip=document.getElementById('har-tip-filtre')?document.getElementById('har-tip-filtre').value:'';
   var harBas=document.getElementById('har-tarih-bas')?document.getElementById('har-tarih-bas').value:'';
   var harBit=document.getElementById('har-tarih-bit')?document.getElementById('har-tarih-bit').value:'';
@@ -1884,7 +1995,13 @@ function renderHareket(){
   if(harPage>harMaxPage) harPage=harMaxPage;
   var harSlice=filtHar.slice().reverse().slice((harPage-1)*harPageSize, harPage*harPageSize);
   const rows=harSlice.map(h=>{const p=parcalar.find(x=>x.kod===h.par_kod)||{};const cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return`<tr><td style="color:var(--text3)">${h.tarih||''}</td><td style="color:var(--accent);font-weight:600">${h.par_kod}</td><td>${p.ad||'-'}</td><td style="color:var(--text3)">${h.kullanan||'-'}</td><td><span class="badge ${cl}">${h.tip}</span></td><td><b>${h.miktar}</b></td><td style="color:var(--text3)">${h.i_emri||'-'}</td><td style="color:var(--text3)">${h.aciklama||'-'}</td><td><button class="btn btn-sm btn-danger" onclick="harSil('${h.id}')">Sil</button></td></tr>`;}).join('');
-  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="max-height:calc(100vh - 200px);overflow-y:auto"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Kullanan</th><th>Tip</th><th>Miktar</th><th>İş Emri</th><th>Açıklama</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="9"><div class="empty"><div class="empty-icon">📋</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Henüz hareket kaydı yok</div><div style="font-size:12px;color:var(--text3)">Parça giriş/çıkışları burada görünecek</div></div></td></tr>'}</tbody></table></div></div><div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg3)"><span style="font-size:12px;color:var(--text3)">${harToplam} kayıt — Sayfa ${harPage} / ${harMaxPage}</span><div style="display:flex;gap:6px">${harPage>1?'<button class="btn btn-sm" onclick="harPage=1;renderHareket()">«</button><button class="btn btn-sm" onclick="harPage--;renderHareket()">‹</button>':''}${harPage<harMaxPage?'<button class="btn btn-sm" onclick="harPage++;renderHareket()">›</button><button class="btn btn-sm" onclick="harPage=harMaxPage;renderHareket()">»</button>':''}</div></div>`;
+  document.getElementById('content').innerHTML=
+    '<div class="grid-3" style="margin-bottom:16px">'
+    +'<div class="kpi" style="border-top:3px solid var(--green)"><div class="kpi-icon green">📥</div><div class="kpi-label">Toplam Giriş</div><div class="kpi-value" style="color:var(--green)">'+harGirisToplam+'</div><div class="kpi-sub">adet</div></div>'
+    +'<div class="kpi" style="border-top:3px solid var(--red)"><div class="kpi-icon red">📤</div><div class="kpi-label">Toplam Çıkış</div><div class="kpi-value" style="color:var(--red)">'+harCikisToplam+'</div><div class="kpi-sub">adet</div></div>'
+    +'<div class="kpi" style="border-top:3px solid var(--blue)"><div class="kpi-icon blue">📊</div><div class="kpi-label">Bu Ay Çıkış</div><div class="kpi-value" style="color:var(--blue)">'+harBuAyCikis+'</div><div class="kpi-sub">adet</div></div>'
+    +'</div>'
+    +`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="max-height:calc(100vh - 200px);overflow-y:auto"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Kullanan</th><th>Tip</th><th>Miktar</th><th>İş Emri</th><th>Açıklama</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="9"><div class="empty"><div class="empty-icon">📋</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Henüz hareket kaydı yok</div><div style="font-size:12px;color:var(--text3)">Parça giriş/çıkışları burada görünecek</div></div></td></tr>'}</tbody></table></div></div><div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg3)"><span style="font-size:12px;color:var(--text3)">${harToplam} kayıt — Sayfa ${harPage} / ${harMaxPage}</span><div style="display:flex;gap:6px">${harPage>1?'<button class="btn btn-sm" onclick="harPage=1;renderHareket()">«</button><button class="btn btn-sm" onclick="harPage--;renderHareket()">‹</button>':''}${harPage<harMaxPage?'<button class="btn btn-sm" onclick="harPage++;renderHareket()">›</button><button class="btn btn-sm" onclick="harPage=harMaxPage;renderHareket()">»</button>':''}</div></div>`;
 }
 function showHareketModal(ok){
   const sec=parcalar.map(p=>`<option value="${p.kod}" ${p.kod===ok?'selected':''}>${p.kod} — ${p.ad} (Stok: ${mevcut(p.kod)})</option>`).join('');
@@ -2160,28 +2277,41 @@ async function ccKaydet(){
 }
 
 function renderRaporlar(){
+  var raporBasStr=localStorage.getItem('raporBas')||new Date(new Date().setMonth(new Date().getMonth()-3)).toISOString().slice(0,10);
+  var raporBitStr=localStorage.getItem('raporBit')||new Date().toISOString().slice(0,10);
   document.getElementById('topbar-actions').innerHTML=
-    '<button class="btn" onclick="refreshAll(\'raporlar\')">↻ Yenile</button>'
+    '<label style="font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px">'
+    +'Başlangıç: <input type="date" id="rapor-bas" value="'+raporBasStr+'" onchange="localStorage.setItem(\'raporBas\',this.value);renderRaporlar()" style="padding:5px 8px;border-radius:5px;border:1.5px solid var(--border);font-size:11px;background:var(--bg2)">'
+    +'</label>'
+    +'<label style="font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px">'
+    +'Bitiş: <input type="date" id="rapor-bit" value="'+raporBitStr+'" onchange="localStorage.setItem(\'raporBit\',this.value);renderRaporlar()" style="padding:5px 8px;border-radius:5px;border:1.5px solid var(--border);font-size:11px;background:var(--bg2)">'
+    +'</label>'
+    +'<button class="btn" onclick="localStorage.removeItem(\'raporBas\');localStorage.removeItem(\'raporBit\');renderRaporlar()">↺ Sıfırla</button>'
+    +'<button class="btn" onclick="refreshAll(\'raporlar\')">↻ Yenile</button>'
     +'<button class="btn btn-primary" onclick="excelIndir()">⬇ Excel İndir</button>';
 
   // Hesaplamalar
+  var rBas=document.getElementById('rapor-bas')?document.getElementById('rapor-bas').value:(localStorage.getItem('raporBas')||'2000-01-01');
+  var rBit=document.getElementById('rapor-bit')?document.getElementById('rapor-bit').value:(localStorage.getItem('raporBit')||new Date().toISOString().slice(0,10));
+  var filtHar2=hareketler.filter(function(h){return (!h.tarih||(h.tarih>=rBas&&h.tarih<=rBit));});
+  var filtSip2=siparisler.filter(function(s){return (!s.sip_tarih||(s.sip_tarih>=rBas&&s.sip_tarih<=rBit));});
   var toplamDeger=parcalar.reduce(function(s,p){return s+mevcut(p.kod)*p.birim_fiyat;},0);
-  var toplamCikis=hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
-  var toplamSip=siparisler.reduce(function(s,x){return s+(x.tutar||0);},0);
-  var tamSip=siparisler.filter(function(s){return s.durum==='Tamamlandı';}).length;
+  var toplamCikis=filtHar2.filter(function(h){return h.tip==='ÇIKIŞ';}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+  var toplamSip=filtSip2.reduce(function(s,x){return s+(x.tutar||0);},0);
+  var tamSip=filtSip2.filter(function(s){return s.durum==='Tamamlandı';}).length;
 
   // Aylık çıkış (son 6 ay)
   var aylar=[];
   for(var i=5;i>=0;i--){var d=new Date();d.setMonth(d.getMonth()-i);aylar.push({yil:d.getFullYear(),ay:d.getMonth()+1,label:d.toLocaleString('tr-TR',{month:'short'})});}
   var aylikCikis=aylar.map(function(a){
-    return hareketler.filter(function(h){
+    return filtHar2.filter(function(h){
       if(h.tip!=='ÇIKIŞ'||!h.tarih) return false;
       var hd=new Date(h.tarih);
       return hd.getFullYear()===a.yil&&hd.getMonth()+1===a.ay;
     }).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
   });
   var aylikGiris=aylar.map(function(a){
-    return hareketler.filter(function(h){
+    return filtHar2.filter(function(h){
       if(h.tip!=='GİRİŞ'||!h.tarih) return false;
       var hd=new Date(h.tarih);
       return hd.getFullYear()===a.yil&&hd.getMonth()+1===a.ay;
