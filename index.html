@@ -1792,6 +1792,7 @@ async function parcaSil(id,kod){
   if(harSay>0||sipSay>0) uyari+='\n\n⚠ Bu parçaya ait '+harSay+' hareket ve '+sipSay+' sipariş kaydı da silinecek!';
   if(!confirm(uyari))return;
   await sbDelete('parcalar',id);
+  seciliParcalar.delete(id);
   await refreshAll('stok');
 }
 
@@ -1975,7 +1976,7 @@ function renderHareket(){
 
   // Topbar'ı yeniden oluştur — mevcut değerleri koru
   document.getElementById('topbar-actions').innerHTML=
-    '<select id="har-tip-filtre" onchange="renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer">'
+    '<select id="har-tip-filtre" onchange="harPage=1;renderHareket()" style="padding:7px 10px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer">'
     +'<option value="" '+(harTipVal===''?'selected':'')+'>Tüm Tipler</option>'
     +'<option value="GİRİŞ" '+(harTipVal==='GİRİŞ'?'selected':'')+'>GİRİŞ</option>'
     +'<option value="ÇIKIŞ" '+(harTipVal==='ÇIKIŞ'?'selected':'')+'>ÇIKIŞ</option>'
@@ -2281,6 +2282,8 @@ async function ccKaydet(){
       });
     }
     await refreshAll('cyclecount');
+    await refreshAll('cyclecount');
+    updateBadge();
     alert('✅ '+sayimlar.length+' düzeltme hareketi kaydedildi.');
   }catch(e){alert('Hata: '+e.message);}
 }
@@ -2506,7 +2509,7 @@ function excelIndir(){
   XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(stokData), 'Stok Verileri');
 
   // 2. Kritik Parçalar sayfası
-  var kritikData = [['Parça Kodu','Parça Adı','Ekipman','Stok','Min Stok','ROP','Birim Fiyat (€)','ABC','Tedarikçi','Teslimat (gün)','Neden Kritik','Durum']];
+  var kritikData = [['Parça Kodu','Parça Adı','Ekipman','Stok','Min Stok','ROP','Birim Fiyat (€)','ABC','Tedarikçi','Teslimat (gün)','Durum']];
   parcalar.forEach(function(p){
     var m=mevcut(p.kod);
     var talep=p.yillik_talep||1, teslimat=p.teslimat||0;
