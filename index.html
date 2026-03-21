@@ -1304,6 +1304,7 @@ function renderDash(){
   kurGuncelle();
   const tp=parcalar.length,krit=parcalar.filter(p=>mevcut(p.kod)<=(p.min_stok||1)).length,tuk=parcalar.filter(p=>mevcut(p.kod)<=0).length;
   const topD=parcalar.reduce((s,p)=>s+mevcut(p.kod)*p.birim_fiyat,0);
+  var toplamStok=parcalar.reduce(function(s,p){return s+mevcut(p.kod);},0);
   const bek=siparisler.filter(s=>s.durum==='Beklemede'||s.durum==='Kargoda').length;
   var buAyStr=new Date().toISOString().slice(0,7);
   var gecenAy=new Date();gecenAy.setMonth(gecenAy.getMonth()-1);var gecenAyStr=gecenAy.toISOString().slice(0,7);
@@ -1319,7 +1320,7 @@ function renderDash(){
   const sonH=hareketler.slice(-6).reverse();
   var dashHtml='';
   dashHtml+='<div class="grid-4">';
-  dashHtml+='<div class="kpi" style="border-top:3px solid var(--blue)"><div class="kpi-icon blue">📦</div><div class="kpi-label">Parça Çeşidi</div><div class="kpi-value" style="color:var(--blue)">'+tp+'</div><div class="kpi-sub">Toplam stok: \'+(parcalar.reduce(function(s,p){return s+mevcut(p.kod);},0))+\' adet</div></div>';
+  dashHtml+='<div class="kpi" style="border-top:3px solid var(--blue)"><div class="kpi-icon blue">📦</div><div class="kpi-label">Parça Çeşidi</div><div class="kpi-value" style="color:var(--blue)">'+tp+'</div><div class="kpi-sub">Toplam stok: \'+toplamStok+\' adet</div></div>';
   dashHtml+='<div class="kpi" style="border-top:3px solid var(--gold)"><div class="kpi-icon gold">💰</div><div class="kpi-label">Stok Değeri</div><div class="kpi-value" style="color:var(--gold)">'+eur(topD)+'</div><div class="kpi-sub">toplam envanter değeri</div></div>';
   dashHtml+='<div class="kpi" style="border-top:3px solid var(--green)"><div class="kpi-icon green">📈</div><div class="kpi-label">Bu Ay Kullanım</div><div class="kpi-value" style="color:var(--green)">'+buAyCikis+' adet</div><div class="kpi-sub">'+trendBadge(buAyCikis,gecenAyCikis)+' geçen aya göre</div></div>';
   dashHtml+='<div class="kpi" style="border-top:3px solid var(--red)"><div class="kpi-icon red">🔴</div><div class="kpi-label">Kritik / Tükenen</div><div class="kpi-value" style="color:var(--red)">'+krit+' / '+tuk+'</div><div class="kpi-sub">acil müdahale gerekli</div></div>';
