@@ -1307,7 +1307,7 @@ function renderDash(){
   var gecenAySip=siparisler.filter(s=>(s.sip_tarih||'').startsWith(gecenAyStr)).reduce((s,x)=>s+(x.tutar||0),0);
   const abcD={A:{s:0,d:0},B:{s:0,d:0},C:{s:0,d:0}};
   parcalar.forEach(p=>{const k=abc(p.birim_fiyat, p.kod);abcD[k].s++;abcD[k].d+=mevcut(p.kod)*p.birim_fiyat;});
-  const katD={};parcalar.forEach(p=>{katD[p.kategori||'Diğer']=(katD[p.kategori||'Diğer']||0)+mevcut(p.kod)*p.birim_fiyat;});
+  const katD={};parcalar.forEach(p=>{katD[p.kategori||'Diğer']=(katD[p.kategori||'Diğer']||0)+1;});
   const katL=Object.entries(katD).sort((a,b)=>b[1]-a[1]).slice(0,5);
   const maxK=katL[0]?katL[0][1]:1;
   const sonH=hareketler.slice(-6).reverse();
