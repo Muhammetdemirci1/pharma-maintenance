@@ -1583,12 +1583,14 @@ function renderDash(){
   }else{extraHtml+='<div class="empty">Henüz çıkış yok</div>';}
   extraHtml+='</div>';
 
-  extraHtml+='<div class="card"><div class="section-title">Aylık Stok Kullanımı (Son 6 Ay)</div>';
-  aylikData.forEach(function(a){
-    var pct=Math.round(a.toplam/maxAylik*100);
-    extraHtml+='<div class="chart-bar-row"><div class="chart-bar-label">'+a.label+'</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--green)"></div></div><div class="chart-bar-val">'+a.toplam+' adet</div></div>';
-  });
-  extraHtml+='</div></div>';
+  var chartLabels=aylikData.map(function(a){return a.label;});
+  var chartData=aylikData.map(function(a){return a.toplam;});
+  var chartDeger=aylikData.map(function(a){return a.deger||0;});
+  extraHtml+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
+    +'<div class="section-title" style="margin:0">Aylık Kullanım (Son 6 Ay)</div>'
+    +'</div>'
+    +'<div style="position:relative;height:200px"><canvas id="dash-trend-chart"></canvas></div>'
+    +'</div></div>';
 
   // ── AYLIK KULLANIM DEĞERİ TRENDİ (Son 6 Ay) ────────────────
   var stokDegerTrend='<div class="card" style="margin-bottom:16px"><div class="section-title">Aylık Kullanım Değeri (Son 6 Ay)</div>';
@@ -1620,6 +1622,34 @@ function renderDash(){
 
   var mevcutIcerik = document.getElementById('content').innerHTML;
   document.getElementById('content').innerHTML = acilHtml + mevcutIcerik + extraHtml;
+  // Chart.js grafik çiz
+  setTimeout(function(){
+    var ctx=document.getElementById('dash-trend-chart');
+    if(!ctx||!chartLabels) return;
+    if(ctx._chart) ctx._chart.destroy();
+    ctx._chart=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:chartLabels,
+        datasets:[{
+          label:'Kullanım (adet)',
+          data:chartData,
+          backgroundColor:'rgba(16,185,129,.7)',
+          borderColor:'rgba(16,185,129,1)',
+          borderWidth:1,
+          borderRadius:4
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y+' adet';}}}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{size:11}}},
+          y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:11},precision:0}}
+        }
+      }
+    });
+  },100);
 
 }
 function renderStok(){
@@ -1797,6 +1827,10 @@ function showParcaDetay(id){
       </div>
     </div>
 
+    <div style="margin-bottom:20px">
+      <div class="section-title">Stok Kullanım Trendi (Son 6 Ay)</div>
+      <div style="position:relative;height:140px"><canvas id="pd-trend-chart"></canvas></div>
+    </div>
     <div>
       <div class="section-title">Son Hareketler</div>
       ${sonHar.length
@@ -1818,6 +1852,40 @@ function showParcaDetay(id){
       <button class="btn btn-primary" onclick="closeModal();showParcaModal('${p.id}')">Düzenle</button>
     </div>
   </div></div>`;
+  // Stok kullanım trendi grafiği
+  setTimeout(function(){
+    var ctx=document.getElementById('pd-trend-chart');
+    if(!ctx) return;
+    if(ctx._chart) ctx._chart.destroy();
+    // Son 6 ay çıkış verileri
+    var aylar=[];
+    for(var ti=5;ti>=0;ti--){
+      var td=new Date();td.setDate(1);td.setMonth(td.getMonth()-ti);
+      var ayStr=td.getFullYear()+'-'+String(td.getMonth()+1).padStart(2,'0');
+      var label=td.toLocaleString('tr-TR',{month:'short',year:'2-digit'});
+      var cikis=hareketler.filter(function(h){return h.par_kod===p.kod&&h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(ayStr);}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+      var giris=hareketler.filter(function(h){return h.par_kod===p.kod&&h.tip==='GİRİŞ'&&(h.tarih||'').startsWith(ayStr);}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+      aylar.push({label:label,cikis:cikis,giris:giris});
+    }
+    ctx._chart=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:aylar.map(function(a){return a.label;}),
+        datasets:[
+          {label:'Çıkış',data:aylar.map(function(a){return a.cikis;}),backgroundColor:'rgba(239,68,68,.7)',borderRadius:3},
+          {label:'Giriş',data:aylar.map(function(a){return a.giris;}),backgroundColor:'rgba(16,185,129,.7)',borderRadius:3}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'top',labels:{boxWidth:10,padding:10,font:{size:10}}}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{size:10}}},
+          y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:10},precision:0}}
+        }
+      }
+    });
+  },150);
 }
 
 function showParcaModal(id){
@@ -2662,6 +2730,10 @@ function renderRaporlar(){
       <canvas id="chart-sip" style="max-width:200px;max-height:200px"></canvas>
     </div>
   </div>
+</div>
+<div class="grid-2" style="margin-top:20px">
+  <div class="card"><div class="section-title">Aylık Kullanım Değeri (€)</div><div style="position:relative;height:220px"><canvas id="chart-maliyet"></canvas></div></div>
+  <div class="card"><div class="section-title">Kategori Bazlı Çıkış</div><div style="position:relative;height:220px"><canvas id="chart-kategori"></canvas></div></div>
 </div>`;
 
   // Chart.js yükle ve çiz
@@ -2679,6 +2751,12 @@ function cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList){
   Chart.defaults.font.family="'DM Sans',sans-serif";
   Chart.defaults.font.size=11;
   Chart.defaults.color='#94a3b8';
+  // Eski chart instance'larını temizle
+  ['chart-aylik','chart-abc','chart-ted','chart-sip','chart-maliyet'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&el._chartInstance){el._chartInstance.destroy();el._chartInstance=null;}
+    if(el&&Chart.getChart(el)){Chart.getChart(el).destroy();}
+  });
 
   // 1. Aylık hareket — çubuk grafik
   var ctx1=document.getElementById('chart-aylik');
@@ -2737,6 +2815,61 @@ function cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList){
         indexAxis:'y',responsive:true,maintainAspectRatio:false,
         plugins:{legend:{display:false}},
         scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:function(v){return '€'+v.toLocaleString('tr-TR');}}},y:{grid:{display:false}}}
+      }
+    });
+  }
+
+  // 5. Aylık kullanım değeri (€)
+  var ctx5=document.getElementById('chart-maliyet');
+  if(ctx5){
+    var maliyetData=aylar.map(function(a,i){
+      return Math.round(filtHar2.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(a.yil+'-'+String(a.ay).padStart(2,'0'));}).reduce(function(s,h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);},0));
+    });
+    new Chart(ctx5,{
+      type:'line',
+      data:{
+        labels:aylar.map(function(a){return a.label;}),
+        datasets:[{
+          label:'Kullanım Değeri (€)',data:maliyetData,
+          borderColor:'rgba(245,158,11,1)',backgroundColor:'rgba(245,158,11,.1)',
+          fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'rgba(245,158,11,1)'
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{grid:{display:false},ticks:{font:{size:11}}},
+          y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:11},callback:function(v){return '€'+v.toLocaleString('tr-TR');}}}
+        }
+      }
+    });
+  }
+
+  // 6. Kategori bazlı çıkış
+  var ctx6=document.getElementById('chart-kategori');
+  if(ctx6){
+    var katCikis={};
+    filtHar2.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){
+      var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
+      var kat=p.kategori||'Diğer';
+      katCikis[kat]=(katCikis[kat]||0)+(Number(h.miktar)||0);
+    });
+    var katList=Object.entries(katCikis).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+    new Chart(ctx6,{
+      type:'bar',
+      data:{
+        labels:katList.map(function(x){return x[0];}),
+        datasets:[{
+          label:'Çıkış (adet)',data:katList.map(function(x){return x[1];}),
+          backgroundColor:['rgba(59,130,246,.7)','rgba(16,185,129,.7)','rgba(245,158,11,.7)','rgba(239,68,68,.7)','rgba(139,92,246,.7)','rgba(236,72,153,.7)'],
+          borderRadius:4
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:11},precision:0}}}
       }
     });
   }
