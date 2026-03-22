@@ -2178,35 +2178,20 @@ function renderEOQ(){
     var t=p.yillik_talep||1;
     var topM=yillikToplamMaliyet;
     return`
-    <tr style="${siparisDurumu==='acil'?'border-left:3px solid var(--red);':siparisDurumu==='uyari'?'border-left:3px solid var(--gold);':''}background:${siparisDurumu==='acil'?'rgba(239,68,68,.04)':siparisDurumu==='uyari'?'rgba(245,158,11,.04)':''};">
-      <td style="font-weight:600;font-family:'DM Mono',monospace;color:var(--blue);font-size:13px;white-space:nowrap">${p.kod}</td>
-      <td style="max-width:160px"><div style="font-weight:500;font-size:13px;color:var(--text)">${trTitle(p.ad).length>22?trTitle(p.ad).slice(0,22)+'…':trTitle(p.ad)}</div><div style="font-size:11px;color:var(--text3)">${trTitle(p.ekipman||'—')}</div></td>
-      <td style="text-align:center"><div><span style="display:inline-block;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;line-height:20px;text-align:center;background:${abcSinif==='A'?'rgba(239,68,68,.15)':abcSinif==='B'?'rgba(245,158,11,.15)':'rgba(100,116,139,.15)'};color:${abcSinif==='A'?'var(--red)':abcSinif==='B'?'var(--gold)':'var(--text3)'}">${abcSinif}</span><div style="font-size:11px;color:var(--text3);margin-top:1px">k=${kK}</div></div></td>
-      <td style="text-align:center">
-        <div style="font-size:15px;font-weight:700;color:${stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)'}">${stokMevcut}</div>
-        <div style="font-size:11px;color:var(--text3)">ROP: ${rop}</div>
-      </td>
-      <td style="text-align:center">
-        <div style="font-size:13px;font-weight:700;color:var(--green)">${D}</div>
-        <div style="font-size:11px;color:var(--text3)">adet/yıl</div>
-      </td>
-      <td style="text-align:center"><input type="number" value="${t}" min="0.1" step="0.5" style="width:60px;background:var(--bg3);border:1.5px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:13px;font-weight:600;text-align:center" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td>
-      <td style="text-align:center"><input type="number" value="${sm}" min="1" style="width:60px;background:var(--bg3);border:1.5px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:13px;font-weight:600;text-align:center" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td>
-      <td style="text-align:center;color:var(--text3);font-size:13px">${p.teslimat||14}g</td>
-      <td style="text-align:center">
-        <div style="font-size:15px;font-weight:700;color:var(--blue)">${eoq}</div>
-        <div style="font-size:11px;color:var(--text3)">${(D/eoq).toFixed(1)}x/yıl</div>
-      </td>
-      <td style="text-align:center"><span style="display:inline-block;padding:3px 10px;background:rgba(245,158,11,.1);color:var(--gold);font-weight:600;border-radius:4px;font-size:13px">${ss}</span></td>
-      <td style="text-align:center"><span style="display:inline-block;padding:3px 10px;background:rgba(245,158,11,.1);color:var(--gold);font-weight:600;border-radius:4px;font-size:13px">${rop}</span></td>
-      <td style="text-align:right;font-weight:600;color:var(--text)">${eur(topM)}</td>
-      <td style="text-align:center">
-        ${siparisDurumu==='acil'
-          ?'<button onclick="sipVerKod(this)" data-kod="${p.kod}" style="background:var(--red);color:#fff;border:none;padding:5px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">⚠ Sipariş Ver</button>'
-          :siparisDurumu==='uyari'
-          ?'<span style="background:rgba(245,158,11,.15);color:var(--gold);padding:4px 8px;border-radius:5px;font-size:11px;font-weight:600">⚡ Yaklaşıyor</span>'
-          :'<span style="color:var(--green);font-size:13px;font-weight:500">✓ Yeterli</span>'}
-      </td>
+    <tr style="font-size:13px;${siparisDurumu==='acil'?'border-left:3px solid var(--red);background:rgba(239,68,68,.03)':siparisDurumu==='uyari'?'border-left:3px solid var(--gold);background:rgba(245,158,11,.03)':''}">
+      <td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--blue);white-space:nowrap">${p.kod}</td>
+      <td><div style="font-weight:500;color:var(--text)">${trTitle(p.ad).length>22?trTitle(p.ad).slice(0,22)+'…':trTitle(p.ad)}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">${trTitle(p.ekipman||'—')}</div></td>
+      <td style="text-align:center"><span style="display:inline-block;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;line-height:22px;text-align:center;background:${abcSinif==='A'?'rgba(239,68,68,.15)':abcSinif==='B'?'rgba(245,158,11,.15)':'rgba(100,116,139,.15)'};color:${abcSinif==='A'?'var(--red)':abcSinif==='B'?'var(--gold)':'var(--text3)'}">${abcSinif}</span><div style="font-size:10px;color:var(--text3);margin-top:2px">k=${kK}</div></td>
+      <td style="text-align:center"><div style="font-weight:700;color:${stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)'}">${stokMevcut}</div><div style="font-size:11px;color:var(--text3)">/ ${rop}</div></td>
+      <td style="text-align:center"><div style="font-weight:700;color:var(--green)">${D}</div><div style="font-size:11px;color:var(--text3)">adet/yıl</div></td>
+      <td style="text-align:center"><input type="number" value="${t}" min="0.1" step="0.5" style="width:58px;padding:3px 6px;border:1.5px solid var(--green);border-radius:5px;font-size:12px;font-weight:600;color:var(--green);background:var(--bg3);text-align:center" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td>
+      <td style="text-align:center"><input type="number" value="${sm}" min="1" style="width:58px;padding:3px 6px;border:1.5px solid var(--green);border-radius:5px;font-size:12px;font-weight:600;color:var(--green);background:var(--bg3);text-align:center" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td>
+      <td style="text-align:center;color:var(--text3)">${p.teslimat||14}g</td>
+      <td style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--blue)">${eoq}</div><div style="font-size:11px;color:var(--text3)">${(D/eoq).toFixed(1)}x/yıl</div></td>
+      <td style="text-align:center"><span style="padding:2px 8px;background:rgba(245,158,11,.12);color:var(--gold);border-radius:4px;font-weight:700">${ss}</span></td>
+      <td style="text-align:center"><span style="padding:2px 8px;background:rgba(245,158,11,.12);color:var(--gold);border-radius:4px;font-weight:700">${rop}</span></td>
+      <td style="text-align:right;font-weight:600">${eur(topM)}</td>
+      <td style="text-align:center">${siparisDurumu==='acil'?'<button onclick="sipVerKod(this)" data-kod="${p.kod}" style="background:var(--red);color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">⚠ Sipariş</button>':siparisDurumu==='uyari'?'<span style="background:rgba(245,158,11,.15);color:var(--gold);padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600">⚡ Yakın</span>':'<span style="color:var(--green);font-weight:500">✓</span>'}</td>
       <td><button class="btn btn-sm" onclick="showEOQGrafik('${p.id}')" title="Grafik">📊</button></td>
     </tr>`;
 
