@@ -1410,7 +1410,7 @@ function renderDash(){
   var dashHtml='';
   dashHtml+='<div class="grid-4">';
   dashHtml+="<div class='kpi' style='border-top:3px solid var(--blue)'><div class='kpi-icon blue'>📦</div><div class='kpi-label'>Toplam Stok</div><div class='kpi-value' style='color:var(--blue)'>"+toplamStok+"</div><div class='kpi-sub'>"+tp+" farklı parça çeşidi</div></div>";
-  dashHtml+='<div class="kpi" style="border-top:3px solid var(--gold)"><div class="kpi-icon gold">💰</div><div class="kpi-label">Stok değeri</div><div class="kpi-value" style="color:var(--gold)">'+eur(topD)+'</div><div class="kpi-sub">toplam envanter değeri</div></div>';
+  dashHtml+='<div class="kpi" style="border-top:3px solid var(--gold)"><div class="kpi-icon gold">💰</div><div class="kpi-label">Stok Değeri</div><div class="kpi-value" style="color:var(--gold)">'+eur(topD)+'</div><div class="kpi-sub">toplam envanter değeri</div></div>';
   dashHtml+='<div class="kpi" style="border-top:3px solid var(--green)"><div class="kpi-icon green">📈</div><div class="kpi-label">Bu Ay Kullanım</div><div class="kpi-value" style="color:var(--green)">'+buAyCikis+' adet</div><div class="kpi-sub">'+trendBadge(buAyCikis,gecenAyCikis)+' geçen aya göre</div></div>';
   dashHtml+='<div class="kpi" style="border-top:3px solid var(--red)"><div class="kpi-icon red">🔴</div><div class="kpi-label">Kritik / Tükenen</div><div class="kpi-value" style="color:var(--red)">'+krit+' / '+tuk+'</div><div class="kpi-sub">acil müdahale gerekli</div></div>';
   dashHtml+='</div>';
@@ -1422,7 +1422,7 @@ function renderDash(){
   dashHtml+=(katL.length?katL.map(function(x){var pct=Math.round(x[1]/maxK*100);return '<div class="chart-bar-row"><div class="chart-bar-label">'+x[0]+'</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--blue)"></div></div><div class="chart-bar-val">'+x[1]+' adet</div></div>';}).join(''):'<div class="empty">Kategori yok</div>');
   dashHtml+='</div></div>';
   dashHtml+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:14px 16px;border-bottom:1px solid var(--border)"><div class="section-title" style="margin:0">Son Hareketler</div></div>';
-  dashHtml+=(sonH.length?'<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Parça kodu</th><th>Parça adı</th><th>Tip</th><th>Miktar</th><th>Açıklama</th></tr></thead><tbody>'+sonH.map(function(h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};var cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return '<tr><td style="color:var(--text3)">'+(h.tarih||'')+'</td><td style="color:var(--blue);font-weight:600">'+h.par_kod+'</td><td>'+(p.ad||'-')+'</td><td><span class="badge '+cl+'">'+h.tip+'</span></td><td><b>'+h.miktar+'</b></td><td style="color:var(--text3)">'+(h.aciklama||'-')+'</td></tr>';}).join('')+'</tbody></table></div>':'<div class="empty">Henüz hareket kaydı yok</div>');
+  dashHtml+=(sonH.length?'<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Tip</th><th>Miktar</th><th>Açıklama</th></tr></thead><tbody>'+sonH.map(function(h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};var cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return '<tr><td style="color:var(--text3)">'+(h.tarih||'')+'</td><td style="color:var(--blue);font-weight:600">'+h.par_kod+'</td><td>'+(p.ad||'-')+'</td><td><span class="badge '+cl+'">'+h.tip+'</span></td><td><b>'+h.miktar+'</b></td><td style="color:var(--text3)">'+(h.aciklama||'-')+'</td></tr>';}).join('')+'</tbody></table></div>':'<div class="empty">Henüz hareket kaydı yok</div>');
   dashHtml+='</div>';
   document.getElementById('content').innerHTML=dashHtml;
 
@@ -1648,7 +1648,7 @@ function renderStok(){
   document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="overflow-x:auto;max-height:calc(100vh - 180px);overflow-y:auto"><table id="stok-table" style="min-width:900px"><thead><tr>
         <th style="width:32px"><input type="checkbox" id="stok-tumu" onchange="stokTumunuSec(this.checked)" style="width:15px;height:15px;cursor:pointer"></th>
         <th onclick="stokSirala=\'kod\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:80px;white-space:nowrap">Kod</th>
-        <th onclick="stokSirala=\'ad\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;min-width:130px;white-space:nowrap">Parça adı</th>
+        <th onclick="stokSirala=\'ad\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;min-width:130px;white-space:nowrap">Parça Adı</th>
         <th style="width:80px;white-space:nowrap">Kategori</th>
         <th style="width:90px;white-space:nowrap">Ekipman</th>
         <th onclick="stokSirala=\'stok\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:60px;text-align:center;white-space:nowrap">Stok</th>
@@ -1954,7 +1954,7 @@ function renderKritik(){
     +'<div class="card" style="padding:0;overflow:hidden">'
     +'<div class="table-wrap"><table>'
     +'<thead><tr>'
-    +'<th>Kod</th><th>Parça adı</th><th>Ekipman</th><th>Stok</th><th style="width:44px;text-align:center;white-space:nowrap">Min</th><th>ROP</th>'
+    +'<th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Stok</th><th style="width:44px;text-align:center;white-space:nowrap">Min</th><th>ROP</th>'
     +'<th>Fiyat</th><th>ABC</th><th>Tedarikçi</th><th>Teslimat</th>'
     +'<th>İşlem</th>'
     +'</tr></thead>'
@@ -2068,17 +2068,17 @@ function renderEOQ(){
       <div class="table-wrap"><table>
         <thead><tr style="background:var(--bg3)">
           <th style="width:90px">Kod</th>
-          <th>Parça adı</th>
+          <th>Parça Adı</th>
           <th style="width:36px;text-align:center">ABC</th>
           <th style="width:72px;text-align:center">Stok / ROP</th>
-          <th style="width:72px;text-align:center;color:var(--green)">Gerçek talep</th>
-          <th style="width:70px;text-align:center;color:var(--green)">Plan talep</th>
-          <th style="width:70px;text-align:center;color:var(--green)">Sipariş mal.</th>
+          <th style="width:72px;text-align:center;color:var(--green)">Gerçek Talep</th>
+          <th style="width:70px;text-align:center;color:var(--green)">Plan Talep</th>
+          <th style="width:70px;text-align:center;color:var(--green)">Sipariş Mal.</th>
           <th style="width:44px;text-align:center">Temin</th>
           <th style="width:64px;text-align:center"><span class="tt" data-tip="Ekonomik Sipariş Miktarı — Toplam maliyeti minimize eden miktar">EOQ ℹ</span></th>
           <th style="width:52px;text-align:center"><span class="tt" data-tip="Güvenlik stoğu — beklenmedik durumlara karşı tampon">G.Stok ℹ</span></th>
           <th style="width:52px;text-align:center"><span class="tt" data-tip="Yeniden Sipariş Noktası — bu seviyede sipariş ver">ROP ℹ</span></th>
-          <th style="width:80px;text-align:right">Yıllık maliyet</th>
+          <th style="width:80px;text-align:right">Yıllık Maliyet</th>
           <th style="width:110px;text-align:center">Öneri</th>
           <th style="width:36px"></th>
         </tr></thead>
@@ -2147,7 +2147,7 @@ function renderSiparis(){
   const bek=siparisler.filter(s=>s.durum==='Beklemede').length,kar=siparisler.filter(s=>s.durum==='Kargoda').length,tam=siparisler.filter(s=>s.durum==='Tamamlandı').length;
   const topT=siparisler.reduce((s,x)=>s+(x.tutar||0),0);
   const rows=siparisler.map(s=>{const p=parcalar.find(x=>x.kod===s.par_kod)||{};const dc=s.durum==='Tamamlandı'?'badge-green':s.durum==='Kargoda'?'badge-blue':s.durum==='İptal'?'badge-gray':'badge-gold';return`<tr><td style="color:var(--accent);font-weight:600">${s.sip_no}</td><td style="color:var(--accent)">${s.par_kod}</td><td>${p.ad||s.par_ad||'-'}</td><td style="color:var(--text3)">${p.tedarikci||'-'}</td><td><b>${s.miktar}</b></td><td style="color:var(--gold)">${eur(s.tutar)}</td><td style="color:var(--text3)">${s.sip_tarih||'-'}</td><td style="color:var(--text3)">${s.tes_tarih||'-'}</td><td><span class="badge ${dc}">${s.durum}</span></td><td style="white-space:nowrap"><select style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer" onchange="updSipDurum('${s.id}',this.value)"><option ${s.durum==='Beklemede'?'selected':''}>Beklemede</option><option ${s.durum==='Kargoda'?'selected':''}>Kargoda</option><option ${s.durum==='Tamamlandı'?'selected':''}>Tamamlandı</option><option ${s.durum==='İptal'?'selected':''}>İptal</option></select> <button class="btn btn-sm btn-danger" onclick="sipSil('${s.id}')">Sil</button></td></tr>`;}).join('');
-  document.getElementById('content').innerHTML=`<div class="grid-4"><div class="kpi"><div class="kpi-label">Beklemede</div><div class="kpi-value" style="color:var(--gold)">${bek}</div></div><div class="kpi"><div class="kpi-label">Kargoda</div><div class="kpi-value" style="color:var(--accent)">${kar}</div></div><div class="kpi"><div class="kpi-label">Tamamlanan</div><div class="kpi-value" style="color:var(--green)">${tam}</div></div><div class="kpi"><div class="kpi-label">Toplam Tutar</div><div class="kpi-value" style="color:var(--gold)">${eur(topT)}</div></div></div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Sipariş no</th><th>Parça kodu</th><th>Parça adı</th><th>Tedarikçi</th><th>Miktar</th><th>Tutar</th><th>Sipariş tarihi</th><th>Tahmini teslimat</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="10"><div class="empty">Henüz sipariş yok</div></td></tr>'}</tbody></table></div></div>`;
+  document.getElementById('content').innerHTML=`<div class="grid-4"><div class="kpi"><div class="kpi-label">Beklemede</div><div class="kpi-value" style="color:var(--gold)">${bek}</div></div><div class="kpi"><div class="kpi-label">Kargoda</div><div class="kpi-value" style="color:var(--accent)">${kar}</div></div><div class="kpi"><div class="kpi-label">Tamamlanan</div><div class="kpi-value" style="color:var(--green)">${tam}</div></div><div class="kpi"><div class="kpi-label">Toplam Tutar</div><div class="kpi-value" style="color:var(--gold)">${eur(topT)}</div></div></div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Parça Kodu</th><th>Parça Adı</th><th>Tedarikçi</th><th>Miktar</th><th>Tutar</th><th>Sipariş Tarihi</th><th>Tahmini Teslimat</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="10"><div class="empty">Henüz sipariş yok</div></td></tr>'}</tbody></table></div></div>`;
 }
 
 function showSiparisModal(ok){
@@ -2237,7 +2237,7 @@ function renderHareket(){
     +'<div class="kpi" style="border-top:3px solid var(--red)"><div class="kpi-icon red">📤</div><div class="kpi-label">Toplam Çıkış</div><div class="kpi-value" style="color:var(--red)">'+harCikisToplam+'</div><div class="kpi-sub">adet</div></div>'
     +'<div class="kpi" style="border-top:3px solid var(--blue)"><div class="kpi-icon blue">📊</div><div class="kpi-label">Bu Ay Çıkış</div><div class="kpi-value" style="color:var(--blue)">'+harBuAyCikis+'</div><div class="kpi-sub">adet</div></div>'
     +'</div>'
-    +`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="max-height:calc(100vh - 200px);overflow-y:auto"><table><thead><tr><th>Tarih</th><th>Parça kodu</th><th>Parça adı</th><th>Kullanan</th><th>Tip</th><th>Miktar</th><th>İş emri</th><th>Açıklama</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="9"><div class="empty"><div class="empty-icon">📋</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Henüz hareket kaydı yok</div><div style="font-size:12px;color:var(--text3)">Parça giriş/çıkışları burada görünecek</div></div></td></tr>'}</tbody></table></div></div><div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg3)"><span style="font-size:12px;color:var(--text3)">${harToplam} kayıt — Sayfa ${harPage} / ${harMaxPage}</span><div style="display:flex;gap:6px">${harPage>1?'<button class="btn btn-sm" onclick="harPage=1;renderHareket()">«</button><button class="btn btn-sm" onclick="harPage--;renderHareket()">‹</button>':''}${harPage<harMaxPage?'<button class="btn btn-sm" onclick="harPage++;renderHareket()">›</button><button class="btn btn-sm" onclick="harPage=harMaxPage;renderHareket()">»</button>':''}</div></div>`;
+    +`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="max-height:calc(100vh - 200px);overflow-y:auto"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Kullanan</th><th>Tip</th><th>Miktar</th><th>İş Emri</th><th>Açıklama</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="9"><div class="empty"><div class="empty-icon">📋</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Henüz hareket kaydı yok</div><div style="font-size:12px;color:var(--text3)">Parça giriş/çıkışları burada görünecek</div></div></td></tr>'}</tbody></table></div></div><div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border);background:var(--bg3)"><span style="font-size:12px;color:var(--text3)">${harToplam} kayıt — Sayfa ${harPage} / ${harMaxPage}</span><div style="display:flex;gap:6px">${harPage>1?'<button class="btn btn-sm" onclick="harPage=1;renderHareket()">«</button><button class="btn btn-sm" onclick="harPage--;renderHareket()">‹</button>':''}${harPage<harMaxPage?'<button class="btn btn-sm" onclick="harPage++;renderHareket()">›</button><button class="btn btn-sm" onclick="harPage=harMaxPage;renderHareket()">»</button>':''}</div></div>`;
 }
 function showHareketModal(ok){
   const sec=parcalar.map(p=>`<option value="${p.kod}" ${p.kod===ok?'selected':''}>${p.kod} — ${p.ad} (Stok: ${mevcut(p.kod)})</option>`).join('');
@@ -2290,7 +2290,7 @@ function renderTedarikciler(){
 </div>
 <div class="card" style="padding:0;overflow:hidden">
   <table>
-    <thead><tr><th>Tedarikçi adı</th><th>Parça sayısı</th><th>Stok değeri</th><th>Sipariş durumu</th><th>İşlem</th></tr></thead>
+    <thead><tr><th>Tedarikçi Adı</th><th>Parça Sayısı</th><th>Stok Değeri</th><th>Sipariş Durumu</th><th>İşlem</th></tr></thead>
     <tbody>${rows||'<tr><td colspan="5"><div class="empty">Henüz tedarikçi eklenmemiş</div></td></tr>'}</tbody>
   </table>
 </div>`;
@@ -2332,7 +2332,7 @@ function showTedarikcDetay(ad){
     <div class="section-title">Tedarikçiye Ait Parçalar</div>
     <div style="max-height:280px;overflow-y:auto">
       <table>
-        <thead><tr><th>Kod</th><th>Parça adı</th><th>Stok</th><th>Fiyat</th><th>Teslimat</th></tr></thead>
+        <thead><tr><th>Kod</th><th>Parça Adı</th><th>Stok</th><th>Fiyat</th><th>Teslimat</th></tr></thead>
         <tbody>${parcaRows||'<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:16px">Parça yok</td></tr>'}</tbody>
       </table>
     </div>
@@ -2390,9 +2390,9 @@ function renderCycleCount(){
     <table>
       <thead><tr>
         <th style="width:36px"></th>
-        <th>Kod</th><th>Parça adı</th><th>Ekipman</th><th>Lokasyon</th>
-        <th style="text-align:center">Sistem stoğu</th>
-        <th style="text-align:center">Sayılan miktar</th>
+        <th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Lokasyon</th>
+        <th style="text-align:center">Sistem Stoğu</th>
+        <th style="text-align:center">Sayılan Miktar</th>
         <th style="text-align:center">Fark</th>
       </tr></thead>
       <tbody>${rows}</tbody>
