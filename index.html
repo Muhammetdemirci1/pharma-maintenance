@@ -739,6 +739,15 @@ async function sbDelete(t,id){const r=await fetch(`${SB_URL}/rest/v1/${t}?id=eq.
 let parcalar=[],siparisler=[],hareketler=[],stokSearch='',stokFiltre='tumu',stokKategoriFiltre='',stokSirala='kod',stokSiralaDir=1,seciliParcalar=new Set(),harPage=1,harPageSize=50;
 
 
+function trTitle(str){
+  if(!str) return str;
+  return str.split(' ').map(function(w){
+    if(!w) return w;
+    var first = w[0]==='i'?'İ':w[0].toUpperCase();
+    return first + w.slice(1);
+  }).join(' ');
+}
+
 function pbSembol(pb){ return {EUR:'€',USD:'$',TRY:'₺',CHF:'Fr'}[pb]||pb; }
 function fiyatGoster(p){
   var pb=p.pb||'EUR';
@@ -1626,15 +1635,15 @@ function renderStok(){
     return`<tr id="stok-row-${p.id}" style="${seciliParcalar.has(p.id)?'background:var(--blue-light)':''};cursor:pointer" onclick="stokSatirToggle('${p.id}',event)">
       <td style="width:36px;text-align:center"><input type="checkbox" class="stok-chk" data-id="${p.id}" ${seciliParcalar.has(p.id)?'checked':''} onchange="stokSecToggle(this)" style="width:15px;height:15px;cursor:pointer"></td>
       <td style="color:var(--blue);font-weight:600;white-space:nowrap;font-family:DM Mono,monospace;font-size:12px">${p.kod}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span onclick="showParcaDetay('${p.id}')" style="cursor:pointer;color:var(--text);font-weight:500" title="${p.ad}">${p.ad}</span></td>
-      <td style="color:var(--text3);font-size:11px;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis" title="${p.kategori||''}">${p.kategori||'-'}</td>
-      <td style="color:var(--text3);font-size:11px;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis" title="${p.ekipman||''}">${p.ekipman||'-'}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span onclick="showParcaDetay('${p.id}')" style="cursor:pointer;color:var(--text);font-weight:500" title="${p.ad}">${trTitle(p.ad)}</span></td>
+      <td style="color:var(--text3);font-size:11px;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis" title="${p.kategori||''}">${trTitle(p.kategori||'-')}</td>
+      <td style="color:var(--text3);font-size:11px;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis" title="${p.ekipman||''}">${trTitle(p.ekipman||'-')}</td>
       <td style="text-align:center"><b style="color:${m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)'}">${m}</b></td>
       <td style="text-align:center;color:var(--text3)">${p.min_stok||0}</td>
       <td style="color:var(--gold)">${fiyatGoster(p)}</td>
       <td><span class="badge ${ac}">${a}</span></td>
       <td><span class="badge ${d.c}">${d.l}</span></td>
-      <td style="color:var(--text2);font-size:11px;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis" title="${p.tedarikci||''}">${p.tedarikci||'-'}</td>
+      <td style="color:var(--text2);font-size:11px;white-space:nowrap;max-width:90px;overflow:hidden;text-overflow:ellipsis" title="${p.tedarikci||''}">${trTitle(p.tedarikci||'-')}</td>
       <td style="white-space:nowrap">
         <div style="display:flex;gap:4px">
         <button class="btn btn-sm" onclick="showParcaModal('${p.id}')">Düzenle</button>
