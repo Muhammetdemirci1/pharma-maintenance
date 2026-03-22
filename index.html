@@ -1655,9 +1655,16 @@ function renderDash(){
   var mevcutIcerik = document.getElementById('content').innerHTML;
   document.getElementById('content').innerHTML = acilHtml + mevcutIcerik + extraHtml;
   // Chart.js grafik çiz
-  setTimeout(function(){
+  function drawDashChart(){
     var ctx=document.getElementById('dash-trend-chart');
     if(!ctx||!chartLabels) return;
+    if(typeof Chart==='undefined'){
+      var sc=document.createElement('script');
+      sc.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
+      sc.onload=function(){drawDashChart();};
+      document.head.appendChild(sc);
+      return;
+    }
     if(ctx._chart) ctx._chart.destroy();
     ctx._chart=new Chart(ctx,{
       type:'bar',
@@ -1681,7 +1688,8 @@ function renderDash(){
         }
       }
     });
-  },100);
+  }
+  setTimeout(drawDashChart,100);
 
 }
 function renderStok(){
@@ -1888,6 +1896,7 @@ function showParcaDetay(id){
   setTimeout(function(){
     var ctx=document.getElementById('pd-trend-chart');
     if(!ctx) return;
+    if(typeof Chart==='undefined') return;
     if(ctx._chart) ctx._chart.destroy();
     // Son 6 ay çıkış verileri
     var aylar=[];
@@ -2794,14 +2803,14 @@ function renderRaporlar(){
   if(typeof Chart==='undefined'){
     var sc=document.createElement('script');
     sc.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
-    sc.onload=function(){cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList);};
+    sc.onload=function(){cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList,filtHar2);};
     document.head.appendChild(sc);
   } else {
-    cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList);
+    cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList,filtHar2);
   }
 }
 
-function cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList){
+function cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList,filtHarData){
   Chart.defaults.font.family="'DM Sans',sans-serif";
   Chart.defaults.font.size=11;
   Chart.defaults.color='#94a3b8';
@@ -2877,7 +2886,7 @@ function cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList){
   var ctx5=document.getElementById('chart-maliyet');
   if(ctx5){
     var maliyetData=aylar.map(function(a,i){
-      return Math.round(filtHar2.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(a.yil+'-'+String(a.ay).padStart(2,'0'));}).reduce(function(s,h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);},0));
+      return Math.round(filtHarData.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(a.yil+'-'+String(a.ay).padStart(2,'0'));}).reduce(function(s,h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);},0));
     });
     new Chart(ctx5,{
       type:'line',
@@ -2904,7 +2913,7 @@ function cizGrafikleri(aylar,aylikCikis,aylikGiris,abcSay,abcDeger,tedList){
   var ctx6=document.getElementById('chart-kategori');
   if(ctx6){
     var katCikis={};
-    filtHar2.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){
+    filtHarData.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){
       var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
       var kat=p.kategori||'Diğer';
       katCikis[kat]=(katCikis[kat]||0)+(Number(h.miktar)||0);
