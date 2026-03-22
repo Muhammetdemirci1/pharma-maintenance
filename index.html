@@ -2012,13 +2012,17 @@ function eoqParamGuncelle(){
 
 function renderEOQ(){
   document.getElementById('topbar-actions').innerHTML=
-    '<span style="font-size:11px;color:var(--text3)">k:</span>'
-    +'<input type="number" id="eoq-k" value="2.33" step="0.01" min="1" max="3.5" title="Güvenlik katsayısı" style="width:48px;padding:4px 5px;border:1px solid var(--border);border-radius:5px;font-size:11px;background:var(--bg2)" onchange="eoqParamGuncelle()">'
-    +'<span style="font-size:11px;color:var(--text3)">σ:</span>'
-    +'<input type="number" id="eoq-s" value="0.20" step="0.01" min="0.01" max="1" title="Talep sapması" style="width:48px;padding:4px 5px;border:1px solid var(--border);border-radius:5px;font-size:11px;background:var(--bg2)" onchange="eoqParamGuncelle()">'
-    +'<span style="font-size:11px;color:var(--text3)">H%:</span>'
-    +'<input type="number" id="eoq-h" value="25" step="1" min="5" max="50" title="Tutma maliyeti %" style="width:44px;padding:4px 5px;border:1px solid var(--border);border-radius:5px;font-size:11px;background:var(--bg2)" onchange="eoqParamGuncelle()">'
-    +'<button class="btn" onclick="refreshAll(\'eoq\')">↻</button>';
+    '<div style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:4px 10px">'
+    +'<span style="font-size:11px;color:var(--text3)" title="Güvenlik katsayısı">k</span>'
+    +'<input type="number" id="eoq-k" value="'+EOQ_K+'" step="0.01" min="1" max="3.5" style="width:46px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
+    +'<span style="font-size:11px;color:var(--text3)">|</span>'
+    +'<span style="font-size:11px;color:var(--text3)" title="Talep değişkenliği">σ</span>'
+    +'<input type="number" id="eoq-s" value="'+EOQ_S+'" step="0.01" min="0.01" max="1" style="width:46px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
+    +'<span style="font-size:11px;color:var(--text3)">|</span>'
+    +'<span style="font-size:11px;color:var(--text3)" title="Yıllık tutma maliyeti %">H%</span>'
+    +'<input type="number" id="eoq-h" value="'+(EOQ_H*100)+'" step="1" min="5" max="50" style="width:42px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
+    +'</div>'
+    +'<button class="btn" onclick="refreshAll(\'eoq\')">↻ Yenile</button>';
   // Gerçek talep hesapla — son 12 ay çıkış hareketlerinden
   var sonYil=new Date();sonYil.setFullYear(sonYil.getFullYear()-1);
   var sonYilStr=sonYil.toISOString().slice(0,10);
