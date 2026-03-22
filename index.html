@@ -2013,8 +2013,7 @@ function eoqParamGuncelle(){
 function renderEOQ(){
   document.getElementById('topbar-actions').innerHTML=
     '<div style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:4px 10px">'
-    +'<span style="font-size:11px;color:var(--text3)" title="Güvenlik katsayısı">k</span>'
-    +'<input type="number" id="eoq-k" value="'+EOQ_K+'" step="0.01" min="1" max="3.5" style="width:46px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
+    +'<span style="font-size:11px;color:var(--text3)" title="k: A=%99(2.33) B=%95(1.65) C=%90(1.28) — ABC sınıfına göre otomatik">k: ABC↗</span>'
     +'<span style="font-size:11px;color:var(--text3)">|</span>'
     +'<span style="font-size:11px;color:var(--text3)" title="Talep değişkenliği">σ</span>'
     +'<input type="number" id="eoq-s" value="'+EOQ_S+'" step="0.01" min="0.01" max="1" style="width:46px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
@@ -2038,14 +2037,22 @@ function renderEOQ(){
     var D=gercekTalep[p.kod]||1,S=p.siparis_maliyet||50,H=p.birim_fiyat*EOQ_H||1;
     return s+Math.sqrt(2*D*S*H);
   },0);
-  var siparisBekleyenSay=parcalar.filter(function(p){return mevcut(p.kod)<=Math.max(1,Math.round(EOQ_K*EOQ_S*Math.sqrt(p.teslimat||14))+(Math.round((gercekTalep[p.kod]||1)/365*(p.teslimat||14))));}).length;
+  var siparisBekleyenSay=parcalar.filter(function(p){
+    var abcS=abc(p.birim_fiyat,p.kod);
+    var kV=abcS==='A'?2.33:abcS==='B'?1.65:1.28;
+    var ssV=Math.max(1,Math.round(kV*EOQ_S*Math.sqrt(p.teslimat||14)));
+    var ropV=Math.max(1,Math.round((gercekTalep[p.kod]||1)/365*(p.teslimat||14)+ssV));
+    return mevcut(p.kod)<=ropV;
+  }).length;
 
   const rows=parcalar.map(p=>{
     var D=gercekTalep[p.kod]||p.yillik_talep||1;
     var sm=p.siparis_maliyet||50;
     var I=p.birim_fiyat*EOQ_H||1;
     var eoq=Math.max(1,Math.round(Math.sqrt(2*D*sm/I)));
-    var ss=Math.max(1,Math.round(EOQ_K*EOQ_S*Math.sqrt(p.teslimat||14)));
+    var abcSinif=abc(p.birim_fiyat,p.kod);
+    var kK=abcSinif==='A'?2.33:abcSinif==='B'?1.65:1.28; // A:%99 B:%95 C:%90
+    var ss=Math.max(1,Math.round(kK*EOQ_S*Math.sqrt(p.teslimat||14)));
     var rop=Math.max(1,Math.round((D/365)*(p.teslimat||14)+ss));
     var stokMevcut=mevcut(p.kod);
     var siparisDurumu=stokMevcut<=rop?'acil':stokMevcut<=rop*1.5?'uyari':'ok';
@@ -2057,7 +2064,7 @@ function renderEOQ(){
     <tr style="${siparisDurumu==='acil'?'border-left:3px solid var(--red);':siparisDurumu==='uyari'?'border-left:3px solid var(--gold);':''}background:${siparisDurumu==='acil'?'rgba(239,68,68,.04)':siparisDurumu==='uyari'?'rgba(245,158,11,.04)':''};">
       <td style="font-weight:600;font-family:'DM Mono',monospace;color:var(--blue);font-size:13px;white-space:nowrap">${p.kod}</td>
       <td style="max-width:160px"><div style="font-weight:500;font-size:13px;color:var(--text)">${trTitle(p.ad).length>22?trTitle(p.ad).slice(0,22)+'…':trTitle(p.ad)}</div><div style="font-size:10px;color:var(--text3)">${trTitle(p.ekipman||'—')}</div></td>
-      <td style="text-align:center"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;line-height:20px;text-align:center;background:${abc(p.birim_fiyat,p.kod)==='A'?'rgba(239,68,68,.15)':abc(p.birim_fiyat,p.kod)==='B'?'rgba(245,158,11,.15)':'rgba(100,116,139,.15)'};color:${abc(p.birim_fiyat,p.kod)==='A'?'var(--red)':abc(p.birim_fiyat,p.kod)==='B'?'var(--gold)':'var(--text3)'}">${abc(p.birim_fiyat,p.kod)}</span></td>
+      <td style="text-align:center"><div><span style="display:inline-block;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;line-height:20px;text-align:center;background:${abcSinif==='A'?'rgba(239,68,68,.15)':abcSinif==='B'?'rgba(245,158,11,.15)':'rgba(100,116,139,.15)'};color:${abcSinif==='A'?'var(--red)':abcSinif==='B'?'var(--gold)':'var(--text3)'}">${abcSinif}</span><div style="font-size:10px;color:var(--text3);margin-top:1px">k=${kK}</div></div></td>
       <td style="text-align:center">
         <div style="font-size:14px;font-weight:700;color:${stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)'}">${stokMevcut}</div>
         <div style="font-size:11px;color:var(--text3)">ROP: ${rop}</div>
