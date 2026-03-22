@@ -1267,7 +1267,7 @@ function rolKontrol(aksiyon){
 function showTopluHareketModal(){
   var parcaOptions = parcalar.map(function(p){
     var m=mevcut(p.kod);
-    return '<option value="'+p.kod+'">'+p.kod+' — '+p.ad+' (Stok: '+m+')</option>';
+    return '<option value="'+p.kod+'">'+p.kod+' — '+trTitle(p.ad)+' (Stok: '+m+')</option>';
   }).join('');
 
   document.getElementById('modal-container').innerHTML=`
@@ -1319,7 +1319,7 @@ function thSatirEkle(){
   var wrap=document.getElementById('th-parcalar');
   if(!wrap) return;
   var parcaOptions=parcalar.map(function(p){
-    return '<option value="'+p.kod+'">'+p.kod+' — '+p.ad+' (Stok: '+mevcut(p.kod)+')</option>';
+    return '<option value="'+p.kod+'">'+p.kod+' — '+trTitle(p.ad)+' (Stok: '+mevcut(p.kod)+')</option>';
   }).join('');
   var div=document.createElement('div');
   div.className='th-satir';
@@ -1431,7 +1431,7 @@ function renderDash(){
   dashHtml+=(katL.length?katL.map(function(x){var pct=Math.round(x[1]/maxK*100);return '<div class="chart-bar-row"><div class="chart-bar-label">'+x[0]+'</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--blue)"></div></div><div class="chart-bar-val">'+x[1]+' adet</div></div>';}).join(''):'<div class="empty">Kategori yok</div>');
   dashHtml+='</div></div>';
   dashHtml+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:14px 16px;border-bottom:1px solid var(--border)"><div class="section-title" style="margin:0">Son Hareketler</div></div>';
-  dashHtml+=(sonH.length?'<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Tip</th><th>Miktar</th><th>Açıklama</th></tr></thead><tbody>'+sonH.map(function(h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};var cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return '<tr><td style="color:var(--text3)">'+(h.tarih||'')+'</td><td style="color:var(--blue);font-weight:600">'+h.par_kod+'</td><td>'+(p.ad||'-')+'</td><td><span class="badge '+cl+'">'+h.tip+'</span></td><td><b>'+h.miktar+'</b></td><td style="color:var(--text3)">'+(h.aciklama||'-')+'</td></tr>';}).join('')+'</tbody></table></div>':'<div class="empty">Henüz hareket kaydı yok</div>');
+  dashHtml+=(sonH.length?'<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Tip</th><th>Miktar</th><th>Açıklama</th></tr></thead><tbody>'+sonH.map(function(h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};var cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return '<tr><td style="color:var(--text3)">'+(h.tarih||'')+'</td><td style="color:var(--blue);font-weight:600">'+h.par_kod+'</td><td>'+trTitle(p.ad||'-')+'</td><td><span class="badge '+cl+'">'+h.tip+'</span></td><td><b>'+h.miktar+'</b></td><td style="color:var(--text3)">'+(h.aciklama||'-')+'</td></tr>';}).join('')+'</tbody></table></div>':'<div class="empty">Henüz hareket kaydı yok</div>');
   dashHtml+='</div>';
   document.getElementById('content').innerHTML=dashHtml;
 
@@ -1465,14 +1465,14 @@ function renderDash(){
         +'<div style="min-width:0">'
         +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
         +'<span style="color:var(--blue);font-weight:600;font-size:13px;font-family:DM Mono,monospace">'+p.kod+'</span>'
-        +'<span style="color:var(--text);font-size:13px">'+p.ad+'</span>'
+        +'<span style="color:var(--text);font-size:13px">'+trTitle(p.ad)+'</span>'
         +'<span style="background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:4px;font-size:10px">'+( p.ekipman||'-')+'</span>'
         +'<span style="color:'+abcRenk+';font-size:10px;font-weight:600;border:1px solid '+abcRenk+';padding:1px 6px;border-radius:4px">'+abcK+'</span>'
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:16px;margin-top:4px">'
         +'<span style="font-size:11px;color:var(--text3)">⏱ Temin: <b style="color:var(--text2)">'+tes+'</b></span>'
         +'<span style="font-size:11px;color:var(--text3)">💰 <b style="color:var(--text2)">'+eur(p.birim_fiyat)+'</b></span>'
-        +'<span style="font-size:11px;color:var(--text3)">Tedarikçi: <b style="color:var(--text2)">'+(p.tedarikci||'-')+'</b></span>'
+        +'<span style="font-size:11px;color:var(--text3)">Tedarikçi: <b style="color:var(--text2)">'+trTitle(p.tedarikci||'-')+'</b></span>'
         +'</div>'
         +'</div></div>'
         +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
@@ -1498,15 +1498,15 @@ function renderDash(){
         +'<div style="min-width:0">'
         +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
         +'<span style="color:var(--blue);font-weight:600;font-size:13px;font-family:DM Mono,monospace">'+p.kod+'</span>'
-        +'<span style="color:var(--text);font-size:13px">'+p.ad+'</span>'
-        +'<span style="background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:4px;font-size:10px">'+(p.ekipman||'-')+'</span>'
+        +'<span style="color:var(--text);font-size:13px">'+trTitle(p.ad)+'</span>'
+        +'<span style="background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:4px;font-size:10px">'+trTitle(p.ekipman||'-')+'</span>'
         +'<span style="color:'+abcRenk+';font-size:10px;font-weight:600;border:1px solid '+abcRenk+';padding:1px 6px;border-radius:4px">'+abcK+'</span>'
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:16px;margin-top:4px">'
         +'<span style="font-size:11px;color:var(--text3)">📦 Stok: <b style="color:'+(m<=0?'var(--red)':'var(--gold)')+'">'+m+' / '+(p.min_stok||1)+'</b></span>'
         +'<span style="font-size:11px;color:var(--text3)">⏱ Temin: <b style="color:var(--text2)">'+tes+'</b></span>'
         +'<span style="font-size:11px;color:var(--text3)">💰 <b style="color:var(--text2)">'+eur(p.birim_fiyat)+'</b></span>'
-        +'<span style="font-size:11px;color:var(--text3)">Tedarikçi: <b style="color:var(--text2)">'+(p.tedarikci||'-')+'</b></span>'
+        +'<span style="font-size:11px;color:var(--text3)">Tedarikçi: <b style="color:var(--text2)">'+trTitle(p.tedarikci||'-')+'</b></span>'
         +'</div>'
         +'</div></div>'
         +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
@@ -1720,7 +1720,7 @@ function showParcaDetay(id){
             <span style="background:${abcRenk}22;color:${abcRenk};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid ${abcRenk}44">ABC-${abcK}</span>
             <span style="background:${durumRenk}22;color:${durumRenk};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600">${durum}</span>
           </div>
-          <div style="font-size:15px;color:var(--text);font-weight:500">${p.ad}</div>
+          <div style="font-size:15px;color:var(--text);font-weight:500">${trTitle(p.ad)}</div>
           <div style="font-size:12px;color:var(--text3);margin-top:2px">${p.ekipman||''} ${p.kategori?'· '+p.kategori:''}</div>
         </div>
       </div>
@@ -1943,14 +1943,14 @@ function renderKritik(){
     var stokRenk=m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)';
             return '<tr>'
       +'<td style="color:var(--accent);font-weight:600">'+p.kod+'</td>'
-      +'<td>'+p.ad+'</td>'
-      +'<td style="color:var(--text3)">'+(p.ekipman||'-')+'</td>'
+      +'<td>'+trTitle(p.ad)+'</td>'
+      +'<td style="color:var(--text3)">'+trTitle(p.ekipman||'-')+'</td>'
       +'<td><b style="color:'+stokRenk+'">'+m+'</b></td>'
       +'<td style="color:var(--text3)">'+(p.min_stok||0)+'</td>'
       +'<td style="color:var(--gold)">'+rop+'</td>'
       +'<td style="color:var(--gold)">'+eur(p.birim_fiyat)+'</td>'
       +'<td><span class="badge '+ac+'">'+a+'</span></td>'
-      +'<td style="color:var(--text3)">'+(p.tedarikci||'-')+'</td>'
+      +'<td style="color:var(--text3)">'+trTitle(p.tedarikci||'-')+'</td>'
       +'<td style="color:var(--text3)">'+(p.teslimat||'-')+' gün</td>'
       
       
@@ -2022,7 +2022,7 @@ function renderEOQ(){
     return`
     <tr style="${siparisDurumu==='acil'?'border-left:3px solid var(--red);':siparisDurumu==='uyari'?'border-left:3px solid var(--gold);':''}background:${siparisDurumu==='acil'?'rgba(239,68,68,.04)':siparisDurumu==='uyari'?'rgba(245,158,11,.04)':''};">
       <td style="font-weight:600;font-family:'DM Mono',monospace;color:var(--blue);font-size:12px;white-space:nowrap">${p.kod}</td>
-      <td style="max-width:160px"><div style="font-weight:500;font-size:13px;color:var(--text)">${p.ad.length>22?p.ad.slice(0,22)+'…':p.ad}</div><div style="font-size:10px;color:var(--text3)">${p.ekipman||'—'}</div></td>
+      <td style="max-width:160px"><div style="font-weight:500;font-size:13px;color:var(--text)">${trTitle(p.ad).length>22?trTitle(p.ad).slice(0,22)+'…':trTitle(p.ad)}</div><div style="font-size:10px;color:var(--text3)">${trTitle(p.ekipman||'—')}</div></td>
       <td style="text-align:center"><span style="display:inline-block;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;line-height:20px;text-align:center;background:${abc(p.birim_fiyat,p.kod)==='A'?'rgba(239,68,68,.15)':abc(p.birim_fiyat,p.kod)==='B'?'rgba(245,158,11,.15)':'rgba(100,116,139,.15)'};color:${abc(p.birim_fiyat,p.kod)==='A'?'var(--red)':abc(p.birim_fiyat,p.kod)==='B'?'var(--gold)':'var(--text3)'}">${abc(p.birim_fiyat,p.kod)}</span></td>
       <td style="text-align:center">
         <div style="font-size:16px;font-weight:700;color:${stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)'}">${stokMevcut}</div>
@@ -2104,7 +2104,7 @@ async function showEOQGrafik(parId){
   
   document.getElementById('modal-container').innerHTML=
     '<div class="modal-overlay"><div class="modal" style="width:600px">'
-    +'<div class="modal-title">📊 EOQ Maliyet Analizi — '+p.kod+' '+p.ad+'</div>'
+    +'<div class="modal-title">📊 EOQ Maliyet Analizi — '+p.kod+' '+trTitle(p.ad)+'</div>'
     +'<div style="position:relative;height:280px"><canvas id="eoq-chart"></canvas></div>'
     +'<div class="grid-3" style="margin-top:16px">'
     +'<div style="text-align:center;padding:10px;background:var(--bg3);border-radius:8px"><div style="font-size:10px;color:var(--text3);margin-bottom:4px">EOQ</div><div style="font-size:20px;font-weight:700;color:var(--blue)">'+eoq+' adet</div></div>'
@@ -2155,7 +2155,7 @@ function renderSiparis(){
   document.getElementById('topbar-actions').innerHTML=`<button class="btn" onclick="refreshAll('siparis')">↻ Yenile</button><button class="btn btn-primary" onclick="showSiparisModal()">+ Yeni Sipariş</button>`;
   const bek=siparisler.filter(s=>s.durum==='Beklemede').length,kar=siparisler.filter(s=>s.durum==='Kargoda').length,tam=siparisler.filter(s=>s.durum==='Tamamlandı').length;
   const topT=siparisler.reduce((s,x)=>s+(x.tutar||0),0);
-  const rows=siparisler.map(s=>{const p=parcalar.find(x=>x.kod===s.par_kod)||{};const dc=s.durum==='Tamamlandı'?'badge-green':s.durum==='Kargoda'?'badge-blue':s.durum==='İptal'?'badge-gray':'badge-gold';return`<tr><td style="color:var(--accent);font-weight:600">${s.sip_no}</td><td style="color:var(--accent)">${s.par_kod}</td><td>${p.ad||s.par_ad||'-'}</td><td style="color:var(--text3)">${p.tedarikci||'-'}</td><td><b>${s.miktar}</b></td><td style="color:var(--gold)">${eur(s.tutar)}</td><td style="color:var(--text3)">${s.sip_tarih||'-'}</td><td style="color:var(--text3)">${s.tes_tarih||'-'}</td><td><span class="badge ${dc}">${s.durum}</span></td><td style="white-space:nowrap"><select style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer" onchange="updSipDurum('${s.id}',this.value)"><option ${s.durum==='Beklemede'?'selected':''}>Beklemede</option><option ${s.durum==='Kargoda'?'selected':''}>Kargoda</option><option ${s.durum==='Tamamlandı'?'selected':''}>Tamamlandı</option><option ${s.durum==='İptal'?'selected':''}>İptal</option></select> <button class="btn btn-sm btn-danger" onclick="sipSil('${s.id}')">Sil</button></td></tr>`;}).join('');
+  const rows=siparisler.map(s=>{const p=parcalar.find(x=>x.kod===s.par_kod)||{};const dc=s.durum==='Tamamlandı'?'badge-green':s.durum==='Kargoda'?'badge-blue':s.durum==='İptal'?'badge-gray':'badge-gold';return`<tr><td style="color:var(--accent);font-weight:600">${s.sip_no}</td><td style="color:var(--accent)">${s.par_kod}</td><td>${p.ad||s.par_ad||'-'}</td><td style="color:var(--text3)">${trTitle(p.tedarikci||'-')}</td><td><b>${s.miktar}</b></td><td style="color:var(--gold)">${eur(s.tutar)}</td><td style="color:var(--text3)">${s.sip_tarih||'-'}</td><td style="color:var(--text3)">${s.tes_tarih||'-'}</td><td><span class="badge ${dc}">${s.durum}</span></td><td style="white-space:nowrap"><select style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer" onchange="updSipDurum('${s.id}',this.value)"><option ${s.durum==='Beklemede'?'selected':''}>Beklemede</option><option ${s.durum==='Kargoda'?'selected':''}>Kargoda</option><option ${s.durum==='Tamamlandı'?'selected':''}>Tamamlandı</option><option ${s.durum==='İptal'?'selected':''}>İptal</option></select> <button class="btn btn-sm btn-danger" onclick="sipSil('${s.id}')">Sil</button></td></tr>`;}).join('');
   document.getElementById('content').innerHTML=`<div class="grid-4"><div class="kpi"><div class="kpi-label">Beklemede</div><div class="kpi-value" style="color:var(--gold)">${bek}</div></div><div class="kpi"><div class="kpi-label">Kargoda</div><div class="kpi-value" style="color:var(--accent)">${kar}</div></div><div class="kpi"><div class="kpi-label">Tamamlanan</div><div class="kpi-value" style="color:var(--green)">${tam}</div></div><div class="kpi"><div class="kpi-label">Toplam Tutar</div><div class="kpi-value" style="color:var(--gold)">${eur(topT)}</div></div></div><div class="card" style="padding:0;overflow:hidden"><div class="table-wrap"><table><thead><tr><th>Sipariş No</th><th>Parça Kodu</th><th>Parça Adı</th><th>Tedarikçi</th><th>Miktar</th><th>Tutar</th><th>Sipariş Tarihi</th><th>Tahmini Teslimat</th><th>İşlem</th></tr></thead><tbody>${rows||'<tr><td colspan="10"><div class="empty">Henüz sipariş yok</div></td></tr>'}</tbody></table></div></div>`;
 }
 
@@ -2239,7 +2239,7 @@ function renderHareket(){
   var harMaxPage=Math.max(1,Math.ceil(harToplam/harPageSize));
   if(harPage>harMaxPage) harPage=harMaxPage;
   var harSlice=filtHar.slice().reverse().slice((harPage-1)*harPageSize, harPage*harPageSize);
-  const rows=harSlice.map(h=>{const p=parcalar.find(x=>x.kod===h.par_kod)||{};const cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return`<tr><td style="color:var(--text3)">${h.tarih||''}</td><td style="color:var(--accent);font-weight:600">${h.par_kod}</td><td>${p.ad||'-'}</td><td style="color:var(--text3)">${h.kullanan||'-'}</td><td><span class="badge ${cl}">${h.tip}</span></td><td><b>${h.miktar}</b></td><td style="color:var(--text3)">${h.i_emri||'-'}</td><td style="color:var(--text3)">${h.aciklama||'-'}</td><td><button class="btn btn-sm btn-danger" onclick="harSil('${h.id}')">Sil</button></td></tr>`;}).join('');
+  const rows=harSlice.map(h=>{const p=parcalar.find(x=>x.kod===h.par_kod)||{};const cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return`<tr><td style="color:var(--text3)">${h.tarih||''}</td><td style="color:var(--accent);font-weight:600">${h.par_kod}</td><td>${trTitle(p.ad||'-')}</td><td style="color:var(--text3)">${h.kullanan||'-'}</td><td><span class="badge ${cl}">${h.tip}</span></td><td><b>${h.miktar}</b></td><td style="color:var(--text3)">${h.i_emri||'-'}</td><td style="color:var(--text3)">${h.aciklama||'-'}</td><td><button class="btn btn-sm btn-danger" onclick="harSil('${h.id}')">Sil</button></td></tr>`;}).join('');
   document.getElementById('content').innerHTML=
     '<div class="grid-3" style="margin-bottom:16px">'
     +'<div class="kpi" style="border-top:3px solid var(--green)"><div class="kpi-icon green">📥</div><div class="kpi-label">Toplam Giriş</div><div class="kpi-value" style="color:var(--green)">'+harGirisToplam+'</div><div class="kpi-sub">adet</div></div>'
@@ -2315,7 +2315,7 @@ function showTedarikcDetay(ad){
   var parcaRows=plist.map(function(p){
     var m=mevcut(p.kod);
     return '<tr><td style="font-family:DM Mono,monospace;color:var(--blue);font-size:12px">'+p.kod+'</td>'
-      +'<td style="font-size:12px">'+p.ad+'</td>'
+      +'<td style="font-size:12px">'+trTitle(p.ad)+'</td>'
       +'<td style="font-size:12px"><b style="color:'+(m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)')+'">'+m+'</b></td>'
       +'<td style="font-size:12px;color:var(--gold)">'+eur(p.birim_fiyat)+'</td>'
       +'<td style="font-size:11px;color:var(--text3)">'+(p.teslimat||'—')+' gün</td></tr>';
@@ -2375,7 +2375,7 @@ function renderCycleCount(){
     return '<tr id="cc-row-'+p.id+'">'
       +'<td><input type="checkbox" class="cc-chk" data-id="'+p.id+'" style="width:16px;height:16px;cursor:pointer"></td>'
       +'<td style="font-family:DM Mono,monospace;color:var(--blue);font-weight:600;font-size:12px">'+p.kod+'</td>'
-      +'<td style="font-size:12px">'+p.ad+'</td>'
+      +'<td style="font-size:12px">'+trTitle(p.ad)+'</td>'
       +'<td style="font-size:11px;color:var(--text3)">'+( p.ekipman||'—')+'</td>'
       +'<td style="text-align:center"><b style="color:'+(m<=0?'var(--red)':m<=(p.min_stok||1)?'var(--gold)':'var(--green)')+'">'+m+'</b></td>'
       +'<td><input type="number" id="cc-'+p.id+'" min="0" placeholder="Sayılan" disabled '
