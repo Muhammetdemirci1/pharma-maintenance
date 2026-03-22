@@ -1746,7 +1746,7 @@ function showParcaDetay(id){
         </div>
         <div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <span style="font-size:18px;font-weight:700;color:var(--blue);font-family:DM Mono,monospace">${p.kod}</span>
+            <span style="font-size:15px;font-weight:700;color:var(--blue);font-family:DM Mono,monospace">${p.kod}</span>
             <span style="background:${abcRenk}22;color:${abcRenk};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid ${abcRenk}44">ABC-${abcK}</span>
             <span style="background:${durumRenk}22;color:${durumRenk};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600">${durum}</span>
           </div>
@@ -1770,7 +1770,7 @@ function showParcaDetay(id){
       </div>
       <div style="background:var(--bg3);border-radius:8px;padding:12px;text-align:center">
         <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">EOQ / ROP</div>
-        <div style="font-size:18px;font-weight:700;color:var(--blue)">${eoq} <span style="font-size:12px;color:var(--text3)">/ ${rop}</span></div>
+        <div style="font-size:15px;font-weight:700;color:var(--blue)">${eoq} <span style="font-size:12px;color:var(--text3)">/ ${rop}</span></div>
         <div style="font-size:10px;color:var(--text3)">Güv. Stok: ${ss}</div>
       </div>
     </div>
@@ -2016,10 +2016,10 @@ function renderEOQ(){
     +'<span style="font-size:11px;color:var(--text3)" title="k: A=%99(2.33) B=%95(1.65) C=%90(1.28) — ABC sınıfına göre otomatik">k: ABC↗</span>'
     +'<span style="font-size:11px;color:var(--text3)">|</span>'
     +'<span style="font-size:11px;color:var(--text3)" title="Talep değişkenliği">σ</span>'
-    +'<input type="number" id="eoq-s" value="'+EOQ_S+'" step="0.01" min="0.01" max="1" style="width:46px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
+    +'<input type="number" id="eoq-s" value="'+EOQ_S+'" step="0.01" min="0.01" max="1" style="width:46px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
     +'<span style="font-size:11px;color:var(--text3)">|</span>'
     +'<span style="font-size:11px;color:var(--text3)" title="Yıllık tutma maliyeti %">H%</span>'
-    +'<input type="number" id="eoq-h" value="'+(EOQ_H*100)+'" step="1" min="5" max="50" style="width:42px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
+    +'<input type="number" id="eoq-h" value="'+(EOQ_H*100)+'" step="1" min="5" max="50" style="width:42px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
     +'</div>'
     +'<button class="btn" onclick="refreshAll(\'eoq\')">↻ Yenile</button>';
   // Gerçek talep hesapla — son 12 ay çıkış hareketlerinden
@@ -2063,10 +2063,10 @@ function renderEOQ(){
     return`
     <tr style="${siparisDurumu==='acil'?'border-left:3px solid var(--red);':siparisDurumu==='uyari'?'border-left:3px solid var(--gold);':''}background:${siparisDurumu==='acil'?'rgba(239,68,68,.04)':siparisDurumu==='uyari'?'rgba(245,158,11,.04)':''};">
       <td style="font-weight:600;font-family:'DM Mono',monospace;color:var(--blue);font-size:13px;white-space:nowrap">${p.kod}</td>
-      <td style="max-width:160px"><div style="font-weight:500;font-size:13px;color:var(--text)">${trTitle(p.ad).length>22?trTitle(p.ad).slice(0,22)+'…':trTitle(p.ad)}</div><div style="font-size:10px;color:var(--text3)">${trTitle(p.ekipman||'—')}</div></td>
-      <td style="text-align:center"><div><span style="display:inline-block;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;line-height:20px;text-align:center;background:${abcSinif==='A'?'rgba(239,68,68,.15)':abcSinif==='B'?'rgba(245,158,11,.15)':'rgba(100,116,139,.15)'};color:${abcSinif==='A'?'var(--red)':abcSinif==='B'?'var(--gold)':'var(--text3)'}">${abcSinif}</span><div style="font-size:10px;color:var(--text3);margin-top:1px">k=${kK}</div></div></td>
+      <td style="max-width:160px"><div style="font-weight:500;font-size:13px;color:var(--text)">${trTitle(p.ad).length>22?trTitle(p.ad).slice(0,22)+'…':trTitle(p.ad)}</div><div style="font-size:11px;color:var(--text3)">${trTitle(p.ekipman||'—')}</div></td>
+      <td style="text-align:center"><div><span style="display:inline-block;width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;line-height:20px;text-align:center;background:${abcSinif==='A'?'rgba(239,68,68,.15)':abcSinif==='B'?'rgba(245,158,11,.15)':'rgba(100,116,139,.15)'};color:${abcSinif==='A'?'var(--red)':abcSinif==='B'?'var(--gold)':'var(--text3)'}">${abcSinif}</span><div style="font-size:11px;color:var(--text3);margin-top:1px">k=${kK}</div></div></td>
       <td style="text-align:center">
-        <div style="font-size:14px;font-weight:700;color:${stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)'}">${stokMevcut}</div>
+        <div style="font-size:15px;font-weight:700;color:${stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)'}">${stokMevcut}</div>
         <div style="font-size:11px;color:var(--text3)">ROP: ${rop}</div>
       </td>
       <td style="text-align:center">
@@ -2077,7 +2077,7 @@ function renderEOQ(){
       <td style="text-align:center"><input type="number" value="${sm}" min="1" style="width:60px;background:var(--bg3);border:1.5px solid var(--green);color:var(--green);padding:4px 6px;border-radius:6px;font-size:13px;font-weight:600;text-align:center" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td>
       <td style="text-align:center;color:var(--text3);font-size:13px">${p.teslimat||14}g</td>
       <td style="text-align:center">
-        <div style="font-size:18px;font-weight:700;color:var(--blue)">${eoq}</div>
+        <div style="font-size:15px;font-weight:700;color:var(--blue)">${eoq}</div>
         <div style="font-size:11px;color:var(--text3)">${(D/eoq).toFixed(1)}x/yıl</div>
       </td>
       <td style="text-align:center"><span style="display:inline-block;padding:3px 10px;background:rgba(245,158,11,.1);color:var(--gold);font-weight:600;border-radius:4px;font-size:13px">${ss}</span></td>
@@ -2111,7 +2111,7 @@ function renderEOQ(){
     +'<div style="font-size:11px;color:var(--text3);margin-top:4px">Parça ROP altında</div></div>'
     +'</div>'
     +`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)">
-      <span style="color:var(--blue);font-size:14px">ℹ</span>
+      <span style="color:var(--blue);font-size:13px">ℹ</span>
       <span><b style="color:var(--green)">Gerçek talep</b> = son 12 ay hareket logdan otomatik. Yeşil hücreler düzenlenebilir. ⚠ = bugün sipariş ver.</span>
     </div>
     <div class="card" style="padding:0;overflow:hidden">
