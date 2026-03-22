@@ -342,6 +342,22 @@ tbody tr:nth-child(10){animation-delay:.2s}
   white-space:normal;max-width:220px;text-align:center;line-height:1.5;z-index:99999;
   pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);transition:opacity .15s;opacity:0}
 
+
+@media print {
+  .sidebar, .topbar, .topbar-actions, #toplu-toolbar,
+  .btn, button, select, input[type="date"], input[type="number"],
+  #notif-panel, #tt-box { display: none !important; }
+  .main { margin: 0; }
+  .content { padding: 12px; overflow: visible; }
+  .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+  .table-wrap { overflow: visible; max-height: none; }
+  table { width: 100%; font-size: 11px; }
+  th { background: #f1f5f9 !important; color: #334155 !important; }
+  .badge { border: 1px solid currentColor; }
+  body { background: white; color: black; }
+  @page { margin: 1.5cm; }
+}
+
 </style>
 </head>
 <body>
@@ -464,6 +480,22 @@ tbody tr:nth-child(10){animation-delay:.2s}
 #tt-box{position:fixed;background:#0f172a;color:#f1f5f9;font-size:12px;padding:7px 12px;border-radius:8px;
   white-space:normal;max-width:220px;text-align:center;line-height:1.5;z-index:99999;
   pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);transition:opacity .15s;opacity:0}
+
+
+@media print {
+  .sidebar, .topbar, .topbar-actions, #toplu-toolbar,
+  .btn, button, select, input[type="date"], input[type="number"],
+  #notif-panel, #tt-box { display: none !important; }
+  .main { margin: 0; }
+  .content { padding: 12px; overflow: visible; }
+  .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+  .table-wrap { overflow: visible; max-height: none; }
+  table { width: 100%; font-size: 11px; }
+  th { background: #f1f5f9 !important; color: #334155 !important; }
+  .badge { border: 1px solid currentColor; }
+  body { background: white; color: black; }
+  @page { margin: 1.5cm; }
+}
 
 </style>
           </defs>
@@ -2043,15 +2075,23 @@ function renderKritik(){
       +'<td style="color:var(--accent);font-weight:600">'+p.kod+'</td>'
       +'<td>'+trTitle(p.ad)+'</td>'
       +'<td style="color:var(--text3)">'+trTitle(p.ekipman||'-')+'</td>'
-      +'<td><b style="color:'+stokRenk+'">'+m+'</b></td>'
+      +'<td style="min-width:90px">'
+      +'<div style="display:flex;align-items:center;gap:6px">'
+      +'<div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">'
+      +'<div style="width:'+Math.min(100,Math.round(m/Math.max(1,(p.min_stok||1)*2)*100))+'%;height:100%;background:'+stokRenk+';border-radius:3px;transition:width .3s"></div>'
+      +'</div>'
+      +'<b style="color:'+stokRenk+';min-width:20px;text-align:right;font-size:13px">'+m+'</b>'
+      +'</div></td>'
       +'<td style="color:var(--text3)">'+(p.min_stok||0)+'</td>'
       +'<td style="color:var(--gold)">'+rop+'</td>'
       +'<td style="color:var(--gold)">'+eur(p.birim_fiyat)+'</td>'
       +'<td><span class="badge '+ac+'">'+a+'</span></td>'
       +'<td style="color:var(--text3)">'+trTitle(p.tedarikci||'-')+'</td>'
       +'<td style="color:var(--text3)">'+(p.teslimat||'-')+' gün</td>'
-      
-      
+      +'<td>'
+      +('<div style="display:flex;flex-wrap:wrap;gap:3px">'
+      +kb.nedenler.map(function(n){return '<span style="font-size:10px;padding:1px 6px;background:var(--red-light);color:var(--red);border-radius:3px">'+n+'</span>';}).join('')
+      +'</div>')+'</td>'
       +'<td><button class="btn btn-sm btn-primary" onclick="sipVerKod(this)" data-kod="'+p.kod+'" >Sipariş Ver</button></td>'
       +'</tr>';
   }).join('');
@@ -2324,6 +2364,7 @@ function renderHareket(){
   var harTipVal=document.getElementById('har-tip-filtre')?document.getElementById('har-tip-filtre').value:'';
   var harBasVal=document.getElementById('har-tarih-bas')?document.getElementById('har-tarih-bas').value:'';
   var harBitVal=document.getElementById('har-tarih-bit')?document.getElementById('har-tarih-bit').value:'';
+  var harParcaVal=document.getElementById('har-parca-filtre')?document.getElementById('har-parca-filtre').value:'';
 
   // Topbar'ı yeniden oluştur — mevcut değerleri koru
   document.getElementById('topbar-actions').innerHTML=
@@ -2332,6 +2373,10 @@ function renderHareket(){
     +'<option value="GİRİŞ" '+(harTipVal==='GİRİŞ'?'selected':'')+'>GİRİŞ</option>'
     +'<option value="ÇIKIŞ" '+(harTipVal==='ÇIKIŞ'?'selected':'')+'>ÇIKIŞ</option>'
     +'<option value="DÜZELTME" '+(harTipVal==='DÜZELTME'?'selected':'')+'>DÜZELTME</option></select>'
+    +'<select id="har-parca-filtre" onchange="harPage=1;renderHareket()" style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;cursor:pointer">'
+    +'<option value="">Tüm Parçalar</option>'
+    +parcalar.map(function(p){return '<option value="'+p.kod+'" '+(harParcaVal===p.kod?'selected':'')+'>'+p.kod+' — '+trTitle(p.ad).slice(0,20)+'</option>';}).join('')
+    +'</select>'
     +'<input type="date" id="har-tarih-bas" value="'+harBasVal+'" onchange="renderHareket()" style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px">'
     +'<input type="date" id="har-tarih-bit" value="'+harBitVal+'" onchange="renderHareket()" style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px">'
     +(harBasVal||harBitVal?'<button class="btn" onclick="harPage=1;document.getElementById(\'har-tarih-bas\').value=\'\';document.getElementById(\'har-tarih-bit\').value=\'\';renderHareket()">✕ Temizle</button>':'')
@@ -2346,10 +2391,12 @@ function renderHareket(){
   var harTip=harTipVal||'';
   var harBas=harBasVal||'';
   var harBit=harBitVal||'';
+  var harParca=harParcaVal||'';
   var filtHar=hareketler.filter(function(h){
     if(harTip && h.tip!==harTip) return false;
     if(harBas && h.tarih && h.tarih<harBas) return false;
     if(harBit && h.tarih && h.tarih>harBit) return false;
+    if(harParca && h.par_kod!==harParca) return false;
     return true;
   });
   var harToplam=filtHar.length;
@@ -2483,10 +2530,17 @@ function showTedarikcModal(){
 
 
 function renderCycleCount(){
+  var ccEkipmanVal=document.getElementById('cc-ekipman')?document.getElementById('cc-ekipman').value:'';
+  var ekipmanList=[...new Set(parcalar.map(function(p){return p.ekipman||'';}).filter(Boolean))].sort();
   document.getElementById('topbar-actions').innerHTML=
-    '<button class="btn" onclick="ccBaslat()">🔄 Yeni Sayım Başlat</button>'
+    '<select id="cc-ekipman" onchange="renderCycleCount()" style="padding:5px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;cursor:pointer">'
+    +'<option value="">Tüm Ekipmanlar</option>'
+    +ekipmanList.map(function(e){return '<option value="'+e+'" '+(ccEkipmanVal===e?'selected':'')+'>'+e+'</option>';}).join('')
+    +'</select>'
+    +'<button class="btn" onclick="ccBaslat()">🔄 Sıfırla</button>'
     +'<button class="btn btn-primary" onclick="ccKaydet()" id="cc-kaydet-btn" style="display:none">✅ Farkları Kaydet</button>';
 
+  var ccParcalar=ccEkipmanVal?parcalar.filter(function(p){return p.ekipman===ccEkipmanVal;}):parcalar;
   var rows=parcalar.map(function(p){
     var m=mevcut(p.kod);
     return '<tr id="cc-row-'+p.id+'">'
