@@ -2128,18 +2128,21 @@ function eoqParamGuncelle(){
 }
 
 function renderEOQ(){
+  var EOQ_S_disp=(Math.round(EOQ_S*100)/100);
+  var EOQ_H_disp=(Math.round(EOQ_H*100));
+
   document.getElementById('topbar-actions').innerHTML=
-    '<div style="display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:4px 10px">'
-    +'<span style="font-size:11px;color:var(--text3)" title="k: A=%99(2.33) B=%95(1.65) C=%90(1.28) — ABC sınıfına göre otomatik">k: ABC↗</span>'
-    +'<span style="font-size:11px;color:var(--text3)">|</span>'
-    +'<span style="font-size:11px;color:var(--text3)" title="Talep değişkenliği">σ</span>'
-    +'<input type="number" id="eoq-s" value="'+EOQ_S+'" step="0.01" min="0.01" max="1" style="width:46px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
-    +'<span style="font-size:11px;color:var(--text3)">|</span>'
-    +'<span style="font-size:11px;color:var(--text3)" title="Yıllık tutma maliyeti %">H%</span>'
-    +'<input type="number" id="eoq-h" value="'+(EOQ_H*100)+'" step="1" min="5" max="50" style="width:42px;padding:3px 5px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
+    '<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:5px 12px">'
+    +'<span style="font-size:12px;color:var(--text3)" title="ABC sınıfına göre otomatik">k: ABC↗</span>'
+    +'<span style="color:var(--border2)">|</span>'
+    +'<span style="font-size:12px;color:var(--text3)">σ</span>'
+    +'<input type="number" id="eoq-s" value="'+EOQ_S_disp+'" step="0.01" min="0.01" max="1" style="width:48px;padding:3px 6px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
+    +'<span style="color:var(--border2)">|</span>'
+    +'<span style="font-size:12px;color:var(--text3)">H%</span>'
+    +'<input type="number" id="eoq-h" value="'+EOQ_H_disp+'" step="1" min="5" max="50" style="width:44px;padding:3px 6px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--bg2);color:var(--text);text-align:center" onchange="eoqParamGuncelle()">'
     +'</div>'
-    +'<button class="btn" onclick="refreshAll(\'eoq\')">↻ Yenile</button>';
-  // Gerçek talep hesapla — son 12 ay çıkış hareketlerinden
+    +'<button class="btn" onclick="navigate(\'eoq\')" >↻ Yenile</button>';
+
   var sonYil=new Date();sonYil.setFullYear(sonYil.getFullYear()-1);
   var sonYilStr=sonYil.toISOString().slice(0,10);
   var gercekTalep={};
@@ -2148,97 +2151,59 @@ function renderEOQ(){
     gercekTalep[p.kod]=cikis||p.yillik_talep||1;
   });
 
-  // MRO/RAV özet
   var toplamStokDeger=parcalar.reduce(function(s,p){return s+mevcut(p.kod)*(p.birim_fiyat||0);},0);
-  var toplamYillikMaliyet=parcalar.reduce(function(s,p){
-    var D=gercekTalep[p.kod]||1,S=p.siparis_maliyet||50,H=p.birim_fiyat*EOQ_H||1;
-    return s+Math.sqrt(2*D*S*H);
-  },0);
-  var siparisBekleyenSay=parcalar.filter(function(p){
-    var abcS=abc(p.birim_fiyat,p.kod);
-    var kV=abcS==='A'?2.33:abcS==='B'?1.65:1.28;
-    var ssV=Math.max(1,Math.round(kV*EOQ_S*Math.sqrt(p.teslimat||14)));
-    var ropV=Math.max(1,Math.round((gercekTalep[p.kod]||1)/365*(p.teslimat||14)+ssV));
-    return mevcut(p.kod)<=ropV;
-  }).length;
+  var toplamYillikMaliyet=parcalar.reduce(function(s,p){var D=gercekTalep[p.kod]||1,S=p.siparis_maliyet||50,H=p.birim_fiyat*EOQ_H||1;return s+Math.sqrt(2*D*S*H);},0);
+  var siparisBekleyenSay=parcalar.filter(function(p){var abcS=abc(p.birim_fiyat,p.kod);var kV=abcS==='A'?2.33:abcS==='B'?1.65:1.28;var ssV=Math.max(1,Math.round(kV*EOQ_S*Math.sqrt(p.teslimat||14)));var ropV=Math.max(1,Math.round((gercekTalep[p.kod]||1)/365*(p.teslimat||14)+ssV));return mevcut(p.kod)<=ropV;}).length;
 
-  const rows=parcalar.map(p=>{
+  var rows=parcalar.map(function(p){
     var D=gercekTalep[p.kod]||p.yillik_talep||1;
     var sm=p.siparis_maliyet||50;
     var I=p.birim_fiyat*EOQ_H||1;
     var eoq=Math.max(1,Math.round(Math.sqrt(2*D*sm/I)));
     var abcSinif=abc(p.birim_fiyat,p.kod);
-    var kK=abcSinif==='A'?2.33:abcSinif==='B'?1.65:1.28; // A:%99 B:%95 C:%90
+    var kK=abcSinif==='A'?2.33:abcSinif==='B'?1.65:1.28;
     var ss=Math.max(1,Math.round(kK*EOQ_S*Math.sqrt(p.teslimat||14)));
     var rop=Math.max(1,Math.round((D/365)*(p.teslimat||14)+ss));
     var stokMevcut=mevcut(p.kod);
-    var siparisDurumu=stokMevcut<=rop?'acil':stokMevcut<=rop*1.5?'uyari':'ok';
-    var yillikToplamMaliyet=Math.round(sm*(D/eoq)+I*(eoq/2));
-    var gercekVsPlanlanan=p.yillik_talep>0?Math.round((D/p.yillik_talep-1)*100):0;
+    var durum=stokMevcut<=rop?'acil':stokMevcut<=rop*1.5?'uyari':'ok';
+    var yillikMaliyet=Math.round(sm*(D/eoq)+I*(eoq/2));
     var t=p.yillik_talep||1;
-    var topM=yillikToplamMaliyet;
-    return`
-    <tr style="font-size:13px;${siparisDurumu==='acil'?'border-left:3px solid var(--red);background:rgba(239,68,68,.03)':siparisDurumu==='uyari'?'border-left:3px solid var(--gold);background:rgba(245,158,11,.03)':''}">
-      <td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--blue);white-space:nowrap">${p.kod}</td>
-      <td><div style="font-weight:500;color:var(--text)">${trTitle(p.ad).length>22?trTitle(p.ad).slice(0,22)+'…':trTitle(p.ad)}</div><div style="font-size:11px;color:var(--text3);margin-top:1px">${trTitle(p.ekipman||'—')}</div></td>
-      <td style="text-align:center"><span style="display:inline-block;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:700;line-height:22px;text-align:center;background:${abcSinif==='A'?'rgba(239,68,68,.15)':abcSinif==='B'?'rgba(245,158,11,.15)':'rgba(100,116,139,.15)'};color:${abcSinif==='A'?'var(--red)':abcSinif==='B'?'var(--gold)':'var(--text3)'}">${abcSinif}</span><div style="font-size:10px;color:var(--text3);margin-top:2px">k=${kK}</div></td>
-      <td style="text-align:center"><div style="font-weight:700;color:${stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)'}">${stokMevcut}</div><div style="font-size:11px;color:var(--text3)">/ ${rop}</div></td>
-      <td style="text-align:center"><div style="font-weight:700;color:var(--green)">${D}</div><div style="font-size:11px;color:var(--text3)">adet/yıl</div></td>
-      <td style="text-align:center"><input type="number" value="${t}" min="0.1" step="0.5" style="width:58px;padding:3px 6px;border:1.5px solid var(--green);border-radius:5px;font-size:12px;font-weight:600;color:var(--green);background:var(--bg3);text-align:center" onchange="updateEOQ('${p.id}','yillik_talep',this.value)"></td>
-      <td style="text-align:center"><input type="number" value="${sm}" min="1" style="width:58px;padding:3px 6px;border:1.5px solid var(--green);border-radius:5px;font-size:12px;font-weight:600;color:var(--green);background:var(--bg3);text-align:center" onchange="updateEOQ('${p.id}','siparis_maliyet',this.value)"></td>
-      <td style="text-align:center;color:var(--text3)">${p.teslimat||14}g</td>
-      <td style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--blue)">${eoq}</div><div style="font-size:11px;color:var(--text3)">${(D/eoq).toFixed(1)}x/yıl</div></td>
-      <td style="text-align:center"><span style="padding:2px 8px;background:rgba(245,158,11,.12);color:var(--gold);border-radius:4px;font-weight:700">${ss}</span></td>
-      <td style="text-align:center"><span style="padding:2px 8px;background:rgba(245,158,11,.12);color:var(--gold);border-radius:4px;font-weight:700">${rop}</span></td>
-      <td style="text-align:right;font-weight:600">${eur(topM)}</td>
-      <td style="text-align:center">${siparisDurumu==='acil'?'<button onclick="sipVerKod(this)" data-kod="${p.kod}" style="background:var(--red);color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap">⚠ Sipariş</button>':siparisDurumu==='uyari'?'<span style="background:rgba(245,158,11,.15);color:var(--gold);padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600">⚡ Yakın</span>':'<span style="color:var(--green);font-weight:500">✓</span>'}</td>
-      <td><button class="btn btn-sm" onclick="showEOQGrafik('${p.id}')" title="Grafik">📊</button></td>
-    </tr>`;
+    var stokRenk=stokMevcut<=0?'var(--red)':stokMevcut<=rop?'var(--gold)':'var(--text)';
+    var abcRenk=abcSinif==='A'?'var(--red)':abcSinif==='B'?'var(--gold)':'var(--text3)';
+    var abcBg=abcSinif==='A'?'rgba(239,68,68,.12)':abcSinif==='B'?'rgba(245,158,11,.12)':'rgba(100,116,139,.1)';
+    var trStyle=durum==='acil'?'background:rgba(239,68,68,.04);border-left:3px solid var(--red)':durum==='uyari'?'background:rgba(245,158,11,.04);border-left:3px solid var(--gold)':''
+    ;
+    return '<tr style="'+trStyle+'">'
 
+      +'<td><div style="font-size:13px;font-weight:500;color:var(--text)">'+trTitle(p.ad).slice(0,22)+(p.ad.length>22?'…':'')+'</div><div style="font-size:11px;color:var(--text3);margin-top:1px">'+trTitle(p.ekipman||'—')+'</div></td>'
+      +'<td style="text-align:center"><span style="display:inline-block;width:22px;height:22px;border-radius:50%;line-height:22px;font-size:11px;font-weight:700;text-align:center;background:'+abcBg+';color:'+abcRenk+'">'+abcSinif+'</span><div style="font-size:10px;color:var(--text3);margin-top:1px">k='+kK+'</div></td>'
+      +'<td style="text-align:center"><div style="font-size:14px;font-weight:700;color:'+stokRenk+'">'+stokMevcut+'</div><div style="font-size:11px;color:var(--text3)">ROP: '+rop+'</div></td>'
+      +'<td style="text-align:center"><div style="font-size:13px;font-weight:700;color:var(--green)">'+D+'</div><div style="font-size:11px;color:var(--text3)">adet/yıl</div></td>'
+      +'<td style="text-align:center"><input type="number" value="'+t+'" min="0.1" step="0.5" style="width:56px;padding:3px 5px;border:1.5px solid var(--green);border-radius:5px;font-size:12px;font-weight:600;color:var(--green);background:var(--bg3);text-align:center" onchange="updateEOQ(\''+p.id+'\',\'yillik_talep\',this.value)"></td>'
+      +'<td style="text-align:center"><input type="number" value="'+sm+'" min="1" style="width:56px;padding:3px 5px;border:1.5px solid var(--green);border-radius:5px;font-size:12px;font-weight:600;color:var(--green);background:var(--bg3);text-align:center" onchange="updateEOQ(\''+p.id+'\',\'siparis_maliyet\',this.value)"></td>'
+      +'<td style="text-align:center;font-size:13px;color:var(--text3)">'+( p.teslimat||14)+'g</td>'
+      +'<td style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--blue)">'+eoq+'</div><div style="font-size:11px;color:var(--text3)">'+( D/eoq).toFixed(1)+'x/yıl</div></td>'
+      +'<td style="text-align:center"><span style="display:inline-block;min-width:30px;padding:2px 8px;background:rgba(245,158,11,.12);color:var(--gold);border-radius:4px;font-size:13px;font-weight:700">'+ss+'</span></td>'
+      +'<td style="text-align:center"><span style="display:inline-block;min-width:30px;padding:2px 8px;background:rgba(245,158,11,.12);color:var(--gold);border-radius:4px;font-size:13px;font-weight:700">'+rop+'</span></td>'
+      +'<td style="text-align:right;font-size:13px;font-weight:600;color:var(--text)">'+eur(yillikMaliyet)+'</td>'
+      +'<td style="text-align:center">'+(durum==='acil'?'<button onclick="sipVerKod(this)" data-kod="'+p.kod+'" style="background:var(--red);color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:12px;font-weight:700;cursor:pointer">⚠ Sipariş</button>':durum==='uyari'?'<span style="background:rgba(245,158,11,.15);color:var(--gold);padding:3px 8px;border-radius:5px;font-size:12px;font-weight:600">⚡ Yakın</span>':'<span style="color:var(--green);font-size:13px;font-weight:600">✓</span>')+'</td>'
+      +'<td><button class="btn btn-sm" onclick="showEOQGrafik(\''+p.id+'\')">📊</button></td>'
+      +'</tr>';
   }).join('');
 
   document.getElementById('content').innerHTML=
-    '<div style="display:flex;gap:12px;margin-bottom:20px">'
-    +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;border-top:3px solid var(--blue)">'
-    +'<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">MRO Stok Değeri</div>'
-    +'<div style="font-size:24px;font-weight:700;color:var(--blue)">'+eur(toplamStokDeger)+'</div>'
-    +'<div style="font-size:11px;color:var(--text3);margin-top:4px">Toplam envanter değeri</div></div>'
-    +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;border-top:3px solid var(--gold)">'
-    +'<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Yıllık EOQ Maliyeti</div>'
-    +'<div style="font-size:24px;font-weight:700;color:var(--gold)">'+eur(Math.round(toplamYillikMaliyet))+'</div>'
-    +'<div style="font-size:11px;color:var(--text3);margin-top:4px">Sipariş + tutma toplamı</div></div>'
-    +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;border-top:3px solid '+(siparisBekleyenSay>0?'var(--red)':'var(--green)')+'">'
-    +'<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Sipariş Gereken</div>'
-    +'<div style="font-size:24px;font-weight:700;color:'+(siparisBekleyenSay>0?'var(--red)':'var(--green)')+'">'+siparisBekleyenSay+'</div>'
-    +'<div style="font-size:11px;color:var(--text3);margin-top:4px">Parça ROP altında</div></div>'
+    '<div style="display:flex;gap:12px;margin-bottom:16px">'
+    +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:10px;padding:14px 18px"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">MRO Stok Değeri</div><div style="font-size:22px;font-weight:700;color:var(--blue)">'+eur(toplamStokDeger)+'</div><div style="font-size:11px;color:var(--text3);margin-top:3px">Toplam envanter değeri</div></div>'
+    +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--gold);border-radius:10px;padding:14px 18px"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Yıllık EOQ Maliyeti</div><div style="font-size:22px;font-weight:700;color:var(--gold)">'+eur(Math.round(toplamYillikMaliyet))+'</div><div style="font-size:11px;color:var(--text3);margin-top:3px">Sipariş + tutma toplamı</div></div>'
+    +'<div style="flex:1;background:var(--bg2);border:1px solid var(--border);border-top:3px solid '+(siparisBekleyenSay>0?'var(--red)':'var(--green)')+';border-radius:10px;padding:14px 18px"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Sipariş Gereken</div><div style="font-size:22px;font-weight:700;color:'+(siparisBekleyenSay>0?'var(--red)':'var(--green)')+'">'+siparisBekleyenSay+'</div><div style="font-size:11px;color:var(--text3);margin-top:3px">Parça ROP altında</div></div>'
     +'</div>'
-    +`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)">
-      <span style="color:var(--blue);font-size:13px">ℹ</span>
-      <span><b style="color:var(--green)">Gerçek talep</b> = son 12 ay hareket logdan otomatik. Yeşil hücreler düzenlenebilir. ⚠ = bugün sipariş ver.</span>
-    </div>
-    <div class="card" style="padding:0;overflow:hidden">
-      <div class="table-wrap" style="overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 280px)"><table>
-        <thead><tr style="background:var(--bg3)">
-          <th style="width:90px">Kod</th>
-          <th>Parça Adı</th>
-          <th style="width:36px;text-align:center">ABC</th>
-          <th style="width:72px;text-align:center">Stok / ROP</th>
-          <th style="width:72px;text-align:center;color:var(--green)">Gerçek Talep</th>
-          <th style="width:70px;text-align:center;color:var(--green)">Plan Talep</th>
-          <th style="width:70px;text-align:center;color:var(--green)">Sipariş Mal.</th>
-          <th style="width:44px;text-align:center">Temin</th>
-          <th style="width:64px;text-align:center"><span class="tt" data-tip="Ekonomik Sipariş Miktarı — Toplam maliyeti minimize eden miktar">EOQ ℹ</span></th>
-          <th style="width:52px;text-align:center"><span class="tt" data-tip="Güvenlik stoğu — beklenmedik durumlara karşı tampon">G.Stok ℹ</span></th>
-          <th style="width:52px;text-align:center"><span class="tt" data-tip="Yeniden Sipariş Noktası — bu seviyede sipariş ver">ROP ℹ</span></th>
-          <th style="width:80px;text-align:right">Yıllık Maliyet</th>
-          <th style="width:110px;text-align:center">Öneri</th>
-          <th style="width:36px"></th>
-        </tr></thead>
-        <tbody>${rows||'<tr><td colspan="14"><div class="empty">Önce parça ekleyin</div></td></tr>'}</tbody>
-      </table></div>
-    </div>`;
+    +'<div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--text2);display:flex;align-items:center;gap:8px"><span style="color:var(--blue)">ℹ</span><span><b style="color:var(--green)">Gerçek Talep</b> = son 12 ay hareket logdan otomatik. k değeri: A→2.33 (%99), B→1.65 (%95), C→1.28 (%90). Yeşil hücreler düzenlenebilir.</span></div>'
+    +'<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 280px)"><table><thead><tr>'
+    +'<th>Kod</th><th>Parça Adı</th><th style="text-align:center">ABC</th><th style="text-align:center">Stok / ROP</th><th style="text-align:center;color:var(--green)">Gerçek Talep</th><th style="text-align:center;color:var(--green)">Plan Talep</th><th style="text-align:center;color:var(--green)">Sipariş Mal.</th><th style="text-align:center">Temin</th>'
+    +'<th style="text-align:center"><span class="tt" data-tip="Ekonomik Sipariş Miktarı">EOQ ℹ</span></th><th style="text-align:center"><span class="tt" data-tip="Güvenlik Stoğu — Beklenmedik durumlar için tampon">G.Stok ℹ</span></th><th style="text-align:center"><span class="tt" data-tip="Yeniden Sipariş Noktası — Bu seviyede sipariş ver">ROP ℹ</span></th>'
+    +'<th style="text-align:right">Yıllık Maliyet</th><th style="text-align:center">Öneri</th><th></th>'
+    +'</tr></thead><tbody>'+(rows||'<tr><td colspan="14"><div class="empty">Önce parça ekleyin</div></td></tr>')+'</tbody></table></div></div>';
 }
-
 async function showEOQGrafik(parId){
   var p=parcalar.find(function(x){return x.id===parId;});
   if(!p) return;
