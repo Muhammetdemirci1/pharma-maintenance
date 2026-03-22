@@ -2099,7 +2099,7 @@ function renderKritik(){
       +'<td style="color:var(--text3)">'+(p.teslimat||'-')+' gün</td>'
       +'<td>'
       +('<div style="display:flex;flex-wrap:wrap;gap:3px">'
-      +kb.nedenler.map(function(n){return '<span style="font-size:10px;padding:1px 6px;background:var(--red-light);color:var(--red);border-radius:3px">'+n+'</span>';}).join('')
+      +b.nedenler.map(function(n){return '<span style="font-size:10px;padding:1px 6px;background:var(--red-light);color:var(--red);border-radius:3px">'+n+'</span>';}).join('')
       +'</div>')+'</td>'
       +'<td><button class="btn btn-sm btn-primary" onclick="sipVerKod(this)" data-kod="'+p.kod+'" >Sipariş Ver</button></td>'
       +'</tr>';
