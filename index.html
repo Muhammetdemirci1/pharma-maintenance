@@ -1549,7 +1549,6 @@ function renderDash(){
       var abcK=abc(p.birim_fiyat,p.kod);
       var abcRenk=abcK==='A'?'#dc2626':abcK==='B'?'#d97706':'#64748b';
       var aktifSip=siparisler.find(function(s){return s.par_kod===p.kod&&(s.durum==='Beklemede'||s.durum==='Kargoda');});
-      var aktifSip=siparisler.find(function(s){return s.par_kod===p.kod&&(s.durum==='Beklemede'||s.durum==='Kargoda');});
       acilHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px">'
         +'<div style="display:flex;align-items:center;gap:12px;min-width:0">'
         +'<div style="width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0"></div>'
@@ -2121,7 +2120,7 @@ function renderKritik(){
     +'<thead><tr>'
     +'<th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Stok</th><th style="width:44px;text-align:center;white-space:nowrap">Min</th><th>ROP</th>'
     +'<th>Fiyat</th><th>ABC</th><th>Tedarikçi</th><th>Teslimat</th>'
-    +'<th>İşlem</th>'
+    +'<th>Neden</th><th>İşlem</th>'
     +'</tr></thead>'
     +'<tbody>'+(rows||'<tr><td colspan="12"><div class="empty">✅ Kritik parça yok!</div></td></tr>')+'</tbody>'
     +'</table></div></div>';
@@ -2538,7 +2537,7 @@ function renderCycleCount(){
     <table>
       <thead><tr>
         <th style="width:36px"></th>
-        <th>Kod</th><th>Parça Adı</th><th>Ekipman</th><th>Lokasyon</th>
+        <th>Kod</th><th>Parça Adı</th><th>Ekipman</th>
         <th style="text-align:center">Sistem Stoğu</th>
         <th style="text-align:center">Sayılan Miktar</th>
         <th style="text-align:center">Fark</th>
