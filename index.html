@@ -1739,13 +1739,13 @@ function renderStok(){
       <td><span class="badge ${ac}">${a}</span></td>
       <td><span class="badge ${d.c}">${d.l}</span></td>
       <td style="color:var(--text2);font-size:12px" title="${p.tedarikci||''}">${trTitle(p.tedarikci||'-')}</td>
-      <td style="white-space:nowrap">
       <td style="white-space:nowrap;padding:6px 8px">
         <div style="display:flex;gap:3px">
         <button class="btn btn-sm" onclick="showParcaModal('${p.id}')" title="Düzenle">✏</button>
         <button class="btn btn-sm" onclick="showHareketModal('${p.kod}')" title="Hareket Ekle">↕</button>
         <button class="btn btn-sm" onclick="showQR('${p.kod}')" title="QR Kod">⊞</button>
         <button class="btn btn-sm btn-danger" onclick="parcaSil('${p.id}','${p.kod}')" title="Sil">✕</button>
+        </div>
       </td>
     </tr>`;
   }).join('');
