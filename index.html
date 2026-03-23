@@ -82,7 +82,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .topbar{padding:0 24px;height:58px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);box-shadow:var(--shadow-sm);flex-shrink:0;gap:16px;overflow:hidden}
 .page-title{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.02em;white-space:nowrap;flex-shrink:0}
 .topbar-actions{display:flex;gap:6px;align-items:center;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;flex-shrink:1;min-width:0;scrollbar-width:none}.topbar-actions::-webkit-scrollbar{display:none}
-.content{flex:1;overflow-y:auto;padding:24px}
+.content{flex:1;overflow-y:auto;padding:24px;min-height:0}
 
 /* ── BUTTONS ─────────────────────────── */
 .btn{padding:7px 14px;border-radius:var(--r-sm);border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;font-size:12px;font-weight:500;font-family:'Inter',sans-serif;transition:all .15s;white-space:nowrap;line-height:1.4}
@@ -129,9 +129,9 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 table{width:100%;border-collapse:collapse}
 thead{position:sticky;top:0;z-index:10}
 th{text-align:left;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.02em;padding:9px 12px;border-bottom:2px solid var(--border);white-space:nowrap;background:var(--bg3)}
-td{padding:11px 14px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text2);vertical-align:middle}
 tbody tr{transition:background .1s}
-tbody tr:hover td{background:#f8fafc}
+tbody tr:hover td{background:var(--blue-light);transition:background .1s}
 tbody tr:nth-child(even) td{background:#fafbfc}
 tbody tr:nth-child(even):hover td{background:#f1f5f9}
 tr:last-child td{border-bottom:none}
@@ -284,12 +284,12 @@ tr:last-child td{border-bottom:none}
 
 
 /* ── SAYFA GEÇİŞ ANİMASYONU ─────────────────────────────── */
-@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes countUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 
-.page-enter{animation:pageIn .25s cubic-bezier(.4,0,.2,1)}
+.page-enter{animation:pageIn .18s ease-out}
 .card-enter{animation:cardIn .3s cubic-bezier(.34,1.56,.64,1) both}
 
 /* Skeleton loader */
@@ -300,17 +300,7 @@ tr:last-child td{border-bottom:none}
 .kpi-value{transition:all .3s ease}
 
 /* Tablo satır animasyonu */
-tbody tr{animation:pageIn .2s ease both}
-tbody tr:nth-child(1){animation-delay:.02s}
-tbody tr:nth-child(2){animation-delay:.04s}
-tbody tr:nth-child(3){animation-delay:.06s}
-tbody tr:nth-child(4){animation-delay:.08s}
-tbody tr:nth-child(5){animation-delay:.1s}
-tbody tr:nth-child(6){animation-delay:.12s}
-tbody tr:nth-child(7){animation-delay:.14s}
-tbody tr:nth-child(8){animation-delay:.16s}
-tbody tr:nth-child(9){animation-delay:.18s}
-tbody tr:nth-child(10){animation-delay:.2s}
+tbody tr{animation:pageIn .15s ease both}
 
 /* Buton ripple efekti */
 .btn{position:relative;overflow:hidden}
@@ -365,6 +355,14 @@ input[type=number]{-moz-appearance:textfield}
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--blue)!important;
+  box-shadow:0 0 0 3px rgba(59,130,246,.15);
+  transition:border-color .15s,box-shadow .15s
+}
+#stok-table td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -430,12 +428,12 @@ input[type=number]{-moz-appearance:textfield}
 
 
 /* ── SAYFA GEÇİŞ ANİMASYONU ─────────────────────────────── */
-@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes countUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 
-.page-enter{animation:pageIn .25s cubic-bezier(.4,0,.2,1)}
+.page-enter{animation:pageIn .18s ease-out}
 .card-enter{animation:cardIn .3s cubic-bezier(.34,1.56,.64,1) both}
 
 /* Skeleton loader */
@@ -446,17 +444,7 @@ input[type=number]{-moz-appearance:textfield}
 .kpi-value{transition:all .3s ease}
 
 /* Tablo satır animasyonu */
-tbody tr{animation:pageIn .2s ease both}
-tbody tr:nth-child(1){animation-delay:.02s}
-tbody tr:nth-child(2){animation-delay:.04s}
-tbody tr:nth-child(3){animation-delay:.06s}
-tbody tr:nth-child(4){animation-delay:.08s}
-tbody tr:nth-child(5){animation-delay:.1s}
-tbody tr:nth-child(6){animation-delay:.12s}
-tbody tr:nth-child(7){animation-delay:.14s}
-tbody tr:nth-child(8){animation-delay:.16s}
-tbody tr:nth-child(9){animation-delay:.18s}
-tbody tr:nth-child(10){animation-delay:.2s}
+tbody tr{animation:pageIn .15s ease both}
 
 /* Buton ripple efekti */
 .btn{position:relative;overflow:hidden}
@@ -1761,19 +1749,19 @@ function renderStok(){
       </td>
     </tr>`;
   }).join('');
-  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="overflow-x:auto;max-height:calc(100vh - 180px);overflow-y:auto"><table id="stok-table" style="min-width:900px"><thead><tr>
-        <th style="width:32px"><input type="checkbox" id="stok-tumu" onchange="stokTumunuSec(this.checked)" style="width:15px;height:15px;cursor:pointer"></th>
-        <th onclick="stokSirala=\'kod\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:80px;white-space:nowrap">Kod</th>
-        <th onclick="stokSirala=\'ad\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;min-width:130px;white-space:nowrap">Parça Adı</th>
-        <th style="width:80px;white-space:nowrap">Kategori</th>
-        <th style="width:90px;white-space:nowrap">Ekipman</th>
-        <th onclick="stokSirala=\'stok\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:60px;text-align:center;white-space:nowrap">Stok</th>
+  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="overflow-x:auto;max-height:calc(100vh - 180px);overflow-y:auto"><table id="stok-table" style="width:100%;table-layout:fixed;min-width:860px"><thead><tr>
+        <th style="style="width:36px;text-align:center"><input type="checkbox" id="stok-tumu" onchange="stokTumunuSec(this.checked)" style="width:15px;height:15px;cursor:pointer"></th>
+        <th onclick="stokSirala=\'kod\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:85px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Kod</th>
+        <th onclick="stokSirala=\'ad\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;white-space:nowrap;overflow:hidden">Parça Adı</th>
+        <th style="width:88px;white-space:nowrap;overflow:hidden">Kategori</th>
+        <th style="width:110px;white-space:nowrap;overflow:hidden">Ekipman</th>
+        <th onclick="stokSirala=\'stok\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:55px;text-align:center;white-space:nowrap">Stok</th>
         <th style="width:44px;text-align:center;white-space:nowrap">Min</th>
-        <th onclick="stokSirala=\'fiyat\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:90px;white-space:nowrap">Fiyat</th>
-        <th style="width:44px;white-space:nowrap">ABC</th>
+        <th onclick="stokSirala=\'fiyat\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:88px;white-space:nowrap">Fiyat</th>
+        <th style="width:44px;text-align:center;white-space:nowrap">ABC</th>
         <th style="width:72px;white-space:nowrap">Durum</th>
-        <th style="width:80px;white-space:nowrap">Tedarikçi</th>
-        <th style="width:120px;white-space:nowrap">İşlem</th>
+        <th style="width:78px;white-space:nowrap;overflow:hidden">Tedarikçi</th>
+        <th style="width:116px;white-space:nowrap">İşlem</th>
       </tr></thead><tbody>${rows||'<tr><td colspan="12"><div class="empty"><div class="empty-icon">📦</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Henüz parça eklenmedi</div><div style="font-size:12px;color:var(--text3);margin-bottom:16px">İlk yedek parçanızı ekleyerek başlayın</div><button class="btn btn-primary" onclick="showParcaModal()">+ İlk Parçayı Ekle</button></div></td></tr>'}</tbody></table></div></div>`;
 }
 
