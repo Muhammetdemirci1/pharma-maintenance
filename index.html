@@ -363,6 +363,7 @@ select:focus,textarea:focus{
   transition:border-color .15s,box-shadow .15s
 }
 #stok-table td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#stok-table th{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -1749,19 +1750,32 @@ function renderStok(){
       </td>
     </tr>`;
   }).join('');
-  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="overflow-x:auto;max-height:calc(100vh - 180px);overflow-y:auto"><table id="stok-table" style="width:100%;table-layout:fixed;min-width:860px"><thead><tr>
-        <th style="width:36px;text-align:center"><input type="checkbox" id="stok-tumu" onchange="stokTumunuSec(this.checked)" style="width:15px;height:15px;cursor:pointer"></th>
-        <th onclick="stokSirala=\'kod\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:85px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Kod</th>
-        <th onclick="stokSirala=\'ad\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;white-space:nowrap;overflow:hidden">Parça Adı</th>
-        <th style="width:88px;white-space:nowrap;overflow:hidden">Kategori</th>
-        <th style="width:110px;white-space:nowrap;overflow:hidden">Ekipman</th>
-        <th onclick="stokSirala=\'stok\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:55px;text-align:center;white-space:nowrap">Stok</th>
-        <th style="width:44px;text-align:center;white-space:nowrap">Min</th>
-        <th onclick="stokSirala=\'fiyat\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;width:88px;white-space:nowrap">Fiyat</th>
-        <th style="width:44px;text-align:center;white-space:nowrap">ABC</th>
-        <th style="width:72px;white-space:nowrap">Durum</th>
-        <th style="width:78px;white-space:nowrap;overflow:hidden">Tedarikçi</th>
-        <th style="width:116px;white-space:nowrap">İşlem</th>
+  document.getElementById('content').innerHTML=`<div class="card" style="padding:0;overflow:hidden"><div class="table-wrap" style="overflow-x:auto;max-height:calc(100vh - 180px);overflow-y:auto"><table id="stok-table" style="width:100%;table-layout:fixed;min-width:1100px"><colgroup>
+        <col style="width:36px">
+        <col style="width:90px">
+        <col style="width:180px">
+        <col style="width:90px">
+        <col style="width:120px">
+        <col style="width:52px">
+        <col style="width:44px">
+        <col style="width:90px">
+        <col style="width:48px">
+        <col style="width:78px">
+        <col style="width:100px">
+        <col style="width:130px">
+      </colgroup><thead><tr>
+        <th style="text-align:center"><input type="checkbox" id="stok-tumu" onchange="stokTumunuSec(this.checked)" style="width:15px;height:15px;cursor:pointer"></th>
+        <th onclick="stokSirala=\'kod\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none">Kod</th>
+        <th onclick="stokSirala=\'ad\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none">Parça Adı</th>
+        <th>Kategori</th>
+        <th>Ekipman</th>
+        <th onclick="stokSirala=\'stok\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none;text-align:center">Stok</th>
+        <th style="text-align:center">Min</th>
+        <th onclick="stokSirala=\'fiyat\';stokSiralaDir*=-1;renderStok()" style="cursor:pointer;user-select:none">Fiyat</th>
+        <th style="text-align:center">ABC</th>
+        <th>Durum</th>
+        <th>Tedarikçi</th>
+        <th>İşlem</th>
       </tr></thead><tbody>${rows||'<tr><td colspan="12"><div class="empty"><div class="empty-icon">📦</div><div style="font-size:14px;font-weight:600;color:var(--text2);margin-bottom:6px">Henüz parça eklenmedi</div><div style="font-size:12px;color:var(--text3);margin-bottom:16px">İlk yedek parçanızı ekleyerek başlayın</div><button class="btn btn-primary" onclick="showParcaModal()">+ İlk Parçayı Ekle</button></div></td></tr>'}</tbody></table></div></div>`;
 }
 
