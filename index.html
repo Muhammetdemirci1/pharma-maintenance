@@ -1450,234 +1450,289 @@ function renderDash(){
     +'<input class="search-bar" id="dash-search" placeholder="Parça ara..." onkeydown="if(event.key===\'Enter\'){var v=this.value;if(v){stokSearch=v;navigate(\'stok\')}}" style="width:150px"></div>'
     +'<button class="btn btn-ghost" onclick="refreshAll(\'dashboard\')">↻ Yenile</button>';
   kurGuncelle();
-  const tp=parcalar.length,krit=parcalar.filter(p=>mevcut(p.kod)<=(p.min_stok||1)).length,tuk=parcalar.filter(p=>mevcut(p.kod)<=0).length;
-  const topD=parcalar.reduce((s,p)=>s+mevcut(p.kod)*p.birim_fiyat,0);
+
+  // ── VERİ HESAPLAMALARI ──────────────────────────────────────
+  var tp=parcalar.length;
   var toplamStok=parcalar.reduce(function(s,p){return s+mevcut(p.kod);},0);
-  const bek=siparisler.filter(s=>s.durum==='Beklemede'||s.durum==='Kargoda').length;
+  var topD=parcalar.reduce(function(s,p){return s+mevcut(p.kod)*p.birim_fiyat;},0);
+  var krit=parcalar.filter(function(p){var m=mevcut(p.kod);return m>0&&m<=(p.min_stok||1);}).length;
+  var tuk=parcalar.filter(function(p){return mevcut(p.kod)<=0;}).length;
+  var yeterli=tp-krit-tuk;
+  var saglikOran=tp>0?Math.round(yeterli/tp*100):100;
+  var bek=siparisler.filter(function(s){return s.durum==='Beklemede'||s.durum==='Kargoda';}).length;
   var buAyStr=new Date().toISOString().slice(0,7);
   var gecenAy=new Date();gecenAy.setMonth(gecenAy.getMonth()-1);var gecenAyStr=gecenAy.toISOString().slice(0,7);
-  var buAyCikis=hareketler.filter(h=>h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(buAyStr)).reduce((s,h)=>s+(Number(h.miktar)||0),0);
-  var gecenAyCikis=hareketler.filter(h=>h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(gecenAyStr)).reduce((s,h)=>s+(Number(h.miktar)||0),0);
-  var buAySip=siparisler.filter(s=>(s.sip_tarih||'').startsWith(buAyStr)).reduce((s,x)=>s+(x.tutar||0),0);
-  var gecenAySip=siparisler.filter(s=>(s.sip_tarih||'').startsWith(gecenAyStr)).reduce((s,x)=>s+(x.tutar||0),0);
-  const abcD={A:{s:0,d:0},B:{s:0,d:0},C:{s:0,d:0}};
-  parcalar.forEach(p=>{const k=abc(p.birim_fiyat, p.kod);abcD[k].s++;abcD[k].d+=mevcut(p.kod)*p.birim_fiyat;});
-  const katD={};parcalar.forEach(p=>{katD[p.kategori||'Diğer']=(katD[p.kategori||'Diğer']||0)+1;});
-  const katL=Object.entries(katD).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const maxK=katL[0]?katL[0][1]:1;
-  const sonH=hareketler.slice(-6).reverse();
-  var dashHtml='';
-  dashHtml+='<div class="grid-4">';
-  dashHtml+="<div class='kpi' style='border-top:3px solid var(--blue)'><div class='kpi-icon blue'>📦</div><div class='kpi-label'>Toplam Stok</div><div class='kpi-value' style='color:var(--blue)'>"+toplamStok+"</div><div class='kpi-sub'>"+tp+" farklı parça çeşidi</div></div>";
-  dashHtml+='<div class="kpi" style="border-top:3px solid var(--gold)"><div class="kpi-icon gold">💰</div><div class="kpi-label">Stok Değeri</div><div class="kpi-value" style="color:var(--gold)">'+eur(topD)+'</div><div class="kpi-sub">toplam envanter değeri</div></div>';
-  dashHtml+='<div class="kpi" style="border-top:3px solid var(--green)"><div class="kpi-icon green">📈</div><div class="kpi-label">Bu Ay Kullanım</div><div class="kpi-value" style="color:var(--green)">'+buAyCikis+' adet</div><div class="kpi-sub">'+trendBadge(buAyCikis,gecenAyCikis)+' geçen aya göre</div></div>';
-  dashHtml+='<div class="kpi" style="border-top:3px solid var(--red)"><div class="kpi-icon red">🔴</div><div class="kpi-label">Kritik / Tükenen</div><div class="kpi-value" style="color:var(--red)">'+krit+' / '+tuk+'</div><div class="kpi-sub">acil müdahale gerekli</div></div>';
-  dashHtml+='</div>';
-  dashHtml+='<div class="grid-2">';
-  dashHtml+='<div class="card"><div class="section-title">ABC Analizi</div>';
-  dashHtml+=(['A','B','C'].map(function(k){var pct=topD?Math.round(abcD[k].d/topD*100):0;var cl=k==='A'?'var(--red)':k==='B'?'var(--gold)':'var(--text3)';return '<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:var(--text2)">Sınıf <b style="color:'+cl+'">'+k+'</b> — '+abcD[k].s+' parça</span><span style="font-size:11px;color:var(--text3)">'+eur(abcD[k].d)+' ('+pct+'%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+cl+'"></div></div></div>';}).join(''));
-  dashHtml+='</div>';
-  dashHtml+='<div class="card"><div class="section-title">Kategori Dağılımı</div>';
-  dashHtml+=(katL.length?katL.map(function(x){var pct=Math.round(x[1]/maxK*100);return '<div class="chart-bar-row"><div class="chart-bar-label">'+x[0]+'</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--blue)"></div></div><div class="chart-bar-val">'+x[1]+' adet</div></div>';}).join(''):'<div class="empty">Kategori yok</div>');
-  dashHtml+='</div></div>';
-  dashHtml+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:14px 16px;border-bottom:1px solid var(--border)"><div class="section-title" style="margin:0">Son Hareketler</div></div>';
-  dashHtml+=(sonH.length?'<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Parça Kodu</th><th>Parça Adı</th><th>Tip</th><th>Miktar</th><th>Açıklama</th></tr></thead><tbody>'+sonH.map(function(h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};var cl=h.tip==='GİRİŞ'?'badge-green':h.tip==='ÇIKIŞ'?'badge-red':'badge-blue';return '<tr><td style="color:var(--text3)">'+(h.tarih||'')+'</td><td style="color:var(--blue);font-weight:600">'+h.par_kod+'</td><td>'+trTitle(p.ad||'-')+'</td><td><span class="badge '+cl+'">'+h.tip+'</span></td><td><b>'+h.miktar+'</b></td><td style="color:var(--text3)">'+(h.aciklama||'-')+'</td></tr>';}).join('')+'</tbody></table></div>':'<div class="empty">Henüz hareket kaydı yok</div>');
-  dashHtml+='</div>';
-  document.getElementById('content').innerHTML=dashHtml;
+  var buAyCikis=hareketler.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(buAyStr);}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+  var gecenAyCikis=hareketler.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(gecenAyStr);}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+  var buAyGiris=hareketler.filter(function(h){return h.tip==='GİRİŞ'&&(h.tarih||'').startsWith(buAyStr);}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
+  var buAyMaliyet=hareketler.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(buAyStr);}).reduce(function(s,h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);},0);
+  var gecenAyMaliyet=hareketler.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(gecenAyStr);}).reduce(function(s,h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);},0);
 
-  // ── ACİL SİPARİŞ GEREKTİRENLER (COMPACT) ──────────────────
+  // ABC dağılımı
+  var abcD={A:{s:0,d:0},B:{s:0,d:0},C:{s:0,d:0}};
+  parcalar.forEach(function(p){var k=abc(p.birim_fiyat,p.kod);abcD[k].s++;abcD[k].d+=mevcut(p.kod)*p.birim_fiyat;});
+
+  // Son hareketler
+  var sonH=hareketler.slice(-8).reverse();
+
+  // Aylık veri (son 6 ay)
+  var aylar=[];
+  for(var ii=5;ii>=0;ii--){var d=new Date();d.setMonth(d.getMonth()-ii);aylar.push({yil:d.getFullYear(),ay:d.getMonth()+1,label:d.toLocaleString('tr-TR',{month:'short',year:'2-digit'})});}
+  var chartCikis=aylar.map(function(a){return hareketler.filter(function(h){if(h.tip!=='ÇIKIŞ'||!h.tarih)return false;var hd=new Date(h.tarih);return hd.getFullYear()===a.yil&&hd.getMonth()+1===a.ay;}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);});
+  var chartGiris=aylar.map(function(a){return hareketler.filter(function(h){if(h.tip!=='GİRİŞ'||!h.tarih)return false;var hd=new Date(h.tarih);return hd.getFullYear()===a.yil&&hd.getMonth()+1===a.ay;}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);});
+  var chartMaliyet=aylar.map(function(a){return Math.round(hareketler.filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(a.yil+'-'+String(a.ay).padStart(2,'0'));}).reduce(function(s,h){var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);},0));});
+
+  // Acil parçalar
   var acil=parcalar.filter(function(p){return mevcut(p.kod)<=0;});
-  var kritikDusuk=parcalar.filter(function(p){var m=mevcut(p.kod);return m>0&&m<=(p.min_stok||1);});
-  var acilHtml='';
-  if(acil.length||kritikDusuk.length){
-    var toplamUyari=acil.length+kritikDusuk.length;
-    // Compact uyarı bandı — tıklayınca toggle
-    acilHtml+='<div style="margin-bottom:16px">';
-    acilHtml+='<div onclick="toggleAcil()" '
-      +'style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:10px;cursor:pointer;user-select:none">'
-      +'<div style="display:flex;align-items:center;gap:12px">'
-      +(acil.length?'<span style="background:var(--red);color:#fff;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:600">'+acil.length+' STOK YOK</span>':'')
-      +(kritikDusuk.length?'<span style="background:var(--gold);color:#000;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:600">'+kritikDusuk.length+' KRİTİK</span>':'')
-      +'<span style="color:var(--text2);font-size:12px">Acil sipariş gerektiren '+toplamUyari+' parça</span>'
-      +'</div>'
-      +'<span style="color:var(--text3);font-size:11px">▼ detay</span>'
-      +'</div>';
-    // Detay — başta gizli
-    acilHtml+='<div id="acil-detay" style="display:none;margin-top:6px;border:1px solid var(--border);border-radius:10px;overflow:hidden">';
-    acil.forEach(function(p){
-      var tes=p.teslimat?p.teslimat+' gün':'?';
-      var abcK=abc(p.birim_fiyat,p.kod);
-      var abcRenk=abcK==='A'?'#dc2626':abcK==='B'?'#d97706':'#64748b';
-      var aktifSip=siparisler.find(function(s){return s.par_kod===p.kod&&(s.durum==='Beklemede'||s.durum==='Kargoda');});
-      acilHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px">'
-        +'<div style="display:flex;align-items:center;gap:12px;min-width:0">'
-        +'<div style="width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0"></div>'
-        +'<div style="min-width:0">'
-        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
-        +'<span style="color:var(--blue);font-weight:600;font-size:13px;font-family:DM Mono,monospace">'+p.kod+'</span>'
-        +'<span style="color:var(--text);font-size:13px">'+trTitle(p.ad)+'</span>'
-        +'<span style="background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:4px;font-size:10px">'+( p.ekipman||'-')+'</span>'
-        +'<span style="color:'+abcRenk+';font-size:10px;font-weight:600;border:1px solid '+abcRenk+';padding:1px 6px;border-radius:4px">'+abcK+'</span>'
-        +'</div>'
-        +'<div style="display:flex;align-items:center;gap:16px;margin-top:4px">'
-        +'<span style="font-size:11px;color:var(--text3)">⏱ Temin: <b style="color:var(--text2)">'+tes+'</b></span>'
-        +'<span style="font-size:11px;color:var(--text3)">💰 <b style="color:var(--text2)">'+eur(p.birim_fiyat)+'</b></span>'
-        +'<span style="font-size:11px;color:var(--text3)">Tedarikçi: <b style="color:var(--text2)">'+trTitle(p.tedarikci||'-')+'</b></span>'
-        +'</div>'
-        +'</div></div>'
-        +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
-        +'<span style="background:#fef2f2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid #fca5a5">STOK YOK</span>'
-        +(aktifSip
-          ?'<span style="display:flex;align-items:center;gap:5px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500">'
-           +'<span style="width:7px;height:7px;border-radius:50%;background:#3b82f6;animation:pulse 1.5s infinite"></span>'
-           +aktifSip.durum+' — '+aktifSip.sip_no+'</span>'
-          :'<button onclick="sipVerKod(this)" data-kod="'+p.kod+'" style="padding:5px 12px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Sipariş Ver</button>')
-        +'</div></div>';
-    });
-    kritikDusuk.forEach(function(p){
-      var m=mevcut(p.kod);
-      var oran=Math.round(m/(p.min_stok||1)*100);
-      var tes=p.teslimat?p.teslimat+' gün':'?';
-      var abcK=abc(p.birim_fiyat,p.kod);
-      var abcRenk=abcK==='A'?'#dc2626':abcK==='B'?'#d97706':'#64748b';
-      var aktifSip=siparisler.find(function(s){return s.par_kod===p.kod&&(s.durum==='Beklemede'||s.durum==='Kargoda');});
-      acilHtml+='<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border);gap:12px">'
-        +'<div style="display:flex;align-items:center;gap:12px;min-width:0">'
-        +'<div style="width:8px;height:8px;border-radius:50%;background:var(--gold);flex-shrink:0"></div>'
-        +'<div style="min-width:0">'
-        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'
-        +'<span style="color:var(--blue);font-weight:600;font-size:13px;font-family:DM Mono,monospace">'+p.kod+'</span>'
-        +'<span style="color:var(--text);font-size:13px">'+trTitle(p.ad)+'</span>'
-        +'<span style="background:var(--bg3);color:var(--text3);padding:1px 7px;border-radius:4px;font-size:10px">'+trTitle(p.ekipman||'-')+'</span>'
-        +'<span style="color:'+abcRenk+';font-size:10px;font-weight:600;border:1px solid '+abcRenk+';padding:1px 6px;border-radius:4px">'+abcK+'</span>'
-        +'</div>'
-        +'<div style="display:flex;align-items:center;gap:16px;margin-top:4px">'
-        +'<span style="font-size:11px;color:var(--text3)">📦 Stok: <b style="color:'+(m<=0?'var(--red)':'var(--gold)')+'">'+m+' / '+(p.min_stok||1)+'</b></span>'
-        +'<span style="font-size:11px;color:var(--text3)">⏱ Temin: <b style="color:var(--text2)">'+tes+'</b></span>'
-        +'<span style="font-size:11px;color:var(--text3)">💰 <b style="color:var(--text2)">'+eur(p.birim_fiyat)+'</b></span>'
-        +'<span style="font-size:11px;color:var(--text3)">Tedarikçi: <b style="color:var(--text2)">'+trTitle(p.tedarikci||'-')+'</b></span>'
-        +'</div>'
-        +'</div></div>'
-        +'<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
-        +'<div style="text-align:right">'
-        +'<div style="font-size:10px;color:var(--text3);margin-bottom:3px">'+oran+'% doluluk</div>'
-        +'<div style="width:80px;height:5px;background:var(--border);border-radius:3px"><div style="height:5px;width:'+Math.min(100,oran)+'%;background:var(--gold);border-radius:3px"></div></div>'
-        +'</div>'
-        +'<span style="background:#fffbeb;color:#d97706;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid #fde68a">KRİTİK</span>'
-        +(aktifSip
-          ?'<span style="display:flex;align-items:center;gap:5px;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:500">'
-           +'<span style="width:7px;height:7px;border-radius:50%;background:#3b82f6;animation:pulse 1.5s infinite"></span>'
-           +aktifSip.durum+' — '+aktifSip.sip_no+'</span>'
-          :'<button onclick="sipVerKod(this)" data-kod="'+p.kod+'" style="padding:5px 12px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:DM Sans,sans-serif">Sipariş Ver</button>')
-        +'</div></div>';
-    });
-    acilHtml+='</div></div>';
-  }
+  var kritikParcalar=parcalar.filter(function(p){var m=mevcut(p.kod);return m>0&&m<=(p.min_stok||1);});
 
-  // ── EN ÇOK KULLANILAN 5 PARÇA ────────────────────────────────
+  // En çok tüketilen
   var kullanimMap={};
-  hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){
-    kullanimMap[h.par_kod]=(kullanimMap[h.par_kod]||0)+(Number(h.miktar)||0);
-  });
+  hareketler.filter(function(h){return h.tip==='ÇIKIŞ';}).forEach(function(h){kullanimMap[h.par_kod]=(kullanimMap[h.par_kod]||0)+(Number(h.miktar)||0);});
   var topKullanim=Object.entries(kullanimMap).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
   var maxKullanim=topKullanim[0]?topKullanim[0][1]:1;
 
-  // ── AYLIK ÇIKIŞ TRENDİ ───────────────────────────────────────
-  var aylar=[];
-  for(var ii=5;ii>=0;ii--){var d=new Date();d.setMonth(d.getMonth()-ii);aylar.push({yil:d.getFullYear(),ay:d.getMonth()+1,label:d.toLocaleString('tr-TR',{month:'short',year:'2-digit'})});}
-  var aylikData=aylar.map(function(a){
-    var toplam=hareketler.filter(function(h){if(h.tip!=='ÇIKIŞ'||!h.tarih)return false;var hd=new Date(h.tarih);return hd.getFullYear()===a.yil&&hd.getMonth()+1===a.ay;}).reduce(function(s,h){return s+(Number(h.miktar)||0);},0);
-    return {label:a.label,toplam:toplam};
+  // Ekipman risk
+  var ekRisk={};
+  parcalar.forEach(function(p){
+    var ek=p.ekipman||'Diğer';
+    if(!ekRisk[ek]) ekRisk[ek]={ad:ek,toplam:0,kritik:0,tukenen:0};
+    ekRisk[ek].toplam++;
+    var m=mevcut(p.kod);
+    if(m<=0) ekRisk[ek].tukenen++;
+    else if(m<=(p.min_stok||1)) ekRisk[ek].kritik++;
   });
-  var maxAylik=Math.max.apply(null,aylikData.map(function(x){return x.toplam;}))||1;
+  var ekRiskList=Object.values(ekRisk).filter(function(e){return e.kritik+e.tukenen>0;}).sort(function(a,b){return (b.kritik+b.tukenen)-(a.kritik+a.tukenen);}).slice(0,6);
 
-  var extraHtml='<div class="grid-2" style="margin-bottom:16px">';
-  extraHtml+='<div class="card"><div class="section-title">En Çok Kullanılan 5 Parça</div>';
-  if(topKullanim.length){
-    topKullanim.forEach(function(x){
-      var p=parcalar.find(function(pp){return pp.kod===x[0];})||{};
-      var pct=Math.round(x[1]/maxKullanim*100);
-      extraHtml+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--text2)"><b style="color:var(--accent)">'+x[0]+'</b> '+(p.ad||'').slice(0,22)+'</span><span style="font-size:11px;color:var(--text3)">'+x[1]+' adet</span></div><div style="height:6px;background:var(--bg3);border-radius:3px"><div style="height:6px;width:'+pct+'%;background:var(--accent);border-radius:3px"></div></div></div>';
+  // ── HTML ────────────────────────────────────────────────────
+  var h='';
+
+  // Acil uyarı bandı
+  if(acil.length||kritikParcalar.length){
+    var topU=acil.length+kritikParcalar.length;
+    h+='<div onclick="toggleAcil()" style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;margin-bottom:14px;background:linear-gradient(135deg,rgba(239,68,68,0.06),rgba(245,158,11,0.04));border:1px solid rgba(239,68,68,0.2);border-radius:12px;cursor:pointer;user-select:none;transition:all .2s" onmouseover="this.style.borderColor=\'rgba(239,68,68,0.4)\'" onmouseout="this.style.borderColor=\'rgba(239,68,68,0.2)\'">'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+      +'<div style="width:36px;height:36px;border-radius:10px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;font-size:16px">⚠</div>'
+      +'<div>'
+      +'<div style="font-size:13px;font-weight:600;color:var(--text)">'+topU+' parça dikkat gerektiriyor</div>'
+      +'<div style="display:flex;gap:8px;margin-top:3px">'
+      +(acil.length?'<span style="font-size:11px;color:var(--red);font-weight:600">'+acil.length+' tükenen</span>':'')
+      +(kritikParcalar.length?'<span style="font-size:11px;color:var(--gold);font-weight:600">'+kritikParcalar.length+' kritik</span>':'')
+      +'</div></div></div>'
+      +'<div style="display:flex;align-items:center;gap:8px">'
+      +'<button onclick="event.stopPropagation();navigate(\'kritik\')" class="btn btn-sm" style="border-color:rgba(239,68,68,.3);color:var(--red);font-size:11px">Detay →</button>'
+      +'<span style="color:var(--text3);font-size:16px;transition:transform .2s" id="acil-arrow">▾</span>'
+      +'</div></div>';
+
+    // Gizli detay
+    h+='<div id="acil-detay" style="display:none;margin:-8px 0 14px;border:1px solid var(--border);border-radius:10px;overflow:hidden;max-height:300px;overflow-y:auto">';
+    acil.concat(kritikParcalar).forEach(function(p){
+      var m=mevcut(p.kod);
+      var isAcil=m<=0;
+      var aktifSip=siparisler.find(function(s){return s.par_kod===p.kod&&(s.durum==='Beklemede'||s.durum==='Kargoda');});
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);gap:10px">'
+        +'<div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">'
+        +'<div style="width:6px;height:6px;border-radius:50%;background:'+(isAcil?'var(--red)':'var(--gold)')+';flex-shrink:0"></div>'
+        +'<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--blue);font-weight:600;min-width:65px">'+p.kod+'</span>'
+        +'<span style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+trTitle(p.ad)+'</span>'
+        +'<span style="font-size:10px;color:var(--text3);flex-shrink:0">'+(p.ekipman||'')+'</span>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'
+        +'<b style="font-size:12px;color:'+(isAcil?'var(--red)':'var(--gold)')+'">'+m+'/'+(p.min_stok||1)+'</b>'
+        +(aktifSip
+          ?'<span class="badge badge-blue" style="font-size:9px">'+aktifSip.durum+'</span>'
+          :'<button onclick="event.stopPropagation();sipVerKod(this)" data-kod="'+p.kod+'" class="btn btn-sm btn-primary" style="font-size:10px;padding:2px 8px">Sipariş</button>')
+        +'</div></div>';
     });
-  }else{extraHtml+='<div class="empty">Henüz çıkış yok</div>';}
-  extraHtml+='</div>';
-
-  var chartLabels=aylikData.map(function(a){return a.label;});
-  var chartData=aylikData.map(function(a){return a.toplam;});
-  var chartDeger=aylikData.map(function(a){return a.deger||0;});
-  extraHtml+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
-    +'<div class="section-title" style="margin:0">Aylık Kullanım (Son 6 Ay)</div>'
-    +'</div>'
-    +'<div style="position:relative;height:200px"><canvas id="dash-trend-chart"></canvas></div>'
-    +'</div></div>';
-
-  // ── AYLIK KULLANIM DEĞERİ TRENDİ (Son 6 Ay) ────────────────
-  var stokDegerTrend='<div class="card" style="margin-bottom:16px"><div class="section-title">Aylık Kullanım Değeri (Son 6 Ay)</div>';
-  var aylarTrend=[];
-  for(var ti=5;ti>=0;ti--){
-    var td=new Date();td.setDate(1);td.setMonth(td.getMonth()-ti);
-    var ayStr=td.getFullYear()+'-'+String(td.getMonth()+1).padStart(2,'0');
-    var label=td.toLocaleString('tr-TR',{month:'short',year:'2-digit'});
-    // O aydaki çıkışların toplam değeri
-    var ayDeger=hareketler
-      .filter(function(h){return h.tip==='ÇIKIŞ'&&(h.tarih||'').startsWith(ayStr);})
-      .reduce(function(s,h){
-        var p=parcalar.find(function(x){return x.kod===h.par_kod;})||{};
-        return s+(Number(h.miktar)||0)*(p.birim_fiyat||0);
-      },0);
-    aylarTrend.push({label:label,deger:Math.round(ayDeger)});
+    h+='</div>';
   }
-  var maxDeger2=Math.max.apply(null,aylarTrend.map(function(x){return x.deger;}))||1;
-  aylarTrend.forEach(function(a){
-    var pct=Math.round(a.deger/maxDeger2*100);
-    stokDegerTrend+='<div class="chart-bar-row">'
-      +'<div class="chart-bar-label">'+a.label+'</div>'
-      +'<div class="chart-bar-track"><div class="chart-bar-fill" style="width:'+pct+'%;background:var(--gold)"></div></div>'
-      +'<div class="chart-bar-val">'+(a.deger>0?eur(a.deger):'—')+'</div>'
+
+  // 6 KPI kartları
+  h+='<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px">';
+  var kpis=[
+    {icon:'📦',label:'Toplam Stok',val:toplamStok+'',sub:tp+' parça çeşidi',renk:'var(--blue)',border:'var(--blue)',click:"navigate('stok')"},
+    {icon:'💰',label:'Envanter Değeri',val:eur(topD),sub:'toplam stok değeri',renk:'var(--gold)',border:'var(--gold)',click:"navigate('raporlar')"},
+    {icon:'📤',label:'Bu Ay Çıkış',val:buAyCikis+' ad',sub:trendBadge(buAyCikis,gecenAyCikis)+' geçen aya göre',renk:'var(--green)',border:'var(--green)',click:"navigate('hareket')"},
+    {icon:'💸',label:'Bu Ay Maliyet',val:eur(buAyMaliyet),sub:trendBadge(buAyMaliyet,gecenAyMaliyet)+' geçen aya göre',renk:'#8b5cf6',border:'#8b5cf6',click:"navigate('raporlar')"},
+    {icon:'🔴',label:'Kritik / Tükenen',val:krit+' / '+tuk,sub:'müdahale gerekli',renk:'var(--red)',border:'var(--red)',click:"navigate('kritik')"},
+    {icon:'🛒',label:'Aktif Sipariş',val:bek+'',sub:'beklemede / kargoda',renk:'var(--blue)',border:'var(--blue-dark)',click:"navigate('siparis')"}
+  ];
+  kpis.forEach(function(k){
+    h+='<div class="kpi" style="border-top:3px solid '+k.border+';cursor:pointer;padding:16px" onclick="'+k.click+'">'
+      +'<div style="font-size:15px;margin-bottom:10px">'+k.icon+'</div>'
+      +'<div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">'+k.label+'</div>'
+      +'<div style="font-size:20px;font-weight:700;color:'+k.renk+';letter-spacing:-.03em;line-height:1.1">'+k.val+'</div>'
+      +'<div style="font-size:11px;color:var(--text3);margin-top:5px">'+k.sub+'</div>'
       +'</div>';
   });
-  stokDegerTrend+='</div>';
-  extraHtml = stokDegerTrend + extraHtml;
+  h+='</div>';
 
-  var mevcutIcerik = document.getElementById('content').innerHTML;
-  document.getElementById('content').innerHTML = acilHtml + mevcutIcerik + extraHtml;
-  // Chart.js grafik çiz
-  function drawDashChart(){
-    var ctx=document.getElementById('dash-trend-chart');
-    if(!ctx||!chartLabels) return;
+  // Stok sağlık çubuğu
+  h+='<div class="card" style="padding:14px 18px;margin-bottom:16px">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+    +'<div style="font-size:13px;font-weight:600;color:var(--text)">Genel Stok Sağlığı</div>'
+    +'<div style="font-size:20px;font-weight:700;color:'+(saglikOran>=70?'var(--green)':saglikOran>=40?'var(--gold)':'var(--red)')+'">%'+saglikOran+'</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:3px;height:10px;border-radius:5px;overflow:hidden">'
+    +(yeterli>0?'<div style="flex:'+yeterli+';background:var(--green);border-radius:5px;transition:flex .5s" title="Yeterli: '+yeterli+'"></div>':'')
+    +(krit>0?'<div style="flex:'+krit+';background:var(--gold);border-radius:5px;transition:flex .5s" title="Kritik: '+krit+'"></div>':'')
+    +(tuk>0?'<div style="flex:'+tuk+';background:var(--red);border-radius:5px;transition:flex .5s" title="Tükenen: '+tuk+'"></div>':'')
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px">'
+    +'<span style="color:var(--green)">✅ '+yeterli+' yeterli</span>'
+    +'<span style="color:var(--gold)">⚠ '+krit+' kritik</span>'
+    +'<span style="color:var(--red)">🔴 '+tuk+' tükenen</span>'
+    +'<span style="color:var(--text3)">📦 '+tp+' toplam</span>'
+    +'</div></div>';
+
+  // 2 grafik yan yana
+  h+='<div class="grid-2">';
+  h+='<div class="card"><div class="section-title">Aylık Giriş / Çıkış Trendi</div><div style="position:relative;height:210px"><canvas id="dash-hareket-chart"></canvas></div></div>';
+  h+='<div class="card"><div class="section-title">Aylık Kullanım Maliyeti (€)</div><div style="position:relative;height:210px"><canvas id="dash-maliyet-chart"></canvas></div></div>';
+  h+='</div>';
+
+  // ABC + Kategori + En Çok Tüketilen + Ekipman Risk
+  h+='<div class="grid-2" style="margin-top:16px">';
+
+  // ABC Analizi
+  h+='<div class="card"><div class="section-title">ABC Analizi</div>';
+  ['A','B','C'].forEach(function(k){
+    var pct=topD?Math.round(abcD[k].d/topD*100):0;
+    var cl=k==='A'?'var(--red)':k==='B'?'var(--gold)':'var(--text3)';
+    h+='<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px">'
+      +'<span style="font-size:12px;color:var(--text2)"><b style="color:'+cl+'">'+k+'</b> — '+abcD[k].s+' parça</span>'
+      +'<span style="font-size:11px;color:var(--text3)">'+eur(abcD[k].d)+' ('+pct+'%)</span>'
+      +'</div><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:'+cl+'"></div></div></div>';
+  });
+  h+='</div>';
+
+  // En Çok Tüketilen 5 Parça
+  h+='<div class="card"><div class="section-title">En Çok Tüketilen 5 Parça</div>';
+  if(topKullanim.length){
+    topKullanim.forEach(function(x,i){
+      var p=parcalar.find(function(pp){return pp.kod===x[0];})||{};
+      var pct=Math.round(x[1]/maxKullanim*100);
+      h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
+        +'<span style="font-size:10px;font-weight:700;color:var(--text3);min-width:16px">'+(i+1)+'</span>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:3px">'
+        +'<span style="font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b style="color:var(--blue)">'+x[0]+'</b> '+trTitle((p.ad||'').slice(0,20))+'</span>'
+        +'<span style="font-size:11px;color:var(--text3);flex-shrink:0;margin-left:8px">'+x[1]+' ad</span></div>'
+        +'<div style="height:5px;background:var(--bg3);border-radius:3px"><div style="height:5px;width:'+pct+'%;background:var(--red);border-radius:3px;transition:width .5s"></div></div>'
+        +'</div></div>';
+    });
+  }else{h+='<div class="empty" style="padding:24px">Henüz çıkış yok</div>';}
+  h+='</div>';
+  h+='</div>';
+
+  // Ekipman Risk Haritası + Son Hareketler
+  h+='<div class="grid-2" style="margin-top:16px">';
+
+  // Ekipman Risk
+  h+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div class="section-title" style="margin:0">Ekipman Risk Haritası</div>'
+    +'<button class="btn btn-sm btn-ghost" onclick="navigate(\'ekipman\')" style="font-size:10px">Tümü →</button></div>';
+  if(ekRiskList.length){
+    ekRiskList.forEach(function(e){
+      var riskSkor=e.tukenen*3+e.kritik;
+      var riskRenk=e.tukenen>0?'var(--red)':e.kritik>1?'var(--gold)':'var(--text3)';
+      h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
+        +'<div style="width:8px;height:8px;border-radius:50%;background:'+riskRenk+';flex-shrink:0"></div>'
+        +'<span style="font-size:12px;color:var(--text);font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+e.ad+'</span>'
+        +'<span style="font-size:11px;color:var(--text3)">'+e.toplam+' parça</span>'
+        +(e.tukenen>0?'<span style="font-size:10px;color:var(--red);font-weight:600;background:rgba(239,68,68,.08);padding:1px 6px;border-radius:4px">'+e.tukenen+' tük</span>':'')
+        +(e.kritik>0?'<span style="font-size:10px;color:var(--gold);font-weight:600;background:rgba(245,158,11,.08);padding:1px 6px;border-radius:4px">'+e.kritik+' krt</span>':'')
+        +'</div>';
+    });
+  }else{h+='<div style="padding:20px;text-align:center;color:var(--green);font-size:12px">✅ Tüm ekipmanlar yeterli stokta</div>';}
+  h+='</div>';
+
+  // Son Hareketler
+  h+='<div class="card" style="padding:0;overflow:hidden"><div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">'
+    +'<div class="section-title" style="margin:0">Son Hareketler</div>'
+    +'<button class="btn btn-sm btn-ghost" onclick="navigate(\'hareket\')" style="font-size:10px">Tümü →</button></div>';
+  if(sonH.length){
+    h+='<div style="max-height:280px;overflow-y:auto">';
+    sonH.forEach(function(hr){
+      var p=parcalar.find(function(x){return x.kod===hr.par_kod;})||{};
+      var tipIcon=hr.tip==='GİRİŞ'?'📥':hr.tip==='ÇIKIŞ'?'📤':'🔄';
+      var tipRenk=hr.tip==='GİRİŞ'?'var(--green)':hr.tip==='ÇIKIŞ'?'var(--red)':'var(--blue)';
+      h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 18px;border-bottom:1px solid var(--border)">'
+        +'<span style="font-size:14px">'+tipIcon+'</span>'
+        +'<div style="flex:1;min-width:0">'
+        +'<div style="display:flex;align-items:center;gap:6px">'
+        +'<span style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--blue);font-weight:600">'+hr.par_kod+'</span>'
+        +'<span style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+trTitle(p.ad||'-')+'</span>'
+        +'</div>'
+        +'<div style="font-size:10px;color:var(--text3);margin-top:2px">'+(hr.tarih||'')+' · '+(hr.kullanan||'-')+(hr.aciklama?' · '+hr.aciklama:'')+'</div>'
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0">'
+        +'<div style="font-size:14px;font-weight:700;color:'+tipRenk+'">'+(hr.tip==='ÇIKIŞ'?'-':'+')+hr.miktar+'</div>'
+        +'<div style="font-size:10px;color:var(--text3)">'+hr.tip+'</div>'
+        +'</div></div>';
+    });
+    h+='</div>';
+  }else{h+='<div class="empty" style="padding:24px">Henüz hareket kaydı yok</div>';}
+  h+='</div>';
+
+  h+='</div>';
+
+  // Hızlı erişim
+  h+='<div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">'
+    +'<button class="btn" onclick="showParcaModal()" style="flex:1;min-width:140px;padding:10px">📦 Yeni Parça Ekle</button>'
+    +'<button class="btn" onclick="showHareketModal()" style="flex:1;min-width:140px;padding:10px">↕ Hareket Girişi</button>'
+    +'<button class="btn" onclick="showSiparisModal()" style="flex:1;min-width:140px;padding:10px">🛒 Sipariş Oluştur</button>'
+    +'<button class="btn" onclick="excelIndir()" style="flex:1;min-width:140px;padding:10px">⬇ Excel Rapor</button>'
+    +'</div>';
+
+  document.getElementById('content').innerHTML=h;
+
+  // ── Chart.js GRAFİKLERİ ─────────────────────────────────────
+  function drawDashCharts(){
     if(typeof Chart==='undefined'){
       var sc=document.createElement('script');
       sc.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js';
-      sc.onload=function(){drawDashChart();};
+      sc.onload=drawDashCharts;
       document.head.appendChild(sc);
       return;
     }
-    if(ctx._chart) ctx._chart.destroy();
-    ctx._chart=new Chart(ctx,{
-      type:'bar',
-      data:{
-        labels:chartLabels,
-        datasets:[{
-          label:'Kullanım (adet)',
-          data:chartData,
-          backgroundColor:'rgba(16,185,129,.7)',
-          borderColor:'rgba(16,185,129,1)',
-          borderWidth:1,
-          borderRadius:4
-        }]
-      },
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y+' adet';}}}},
-        scales:{
-          x:{grid:{display:false},ticks:{font:{size:11}}},
-          y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:11},precision:0}}
-        }
-      }
-    });
-  }
-  setTimeout(drawDashChart,100);
+    var labels=aylar.map(function(a){return a.label;});
 
+    // Giriş / Çıkış grafiği
+    var ctx1=document.getElementById('dash-hareket-chart');
+    if(ctx1){
+      if(ctx1._chart) ctx1._chart.destroy();
+      ctx1._chart=new Chart(ctx1,{
+        type:'bar',
+        data:{labels:labels,datasets:[
+          {label:'Çıkış',data:chartCikis,backgroundColor:'rgba(239,68,68,.65)',borderRadius:4},
+          {label:'Giriş',data:chartGiris,backgroundColor:'rgba(16,185,129,.65)',borderRadius:4}
+        ]},
+        options:{responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{position:'top',labels:{boxWidth:10,padding:12,font:{size:10}}}},
+          scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},precision:0}}}
+        }
+      });
+    }
+
+    // Maliyet grafiği
+    var ctx2=document.getElementById('dash-maliyet-chart');
+    if(ctx2){
+      if(ctx2._chart) ctx2._chart.destroy();
+      ctx2._chart=new Chart(ctx2,{
+        type:'line',
+        data:{labels:labels,datasets:[{
+          label:'Maliyet (€)',data:chartMaliyet,
+          borderColor:'rgba(245,158,11,1)',backgroundColor:'rgba(245,158,11,.08)',
+          fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'rgba(245,158,11,1)',borderWidth:2
+        }]},
+        options:{responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{display:false}},
+          scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{beginAtZero:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},callback:function(v){return '€'+v.toLocaleString('tr-TR');}}}}
+        }
+      });
+    }
+  }
+  setTimeout(drawDashCharts,80);
 }
 function renderStok(){
   var ekipmanList=[...new Set(parcalar.map(function(p){return p.ekipman||'';}).filter(Boolean))].sort();
