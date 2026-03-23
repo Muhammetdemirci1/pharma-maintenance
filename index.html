@@ -364,39 +364,8 @@ select:focus,textarea:focus{
 }
 #stok-table td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #stok-table th{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-</style>
-</head>
-<body>
-<div id="LO">
-  <div id="LO-bg"></div>
-  <div class="login-wrap">
-    <div class="login-left">
-      <div class="login-brand">
-        <div class="login-brand-icon">🛠</div>
-        <div class="login-brand-name">StokTakip</div>
-        <div class="login-brand-sub" style="color:#cbd5e1;font-size:13px;line-height:1.7;margin-top:8px">Yedek Parça Yönetim Sistemi<br><span style="color:#94a3b8;font-size:11px">Biofarma İlaç San. ve Tic. A.Ş.</span></div>
-      </div>
-      <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none">
-        <svg width="100%" height="100%" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <style>
-              .geo-line{stroke:rgba(59,130,246,0.15);stroke-width:1;fill:none}
-              .geo-dot{fill:rgba(59,130,246,0.3)}
-              .geo-tri{stroke:rgba(16,185,129,0.12);stroke-width:1;fill:rgba(16,185,129,0.03)}
-              .geo-hex{stroke:rgba(99,102,241,0.12);stroke-width:1;fill:none}
-              @keyframes rotSlow{from{transform-origin:200px 200px;transform:rotate(0deg)}to{transform-origin:200px 200px;transform:rotate(360deg)}}
-              @keyframes rotRev{from{transform-origin:200px 200px;transform:rotate(360deg)}to{transform-origin:200px 200px;transform:rotate(0deg)}}
-              @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-              @keyframes pulse2{0%,100%{opacity:0.3}50%{opacity:0.8}}
-              .ring1{animation:rotSlow 30s linear infinite}
-              .ring2{animation:rotRev 20s linear infinite}
-              .ring3{animation:rotSlow 45s linear infinite}
-              .floater{animation:float 6s ease-in-out infinite}
-              .floater2{animation:float 8s ease-in-out 2s infinite}
-              .floater3{animation:float 5s ease-in-out 1s infinite}
-              .pulser{animation:pulse2 3s ease-in-out infinite}
-              .pulser2{animation:pulse2 4s ease-in-out 1.5s infinite}
-            
+
+/* ── DARK MODE ──────────────────────── */
 [data-tema="dark"]{
   --bg:#0f172a;
   --bg2:#1e293b;
@@ -415,11 +384,11 @@ select:focus,textarea:focus{
 [data-tema="dark"] tbody tr:hover td{background:#334155}
 [data-tema="dark"] tbody tr:nth-child(even) td{background:#1a2740}
 [data-tema="dark"] tbody tr:nth-child(even):hover td{background:#253350}
-[data-tema="dark"] .login-right{background:#1e293b}
-[data-tema="dark"] .login-right-title{color:#e2e8f0}
-[data-tema="dark"] .login-field input{background:#0f172a;border-color:#334155;color:#e2e8f0}
+[data-tema="dark"] .lo-right{background:#1e293b}
+[data-tema="dark"] .lo-right-title{color:#e2e8f0}
+[data-tema="dark"] .lo-field input{background:#0f172a;border-color:#334155;color:#e2e8f0}
 
-
+/* ── NOTIFICATIONS ──────────────────── */
 .notif-dot{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--bg2)}
 #notif-panel{position:fixed;top:58px;right:16px;width:340px;max-height:480px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);z-index:500;overflow:hidden;display:none;flex-direction:column}
 .notif-item{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start;transition:background .1s}
@@ -427,159 +396,180 @@ select:focus,textarea:focus{
 .notif-item.unread{background:var(--blue-light)}
 .notif-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 
-
-/* ── SAYFA GEÇİŞ ANİMASYONU ─────────────────────────────── */
+/* ── SAYFA GEÇİŞ ANİMASYONU ─────────── */
 @keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes countUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-
 .page-enter{animation:pageIn .18s ease-out}
 .card-enter{animation:cardIn .3s cubic-bezier(.34,1.56,.64,1) both}
-
-/* Skeleton loader */
-.skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--border) 50%,var(--bg3) 75%);
-  background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
-
-/* KPI animasyonu */
+.skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--border) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
 .kpi-value{transition:all .3s ease}
-
-/* Tablo satır animasyonu */
 tbody tr{animation:pageIn .15s ease both}
-
-/* Buton ripple efekti */
 .btn{position:relative;overflow:hidden}
 .btn::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0);transition:background .15s}
 .btn:active::after{background:rgba(0,0,0,.06)}
-
-/* Nav item hover animasyonu */
 .nav-item{position:relative}
 .nav-item::after{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--sb-accent);opacity:.3;transition:width .2s;border-radius:0 4px 4px 0}
 .nav-item:hover::after{width:3px}
 .nav-item.active::after{width:3px;opacity:1}
-
-/* Badge pulse animasyonu */
 .nav-badge{animation:pulseBadge 2s infinite}
 @keyframes pulseBadge{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
-
-/* Card hover lift */
 .kpi{will-change:transform}
-
-/* Sidebar geçişi */
 .sidebar{transition:width .2s ease}
-
-/* Topbar shadow scroll */
 .topbar{transition:box-shadow .2s}
-
-
 .tt{position:relative;display:inline-flex;align-items:center;cursor:default}
-#tt-box{position:fixed;background:#0f172a;color:#f1f5f9;font-size:12px;padding:7px 12px;border-radius:8px;
-  white-space:normal;max-width:220px;text-align:center;line-height:1.5;z-index:99999;
-  pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);transition:opacity .15s;opacity:0}
-
+#tt-box{position:fixed;background:#0f172a;color:#f1f5f9;font-size:12px;padding:7px 12px;border-radius:8px;white-space:normal;max-width:220px;text-align:center;line-height:1.5;z-index:99999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.3);transition:opacity .15s;opacity:0}
 
 @media print {
-  .sidebar, .topbar, .topbar-actions, #toplu-toolbar,
-  .btn, button, select, input[type="date"], input[type="number"],
-  #notif-panel, #tt-box { display: none !important; }
-  .main { margin: 0; }
-  .content { padding: 12px; overflow: visible; }
-  .card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
-  .table-wrap { overflow: visible; max-height: none; }
-  table { width: 100%; font-size: 11px; }
-  th { background: #f1f5f9 !important; color: #334155 !important; }
-  .badge { border: 1px solid currentColor; }
-  body { background: white; color: black; }
-  @page { margin: 1.5cm; }
+  .sidebar,.topbar,.topbar-actions,#toplu-toolbar,.btn,button,select,input[type="date"],input[type="number"],#notif-panel,#tt-box{display:none !important}
+  .main{margin:0}.content{padding:12px;overflow:visible}
+  .card{break-inside:avoid;box-shadow:none;border:1px solid #ddd}
+  .table-wrap{overflow:visible;max-height:none}
+  table{width:100%;font-size:11px}
+  th{background:#f1f5f9 !important;color:#334155 !important}
+  .badge{border:1px solid currentColor}
+  body{background:white;color:black}
+  @page{margin:1.5cm}
 }
 
+/* ── LOGIN PAGE ─────────────────────── */
+#LO{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#LO-bg{position:absolute;inset:0;background:#050a14}
+#LO-bg::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(ellipse 60% 50% at 20% 50%,rgba(30,58,138,.45) 0%,transparent 60%),
+  radial-gradient(ellipse 40% 60% at 80% 30%,rgba(6,78,59,.2) 0%,transparent 50%),
+  radial-gradient(ellipse 30% 40% at 50% 80%,rgba(88,28,135,.15) 0%,transparent 50%)}
+@keyframes gridPulse{0%,100%{opacity:.03}50%{opacity:.07}}
+@keyframes floatIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes shimmerLine{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+@keyframes typeIn{from{width:0}to{width:100%}}
+.lo-wrap{display:flex;width:920px;max-width:96vw;min-height:520px;max-height:96vh;border-radius:20px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.06);position:relative;z-index:1;animation:floatIn .5s cubic-bezier(.34,1.56,.64,1)}
+.lo-left{flex:1;background:linear-gradient(160deg,#0c1a30 0%,#070e1c 50%,#0a1628 100%);padding:48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.lo-left::before{content:'';position:absolute;inset:0;background-image:
+  linear-gradient(rgba(59,130,246,.04) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(59,130,246,.04) 1px,transparent 1px);
+  background-size:40px 40px;animation:gridPulse 4s ease-in-out infinite}
+.lo-brand{position:relative;z-index:2}
+.lo-brand-icon{width:52px;height:52px;background:linear-gradient(135deg,#3b82f6 0%,#1d4ed8 50%,#7c3aed 100%);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px;box-shadow:0 8px 32px rgba(59,130,246,.35),0 0 0 1px rgba(255,255,255,.1);position:relative}
+.lo-brand-icon::after{content:'';position:absolute;inset:-3px;border-radius:17px;background:linear-gradient(135deg,rgba(59,130,246,.3),rgba(124,58,237,.2));z-index:-1;filter:blur(8px)}
+.lo-brand-name{font-size:28px;font-weight:700;color:#f1f5f9;letter-spacing:-.04em;line-height:1.1}
+.lo-brand-sub{font-size:13px;color:#94a3b8;margin-top:10px;line-height:1.7}
+.lo-brand-company{font-size:11px;color:#475569;margin-top:6px;letter-spacing:.02em}
+.lo-features{position:relative;z-index:2;display:flex;flex-direction:column;gap:12px;margin-top:auto;padding-top:32px}
+.lo-feat{display:flex;align-items:center;gap:10px;font-size:12px;color:#64748b;transition:color .2s}
+.lo-feat:hover{color:#94a3b8}
+.lo-feat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.lo-right{width:380px;background:#ffffff;padding:48px 44px;display:flex;flex-direction:column;justify-content:center;position:relative}
+.lo-right::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#3b82f6,#7c3aed,#3b82f6);background-size:200% 100%;animation:shimmerLine 3s linear infinite}
+.lo-right-title{font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-.03em;margin-bottom:2px}
+.lo-right-sub{font-size:12px;color:#94a3b8;margin-bottom:28px}
+.lo-field{margin-bottom:18px}
+.lo-field label{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:600;color:#475569;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em}
+.lo-field label svg{width:14px;height:14px;stroke:#94a3b8}
+.lo-field input{width:100%;background:#f8fafc;border:1.5px solid #e2e8f0;color:#0f172a;padding:12px 14px;border-radius:10px;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:all .2s}
+.lo-field input:focus{border-color:#3b82f6;background:#fff;box-shadow:0 0 0 4px rgba(59,130,246,.1)}
+.lo-field input::placeholder{color:#cbd5e1}
+.lo-btn{width:100%;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 50%,#1d4ed8 100%);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .25s;letter-spacing:.01em;position:relative;overflow:hidden}
+.lo-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(59,130,246,.4)}
+.lo-btn:active{transform:translateY(0);box-shadow:0 4px 12px rgba(59,130,246,.3)}
+.lo-btn::after{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.15);transition:all .4s;transform:translate(-50%,-50%)}
+.lo-btn:active::after{width:300px;height:300px}
+.lo-err{background:linear-gradient(135deg,#fef2f2,#fff1f2);border:1.5px solid #fca5a5;color:#dc2626;padding:10px 14px;border-radius:10px;font-size:12px;margin-bottom:16px;display:none;text-align:center;font-weight:500}
+.lo-pass-wrap{position:relative}
+.lo-pass-wrap input{padding-right:42px}
+.lo-pass-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:15px;padding:4px;line-height:1;transition:color .15s;border-radius:6px}
+.lo-pass-eye:hover{color:#475569;background:rgba(0,0,0,.04)}
+.lo-version{font-size:10px;color:#cbd5e1;text-align:center;margin-top:20px;letter-spacing:.02em}
+.lo-glow{position:absolute;width:200px;height:200px;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:1}
 </style>
-          </defs>
+</head>
+<body>
+<div id="LO">
+  <div id="LO-bg"></div>
+  <div class="lo-wrap">
+    <div class="lo-left">
+      <!-- Glow effects -->
+      <div class="lo-glow" style="top:-40px;left:-40px;background:rgba(59,130,246,.12)"></div>
+      <div class="lo-glow" style="bottom:-60px;right:-30px;background:rgba(124,58,237,.08)"></div>
 
-          <!-- Büyük çember halkaları -->
-          <circle class="geo-line ring1" cx="200" cy="200" r="160"/>
-          <circle class="geo-line ring2" cx="200" cy="200" r="120"/>
-          <circle class="geo-line ring3" cx="200" cy="200" r="80"/>
-
-          <!-- Izgara çizgiler -->
-          <line class="geo-line" x1="0" y1="200" x2="400" y2="200" opacity="0.4"/>
-          <line class="geo-line" x1="200" y1="0" x2="200" y2="400" opacity="0.4"/>
-          <line class="geo-line" x1="0" y1="0" x2="400" y2="400" opacity="0.2"/>
-          <line class="geo-line" x1="400" y1="0" x2="0" y2="400" opacity="0.2"/>
-
-          <!-- Dönen altıgen -->
-          <g class="ring1">
-            <polygon class="geo-hex" points="200,60 254,90 254,150 200,180 146,150 146,90"/>
-          </g>
-          <g class="ring2">
-            <polygon class="geo-hex" points="200,100 240,122 240,166 200,188 160,166 160,122"/>
-          </g>
-
-          <!-- Üçgenler -->
-          <g class="floater">
-            <polygon class="geo-tri" points="60,80 100,150 20,150"/>
-          </g>
-          <g class="floater2">
-            <polygon class="geo-tri" points="320,60 360,130 280,130"/>
-          </g>
-          <g class="floater3">
-            <polygon class="geo-tri" points="340,280 370,330 310,330"/>
-          </g>
-          <g class="floater">
-            <polygon class="geo-tri" points="30,300 70,370 -10,370"/>
-          </g>
-
-          <!-- Nokta ızgarası -->
-          <g class="pulser">
-            <circle class="geo-dot" cx="40" cy="40" r="2"/>
-            <circle class="geo-dot" cx="80" cy="40" r="1.5"/>
-            <circle class="geo-dot" cx="120" cy="40" r="2"/>
-            <circle class="geo-dot" cx="40" cy="80" r="1.5"/>
-            <circle class="geo-dot" cx="80" cy="80" r="2.5"/>
-            <circle class="geo-dot" cx="360" cy="360" r="2"/>
-            <circle class="geo-dot" cx="320" cy="360" r="1.5"/>
-            <circle class="geo-dot" cx="360" cy="320" r="2"/>
-          </g>
-          <g class="pulser2">
-            <circle class="geo-dot" cx="360" cy="40" r="2"/>
-            <circle class="geo-dot" cx="320" cy="40" r="1.5"/>
-            <circle class="geo-dot" cx="360" cy="80" r="2"/>
-            <circle class="geo-dot" cx="40" cy="360" r="2"/>
-            <circle class="geo-dot" cx="80" cy="360" r="1.5"/>
-            <circle class="geo-dot" cx="40" cy="320" r="2"/>
-          </g>
-
-          <!-- Merkez ışıltı -->
-          <circle cx="200" cy="200" r="6" fill="rgba(59,130,246,0.6)" class="pulser"/>
-          <circle cx="200" cy="200" r="3" fill="rgba(255,255,255,0.8)"/>
-
-          <!-- Bağlantı çizgileri -->
-          <line class="geo-line" x1="60" y1="80" x2="200" y2="200" opacity="0.3"/>
-          <line class="geo-line" x1="340" y1="280" x2="200" y2="200" opacity="0.3"/>
-          <line class="geo-line" x1="320" y1="60" x2="200" y2="200" opacity="0.2"/>
-          <line class="geo-line" x1="40" y1="300" x2="200" y2="200" opacity="0.2"/>
-        </svg>
+      <div class="lo-brand">
+        <div class="lo-brand-icon">🛠</div>
+        <div class="lo-brand-name">StokTakip</div>
+        <div class="lo-brand-sub">Yedek Parça Yönetim Sistemi</div>
+        <div class="lo-brand-company">Biofarma İlaç San. ve Tic. A.Ş.</div>
       </div>
+
+      <div class="lo-features">
+        <div class="lo-feat"><div class="lo-feat-dot" style="background:#3b82f6"></div>Gerçek zamanlı stok takibi ve ABC analizi</div>
+        <div class="lo-feat"><div class="lo-feat-dot" style="background:#10b981"></div>EOQ hesaplama ve otomatik sipariş noktası</div>
+        <div class="lo-feat"><div class="lo-feat-dot" style="background:#f59e0b"></div>Ekipman bazlı yedek parça haritası</div>
+        <div class="lo-feat"><div class="lo-feat-dot" style="background:#8b5cf6"></div>Tedarikçi performans ve maliyet analizi</div>
+      </div>
+
+      <!-- Background grid SVG -->
+      <svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.5" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <style>
+            .gl{stroke:rgba(59,130,246,.1);stroke-width:.5;fill:none}
+            .gd{fill:rgba(59,130,246,.2)}
+            @keyframes rs{from{transform-origin:200px 200px;transform:rotate(0deg)}to{transform-origin:200px 200px;transform:rotate(360deg)}}
+            @keyframes rr{from{transform-origin:200px 200px;transform:rotate(360deg)}to{transform-origin:200px 200px;transform:rotate(0deg)}}
+            @keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+            @keyframes pl{0%,100%{opacity:.2}50%{opacity:.6}}
+            .r1{animation:rs 35s linear infinite}
+            .r2{animation:rr 25s linear infinite}
+            .f1{animation:fl 5s ease-in-out infinite}
+            .f2{animation:fl 7s ease-in-out 1.5s infinite}
+            .p1{animation:pl 3s ease-in-out infinite}
+          </style>
+        </defs>
+        <circle class="gl r1" cx="200" cy="200" r="160"/>
+        <circle class="gl r2" cx="200" cy="200" r="110"/>
+        <circle class="gl r1" cx="200" cy="200" r="60"/>
+        <g class="r1"><polygon class="gl" points="200,60 254,90 254,150 200,180 146,150 146,90"/></g>
+        <g class="f1"><polygon class="gl" style="fill:rgba(59,130,246,.02)" points="60,80 100,140 20,140"/></g>
+        <g class="f2"><polygon class="gl" style="fill:rgba(16,185,129,.02)" points="320,70 350,120 290,120"/></g>
+        <g class="p1">
+          <circle class="gd" cx="40" cy="40" r="2"/><circle class="gd" cx="360" cy="360" r="2"/>
+          <circle class="gd" cx="80" cy="80" r="1.5"/><circle class="gd" cx="320" cy="320" r="1.5"/>
+          <circle class="gd" cx="360" cy="40" r="1.5"/><circle class="gd" cx="40" cy="360" r="1.5"/>
+        </g>
+        <circle cx="200" cy="200" r="4" fill="rgba(59,130,246,.4)" class="p1"/>
+        <circle cx="200" cy="200" r="2" fill="rgba(255,255,255,.6)"/>
+        <line class="gl" x1="60" y1="80" x2="200" y2="200" opacity=".3"/>
+        <line class="gl" x1="320" y1="70" x2="200" y2="200" opacity=".2"/>
+      </svg>
     </div>
-    <div class="login-right">
-      <div class="login-right-title">Hoş geldiniz</div>
-      <div class="login-right-sub">Devam etmek için giriş yapın</div>
-      <div class="login-err" id="LE">Kullanıcı adı veya şifre hatalı</div>
-      <div class="login-field">
-        <label>Kullanıcı Adı</label>
-        <input id="LU" type="text" name="username" autocomplete="username" list="user-list" placeholder="Kullanıcı adınız">
+
+    <div class="lo-right">
+      <div style="margin-bottom:6px">
+        <div class="lo-right-title">Hoş geldiniz</div>
+        <div class="lo-right-sub">Sisteme erişmek için giriş yapın</div>
+      </div>
+      <div class="lo-err" id="LE">
+        <span style="margin-right:6px">⚠</span>Kullanıcı adı veya şifre hatalı
+      </div>
+      <div class="lo-field">
+        <label>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Kullanıcı Adı
+        </label>
+        <input id="LU" type="text" name="username" autocomplete="username" list="user-list" placeholder="Kullanıcı adınızı girin">
         <datalist id="user-list"><option value="Teknik"><option value="Operatör"></datalist>
       </div>
-      <div class="login-field">
-        <label>Şifre</label>
-        <div class="pass-wrap">
+      <div class="lo-field">
+        <label>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Şifre
+        </label>
+        <div class="lo-pass-wrap">
           <input id="LP" type="password" placeholder="••••••••">
-          <button type="button" class="pass-eye" onclick="var x=document.getElementById('LP');var show=x.type==='password';x.type=show?'text':'password';this.innerHTML=show?'<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><path d=\'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24\'></path><line x1=\'1\' y1=\'1\' x2=\'23\' y2=\'23\'></line></svg>':'<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\'><path d=\'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\'></path><circle cx=\'12\' cy=\'12\' r=\'3\'></circle></svg>'">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-    </button>
+          <button type="button" class="lo-pass-eye" onclick="var x=document.getElementById('LP');var show=x.type==='password';x.type=show?'text':'password';this.textContent=show?'🙈':'👁'">👁</button>
         </div>
       </div>
-      <button class="login-btn" onclick="LF()">Giriş Yap →</button>
+      <button class="lo-btn" onclick="LF()">Giriş Yap →</button>
+      <div class="lo-version">StokTakip v2.0 · Biofarma Bakım Mühendisliği</div>
     </div>
   </div>
 </div>
